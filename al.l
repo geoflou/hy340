@@ -124,7 +124,6 @@ COMMENT_1           //
 {WHILE} {alphaListInsert(yylineno, yytext, "WHILE");}
 {WHITE_SPACE}   {}
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
-
 %%
 
 int main(int argc, char* argv[]){
