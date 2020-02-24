@@ -121,8 +121,9 @@ DOUBLE_DOT          ".."
 COMMENT_1           //
 %%
 
-{WHILE} {alphaListInsert(yylineno, yytext, "WHILE");}
+{WHILE} {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
 {WHITE_SPACE}   {}
+{NEWLINE}       {}
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
 
 %%
