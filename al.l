@@ -42,7 +42,18 @@ OPERATOR_GRE    >=
 OPERATOR_LEE    <=
 INTEGER         [][0-9]{1,}
 REAL            [0-9]*\.?[0-9]{1,}
-
+LEFT_BRACKET        {
+RIGHT_BRACKET       }
+LEFT_PARENTHESIS    (
+RIGHT_PARENTHESIS   )
+LEFT_BRACE          [
+RIGHT_BRACE         ]
+SEMICOLON           ;
+COMMA               ,
+COLON               :
+DOUBLE_COLON        ::
+DOT                 .
+DOUBLE_DOT          ..
 %%
 
 
