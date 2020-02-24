@@ -7,10 +7,10 @@
 %option yylineno
 %option noyywrap
 
-id              [a-zA-Z][a-zA-Z_0-9]*
-space           [\r \t]
-newline         \n
-string          "[a-z A-Z 0-9 \ ^  \n \t \\]*"
+ID              [a-zA-Z][a-zA-Z_0-9]*
+WHITE_SPACE           [\r \t]
+NEWLINE         \n
+STRING          "[a-z A-Z 0-9 \ ^  \n \t \\]*"
 IF              if
 ELSE            else
 WHILE           while
@@ -30,7 +30,7 @@ OPERATOR_PLUS   +
 OPERATOR_MINUS  -
 OPERATOR_MUL    *
 OPERATOR_DIV    /
-OPERATOR_ASSIGN     =
+OPERATOR_ASSIGN =
 OPERATOR_MOD    %
 OPERATOR_EQ     ==
 OPERATOR_NOT    !=
@@ -40,7 +40,8 @@ OPERATOR_GRT    >
 OPERATOR_LES    <
 OPERATOR_GRE    >=
 OPERATOR_LEE    <=
-
+INTEGER         [][0-9]{1,}
+REAL            [0-9]*\.?[0-9]{1,}
 LEFT_BRACKET        {
 RIGHT_BRACKET       }
 LEFT_PARENTHESIS    (
@@ -54,9 +55,7 @@ DOUBLE_COLON        ::
 DOT                 .
 DOUBLE_DOT          ..
 
-
 COMMENT_1           //
-
 %%
 
 
