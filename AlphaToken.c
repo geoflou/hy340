@@ -46,15 +46,9 @@ void printAlphaList(){
     return;
 }
 
-void ReadFromFile(FILE *param){
-param=fopen("test.txt","w+");
+void ReadFromFile(char* filename){
+FILE* param = fopen(filename,"w+");
 fprintf(param,"Kalhmera");
 fclose(param);
 
-}
-int main(){
-    
-    
-    ReadFromFile("test.txt");
-    return 0;
 }

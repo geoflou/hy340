@@ -61,3 +61,19 @@ COMMENT_1           //
 
 %%
 
+int main(int argc, char* argv[]){
+    
+    if(argc < 2){
+        printf("No input file!\n");
+        return -1;
+    }
+
+    if(!(yyin = fopen(argv[1], "r"))){
+        printf("Cannot read file!\n");
+        return -1;
+    }
+
+    yylex();
+
+    return 0;    
+}
