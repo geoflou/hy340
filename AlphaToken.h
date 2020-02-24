@@ -18,3 +18,5 @@ void alphaListInsert(int line, char* value, char* type);
 
 void printAlphaList();
 
+void ReadFromFile(FILE *param);
+
