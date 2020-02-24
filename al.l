@@ -40,6 +40,20 @@ OPERATOR_GRT    >
 OPERATOR_LES    <
 OPERATOR_GRE    >=
 OPERATOR_LEE    <=
+
+LEFT_BRACKET        {
+RIGHT_BRACKET       }
+LEFT_PARENTHESIS    (
+RIGHT_PARENTHESIS   )
+LEFT_BRACE          [
+RIGHT_BRACE         ]
+SEMICOLON           ;
+COMMA               ,
+COLON               :
+DOUBLE_COLON        ::
+DOT                 .
+DOUBLE_DOT          ..
+
 %%
 
 
