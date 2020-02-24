@@ -1,9 +1,7 @@
-%option yylineno
-%option noyywrap
-
 %{
     #include <assert.h>
     #include <stdlib.h>
+    #include <string.h>
     #include <stdio.h>
 
     struct AlphaToken{
@@ -17,10 +15,10 @@
     };
     
     struct AlphaToken * tokenListHead = NULL;
+
     
     void alphaListInsert(int line, char* value, char* type){
         struct AlphaToken* newToken, *tmp;
-        printf("%d, %s",yyleng, value);
 
         assert(value != NULL);
         assert(type != NULL);
@@ -28,7 +26,7 @@
 
         newToken = (struct AlphaToken *) malloc(sizeof(struct AlphaToken));
         newToken -> line = line;
-        newToken -> value = value;
+        newToken -> value = strdup(value);
         newToken -> type = type;
         newToken -> next = NULL;
 
@@ -68,58 +66,64 @@
 
 %}
 
+
+%option yylineno
+%option noyywrap
+
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
 STRING          "[a-z A-Z 0-9 \ ^  \n \t \\]*"
-IF              if
-ELSE            else
-WHILE           while
-FOR             for
-FUNCTION        function
-RETURN          return
-BREAK           break
-CONTINUE        continue
-AND             and
-NOT             not
-OR              or
-LOCAL           local
-TRUE            true
-FALSE           false
-NIL             nil
-OPERATOR_PLUS   +
-OPERATOR_MINUS  -
-OPERATOR_MUL    *
-OPERATOR_DIV    /
-OPERATOR_ASSIGN =
-OPERATOR_MOD    %
-OPERATOR_EQ     ==
-OPERATOR_NOT    !=
-OPERATOR_PP     ++
-OPERATOR_MM     --
-OPERATOR_GRT    >
-OPERATOR_LES    <
-OPERATOR_GRE    >=
-OPERATOR_LEE    <=
+IF              "if"
+ELSE            "else"
+WHILE           "while"
+FOR             "for"
+FUNCTION        "function"
+RETURN          "return"
+BREAK           "break"
+CONTINUE        "continue"
+AND             "and"
+NOT             "not"
+OR              "or"
+LOCAL           "local"
+TRUE            "true"
+FALSE           "false"
+NIL             "nil"
+OPERATOR_PLUS   "+"
+OPERATOR_MINUS  "-"
+OPERATOR_MUL    "*"
+OPERATOR_DIV    "/"
+OPERATOR_ASSIGN "="
+OPERATOR_MOD    "%"
+OPERATOR_EQ     "=="
+OPERATOR_NOT    "!="
+OPERATOR_PP     "++"
+OPERATOR_MM     "--"
+OPERATOR_GRT    ">"
+OPERATOR_LES    "<"
+OPERATOR_GRE    ">="
+OPERATOR_LEE    "<="
 INTEGER         [][0-9]{1,}
 REAL            [0-9]*\.?[0-9]{1,}
-LEFT_BRACKET        {
-RIGHT_BRACKET       }
-LEFT_PARENTHESIS    (
-RIGHT_PARENTHESIS   )
-LEFT_BRACE          [
-RIGHT_BRACE         ]
-SEMICOLON           ;
-COMMA               ,
-COLON               :
-DOUBLE_COLON        ::
-DOT                 \.
-DOUBLE_DOT          ..
+LEFT_BRACKET        "{"
+RIGHT_BRACKET       "}"
+LEFT_PARENTHESIS    "("
+RIGHT_PARENTHESIS   ")"
+LEFT_BRACE          "["
+RIGHT_BRACE         "]"
+SEMICOLON           ";"
+COMMA               ","
+COLON               ":"
+DOUBLE_COLON        "::"
+DOT                 "."
+DOUBLE_DOT          ".."
 
 COMMENT_1           //
 %%
 
-{DOT} {alphaListInsert(yylineno, yytext, "DOT");}
+{WHILE} {alphaListInsert(yylineno, yytext, "WHILE");}
+{WHITE_SPACE}   {}
+{ID}    {alphaListInsert(yylineno, yytext, "ID");}
 
 %%
 
