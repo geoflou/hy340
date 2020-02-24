@@ -38,7 +38,7 @@ void printAlphaList(){
     }
 
     while(tmp != NULL){
-        printf("%d:\t #%d \t \"%s\" \t %s\n", tokenCount, tmp->line, tmp -> value, tmp-> type);
+        printf("%d:  #%d \t \"%s\" \t %s\n", tokenCount, tmp->line, tmp -> value, tmp-> type);
         tokenCount++;
         tmp = tmp -> next;
     }

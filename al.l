@@ -1,11 +1,12 @@
 %{
-    #include "<AlphaToken.h"
+    #include "AlphaToken.h"
 
 %}
 
 
 %option yylineno
 %option noyywrap
+
 id              [a-zA-Z][a-zA-Z_0-9]*
 space           [\r \t]
 newline         \n
