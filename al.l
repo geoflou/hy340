@@ -54,6 +54,8 @@ COLON               :
 DOUBLE_COLON        ::
 DOT                 .
 DOUBLE_DOT          ..
+
+COMMENT_1           //
 %%
 
 
