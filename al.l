@@ -120,9 +120,12 @@ DOUBLE_DOT          ".."
 
 COMMENT_1           "//\*.*\n.*\*\//g"
 COMMENT_2           "//".*
+COMMENT_3           "/*"(\n|[^(*/)])*"*/"
 %%
-{COMMENT_1}     {alphaListInsert(yylineno,yytext,"COMMENT");}
-{COMMENT_2}     {alphaListInsert(yylineno,yytext,"COMMENT");}
+{COMMENT_1}           {alphaListInsert(yylineno,yytext,"COMMENT");}
+{COMMENT_2}           {alphaListInsert(yylineno,yytext,"COMMENT");}
+{COMMENT_3}           {alphaListInsert(yylineno,yytext,"COMMENT");}
+
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
 {SEMICOLON}           {alphaListInsert(yylineno,yytext,"SEMICOLON");}
@@ -131,39 +134,39 @@ COMMENT_2           "//".*
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING} {alphaListInsert(yylineno,yytext,"STRING");}
-{IF} {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
-{ELSE} {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
-{WHILE} {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
-{FOR} {alphaListInsert(yylineno, yytext, "FOR_KEYWORD");}
-{FUNCTION} {alphaListInsert(yylineno, yytext, "FUNCTION_KEYWORD");}
-{RETURN} {alphaListInsert(yylineno, yytext, "RETURN_KEYWORD");}
-{BREAK} {alphaListInsert(yylineno, yytext, "BREAK_KEYWORD");}
-{CONTINUE} {alphaListInsert(yylineno, yytext, "CONTINUE_KEYWORD");}
-{AND} {alphaListInsert(yylineno, yytext, "AND_KEYWORD");}
-{OR} {alphaListInsert(yylineno, yytext, "OR_KEYWORD");}
-{LOCAL} {alphaListInsert(yylineno, yytext, "LOCAL_KEYWORD");}
-{TRUE} {alphaListInsert(yylineno, yytext, "TRUE_KEYWORD");}
-{FALSE} {alphaListInsert(yylineno, yytext, "FALSE_KEYWORD");}
-{NIL} {alphaListInsert(yylineno, yytext, "NIL_KEYWORD");}
-{WHITE_SPACE}   {}
-{NEWLINE}       {}
-{OPERATOR_PLUS} {alphaListInsert(yylineno,yytext,"PLUS");}
-{OPERATOR_MINUS} {alphaListInsert(yylineno,yytext,"MINUS");}
-{OPERATOR_MUL} {alphaListInsert(yylineno,yytext,"MULTIPLICATION");}
-{OPERATOR_DIV} {alphaListInsert(yylineno,yytext,"DIVISION");}
-{OPERATOR_ASSIGN} {alphaListInsert(yylineno,yytext,"ASSIGNMENT");}
-{OPERATOR_MOD} {alphaListInsert(yylineno,yytext,"MODULO");}
-{OPERATOR_EQ} {alphaListInsert(yylineno,yytext,"EQUAL");}
-{OPERATOR_NOT} {alphaListInsert(yylineno,yytext,"NOT");}
-{OPERATOR_PP} {alphaListInsert(yylineno,yytext,"INCREMENT");}
-{OPERATOR_MM} {alphaListInsert(yylineno,yytext,"DECREMENT");}
-{OPERATOR_GRT} {alphaListInsert(yylineno,yytext,"GREATER");}
-{OPERATOR_LES} {alphaListInsert(yylineno,yytext,"LESSER");}
-{OPERATOR_GRE} {alphaListInsert(yylineno,yytext,"GREATER EQUAL");}
-{OPERATOR_LEE} {alphaListInsert(yylineno,yytext,"LESSER EQUAL");}
-{INTEGER} {alphaListInsert(yylineno,yytext,"INT");}
-{REAL} {alphaListInsert(yylineno,yytext,"REAL");}
+{STRING}              {alphaListInsert(yylineno,yytext,"STRING");}
+{IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
+{ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
+{WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
+{FOR}                 {alphaListInsert(yylineno, yytext, "FOR_KEYWORD");}
+{FUNCTION}            {alphaListInsert(yylineno, yytext, "FUNCTION_KEYWORD");}
+{RETURN}              {alphaListInsert(yylineno, yytext, "RETURN_KEYWORD");}
+{BREAK}               {alphaListInsert(yylineno, yytext, "BREAK_KEYWORD");}
+{CONTINUE}            {alphaListInsert(yylineno, yytext, "CONTINUE_KEYWORD");}
+{AND}                 {alphaListInsert(yylineno, yytext, "AND_KEYWORD");}
+{OR}                  {alphaListInsert(yylineno, yytext, "OR_KEYWORD");}
+{LOCAL}               {alphaListInsert(yylineno, yytext, "LOCAL_KEYWORD");}
+{TRUE}                {alphaListInsert(yylineno, yytext, "TRUE_KEYWORD");}
+{FALSE}               {alphaListInsert(yylineno, yytext, "FALSE_KEYWORD");}
+{NIL}                 {alphaListInsert(yylineno, yytext, "NIL_KEYWORD");}
+{WHITE_SPACE}         {}
+{NEWLINE}             {}
+{OPERATOR_PLUS}       {alphaListInsert(yylineno,yytext,"PLUS");}
+{OPERATOR_MINUS}      {alphaListInsert(yylineno,yytext,"MINUS");}
+{OPERATOR_MUL}        {alphaListInsert(yylineno,yytext,"MULTIPLICATION");}
+{OPERATOR_DIV}        {alphaListInsert(yylineno,yytext,"DIVISION");}
+{OPERATOR_ASSIGN}     {alphaListInsert(yylineno,yytext,"ASSIGNMENT");}
+{OPERATOR_MOD}        {alphaListInsert(yylineno,yytext,"MODULO");}
+{OPERATOR_EQ}         {alphaListInsert(yylineno,yytext,"EQUAL");}
+{OPERATOR_NOT}        {alphaListInsert(yylineno,yytext,"NOT");}
+{OPERATOR_PP}         {alphaListInsert(yylineno,yytext,"INCREMENT");}
+{OPERATOR_MM}         {alphaListInsert(yylineno,yytext,"DECREMENT");}
+{OPERATOR_GRT}        {alphaListInsert(yylineno,yytext,"GREATER");}
+{OPERATOR_LES}        {alphaListInsert(yylineno,yytext,"LESSER");}
+{OPERATOR_GRE}        {alphaListInsert(yylineno,yytext,"GREATER EQUAL");}
+{OPERATOR_LEE}        {alphaListInsert(yylineno,yytext,"LESSER EQUAL");}
+{INTEGER}             {alphaListInsert(yylineno,yytext,"INT");}
+{REAL}                {alphaListInsert(yylineno,yytext,"REAL");}
 {LEFT_BRACKET}        {alphaListInsert(yylineno,yytext,"LEFT_BRACKET");}
 {RIGHT_BRACKET}       {alphaListInsert(yylineno,yytext,"RIGHT_BRACKET");}
 {LEFT_PARENTHESIS}    {alphaListInsert(yylineno,yytext,"LEFT_PARENTHESIS");}
