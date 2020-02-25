@@ -118,8 +118,11 @@ DOUBLE_COLON        "::"
 DOT                 "."
 DOUBLE_DOT          ".."
 
-COMMENT_1           "//."
+COMMENT_1           "//\*.*\n.*\*\//g"
+COMMENT_2           "//".*
 %%
+{COMMENT_1}     {alphaListInsert(yylineno,yytext,"COMMENT");}
+{COMMENT_2}     {alphaListInsert(yylineno,yytext,"COMMENT");}
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
 {SEMICOLON}           {alphaListInsert(yylineno,yytext,"SEMICOLON");}
@@ -166,9 +169,10 @@ COMMENT_1           "//."
 {LEFT_PARENTHESIS}    {alphaListInsert(yylineno,yytext,"LEFT_PARENTHESIS");}
 {RIGHT_PARENTHESIS}   {alphaListInsert(yylineno,yytext,"RIGHT_PARENTHESIS");}
 
-{COMMENT_1}     {alphaListInsert(yylineno,yytext,"COMMENT");}
+
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
+
 %%
 
 int main(int argc, char* argv[]){
