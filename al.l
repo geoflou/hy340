@@ -73,7 +73,7 @@
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
-STRING          "[a-z A-Z 0-9 \ ^  \n \t \\]*"
+STRING          \"[^\n"]*\"
 IF              "if"
 ELSE            "else"
 WHILE           "while"
@@ -128,7 +128,6 @@ COMMENT_1           "//."
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-
 {STRING} {alphaListInsert(yylineno,yytext,"STRING");}
 {IF} {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE} {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
