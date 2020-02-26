@@ -91,6 +91,12 @@
                     j++;
                     continue;
                 }
+                if(index == '\\'){
+                    fixedString[j] = '\\';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
             }
 
             fixedString[j] = index;
