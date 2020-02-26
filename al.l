@@ -85,6 +85,12 @@
                     j++;
                     continue;
                 }
+                if(index == 'n'){
+                    fixedString[j] = '\n';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
             }
 
             fixedString[j] = index;
