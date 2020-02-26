@@ -64,6 +64,49 @@
         return;
     }
 
+
+    void parseString(int line, char* str){
+        char index;
+        char* fixedString = (char*)malloc(yyleng*sizeof(char));
+        int i = 0, next;
+        int j = 0;
+        int length = yyleng;
+
+        assert(str != NULL);
+
+        while(i < length){
+            index = str[i];
+            if(index == '\\'){
+                next = i+1;
+                index = str[next];
+                if(index == 't'){
+                    fixedString[j] = '\t';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
+                if(index == 'n'){
+                    fixedString[j] = '\n';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
+                if(index == '\\'){
+                    fixedString[j] = '\\';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
+            }
+
+            fixedString[j] = index;
+            j++;
+            i++;
+        }
+
+        alphaListInsert(line, fixedString, "STRING");
+    }
+
 %}
 
 
@@ -118,14 +161,16 @@ DOUBLE_COLON        "::"
 DOT                 "."
 DOUBLE_DOT          ".."
 
-COMMENT_1           "//".*
-COMMENT_2           "/*"(\n|[^(*/)])*"*/"
-COMMENT_3           "/*"(\n|[^(*/)])*|COMMENT_2*"*/"
+SINGLE_COMMENT      "//"[^(/*)(*/)]*
+MULTI_COMMENT       "/*"(\n|[^(*/)])*"*/"
+NESTED_COMMENT      ("/*"(\n|[^(*/)])*|MULTI_COMMENT*"*/")*
+END_COMMENT         "*/"
 
 %%
-{COMMENT_1}           {alphaListInsert(yylineno, yytext, "COMMENT1");}
-{COMMENT_2}           {alphaListInsert(yylineno, yytext, "COMMENT2");}
-{COMMENT_3}           {alphaListInsert(yylineno, yytext, "COMMENT3");}
+{SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
+{NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
+{END_COMMENT}         {alphaListInsert(yylineno, yytext, "COMMENT_END");}
 
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
@@ -136,7 +181,7 @@ COMMENT_3           "/*"(\n|[^(*/)])*|COMMENT_2*"*/"
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {alphaListInsert(yylineno,yytext,"STRING");}
+{STRING}              {parseString(yylineno, yytext);}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
