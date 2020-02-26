@@ -64,6 +64,49 @@
         return;
     }
 
+
+    void parseString(int line, char* str){
+        char index;
+        char* fixedString = (char*)malloc(yyleng*sizeof(char));
+        int i = 0, next;
+        int j = 0;
+        int length = yyleng;
+
+        assert(str != NULL);
+
+        while(i < length){
+            index = str[i];
+            if(index == '\\'){
+                next = i+1;
+                index = str[next];
+                if(index == 't'){
+                    fixedString[j] = '\t';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
+                if(index == 'n'){
+                    fixedString[j] = '\n';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
+                if(index == '\\'){
+                    fixedString[j] = '\\';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
+            }
+
+            fixedString[j] = index;
+            j++;
+            i++;
+        }
+
+        alphaListInsert(line, fixedString, "STRING");
+    }
+
 %}
 
 
@@ -136,7 +179,7 @@ NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {alphaListInsert(yylineno,yytext,"STRING");}
+{STRING}              {parseString(yylineno, yytext);}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
