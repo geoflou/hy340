@@ -175,7 +175,7 @@ END_COMMENT         "*/"
 UNKNOWN_TOKEN       .
 %%
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
 {NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
 {END_COMMENT}         {alphaListInsert(yylineno, yytext, "COMMENT_END");}
 
