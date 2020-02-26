@@ -97,6 +97,12 @@
                     j++;
                     continue;
                 }
+                if(index == '\"'){
+                    fixedString[j] = '\"';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
             }
 
             fixedString[j] = index;
@@ -166,9 +172,10 @@ MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
 NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
 /*to nested 8elei ki allo testing*/
 
+UNKNOWN_TOKEN       .
 %%
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
 {NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
@@ -220,6 +227,8 @@ NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
 
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
+
+{UNKNOWN_TOKEN} {alphaListInsert(yylineno, yytext, "UNKNOWN_TOKEN");}
 
 %%
 
