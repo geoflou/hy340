@@ -118,14 +118,16 @@ DOUBLE_COLON        "::"
 DOT                 "."
 DOUBLE_DOT          ".."
 
-COMMENT_1           "//".*
-COMMENT_2           "/*"(\n|[^(*/)])*"*/"
-COMMENT_3           "/*"(\n|[^(*/)])*|COMMENT_2*"*/"
+SINGLE_COMMENT      "//"[^(/*)(*/)]*
+MULTI_COMMENT       "/*"(\n|[^(*/)])*"*/"
+NESTED_COMMENT      ("/*"(\n|[^(*/)])*|MULTI_COMMENT*"*/")*
+END_COMMENT         "*/"
 
 %%
-{COMMENT_1}           {alphaListInsert(yylineno, yytext, "COMMENT1");}
-{COMMENT_2}           {alphaListInsert(yylineno, yytext, "COMMENT2");}
-{COMMENT_3}           {alphaListInsert(yylineno, yytext, "COMMENT3");}
+{SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
+{NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
+{END_COMMENT}         {alphaListInsert(yylineno, yytext, "COMMENT_END");}
 
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
