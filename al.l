@@ -97,6 +97,12 @@
                     j++;
                     continue;
                 }
+                if(index == '\"'){
+                    fixedString[j] = '\"';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
             }
 
             fixedString[j] = index;
@@ -166,6 +172,7 @@ MULTI_COMMENT       "/*"(\n|[^(*/)])*"*/"
 NESTED_COMMENT      ("/*"(\n|[^(*/)])*|MULTI_COMMENT*"*/")*
 END_COMMENT         "*/"
 
+UNKNOWN_TOKEN       .
 %%
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
 {MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
@@ -222,6 +229,8 @@ END_COMMENT         "*/"
 
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
+
+{UNKNOWN_TOKEN} {alphaListInsert(yylineno, yytext, "UNKNOWN_TOKEN");}
 
 %%
 
