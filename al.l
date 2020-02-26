@@ -112,7 +112,9 @@
 
         alphaListInsert(line, fixedString, "STRING");
     }
-
+      void commentCheck(int line,char *text){
+       
+    }
 %}
 
 
@@ -169,14 +171,58 @@ DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
 MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
+NESTED_COMMENT      "/*"((\n|"/*"|[^(*/)])*"*/")((\n|[^(*/)])*"*/")*
 /*to nested 8elei ki allo testing*/
 
 UNKNOWN_TOKEN       .
 %%
-{SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
-{NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
+
+{SINGLE_COMMENT}      {alphaListInsert(yylineno, "", "SINGLE_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, "", "MULTI_LINE_COMMENT");}
+{NESTED_COMMENT}      { int openCounter=1;
+                        int closeCounter=0;
+                        char tmp;
+                        int y;
+            while((tmp=input())!=EOF){
+                y=openCounter-closeCounter;
+                
+            if(y==0){
+                alphaListInsert(yylineno,"","NESTED_COMMENT");
+                break;
+            }
+           
+                if(tmp=='/'){
+                    tmp=input();
+                    if(tmp=='*'){
+                        openCounter++;
+                    }
+                    else{
+                    unput(tmp);
+                }
+
+                }
+                 else if(tmp=='*'){
+                    tmp=input();
+                    if(tmp=='/'){
+                        closeCounter++;
+                    }
+                      else{
+                    unput(tmp);
+                }
+                }
+                 
+                 else if(y<0){
+                printf("ERROR: more close comment tokens than open comment tokens\n");
+                break;
+            }
+            else if (y>0){
+                printf("ERROR: more open comment tokens than close comment tokens\n");
+               break; 
+            }
+            }
+              
+            
+            }
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
