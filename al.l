@@ -120,8 +120,8 @@ DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
 MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"
-/*to nested den einai swsto akoma*/
+NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
+/*to nested 8elei ki allo testing*/
 
 %%
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
