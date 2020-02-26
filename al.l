@@ -64,6 +64,22 @@
         return;
     }
 
+
+    void parseString(int line, char* str){
+        char* index;
+        char* fixedString;
+        int i = 0;
+        int length = yyleng;
+
+        assert(str != NULL);
+
+        while(i < length){
+            index = str[i];
+            if(index == '\')
+                printf("se tsakosa\n");
+        }
+    }
+
 %}
 
 
@@ -134,7 +150,7 @@ COMMENT_3           "/*"(\n|[^(*/)])*"*/"
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {alphaListInsert(yylineno,yytext,"STRING");}
+{STRING}              {parseString(yylineno, yytext);}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
