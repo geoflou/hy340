@@ -66,7 +66,7 @@
 
 
     void parseString(int line, char* str){
-        char* index;
+        char index;
         char* fixedString;
         int i = 0;
         int length = yyleng;
@@ -75,8 +75,10 @@
 
         while(i < length){
             index = str[i];
-            if(index == '\')
+            if(index == '\\')
                 printf("se tsakosa\n");
+                break;
+            i++;
         }
     }
 
@@ -89,7 +91,7 @@
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
-STRING          \"[^\n"]*\"
+STRING          \"[^\n" | (\\\")]*\"
 IF              "if"
 ELSE            "else"
 WHILE           "while"
@@ -150,7 +152,7 @@ COMMENT_3           "/*"(\n|[^(*/)])*"*/"
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {parseString(yylineno, yytext);}
+{STRING}              {alphaListInsert(yylineno, yytext, "STRING");}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
