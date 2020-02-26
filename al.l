@@ -67,8 +67,9 @@
 
     void parseString(int line, char* str){
         char index;
-        char* fixedString;
+        char* fixedString = (char*)malloc(yyleng*sizeof(char));
         int i = 0, next;
+        int j = 0;
         int length = yyleng;
 
         assert(str != NULL);
@@ -78,10 +79,20 @@
             if(index == '\\'){
                 next = i+1;
                 index = str[next];
-                
+                if(index == 't'){
+                    fixedString[j] = '\t';
+                    i = i+2;
+                    j++;
+                    continue;
+                }
             }
+
+            fixedString[j] = index;
+            j++;
             i++;
         }
+
+        alphaListInsert(line, fixedString, "STRING");
     }
 
 %}
