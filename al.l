@@ -65,53 +65,7 @@
     }
 
 
-    void parseString(int line, char* str){
-        char index;
-        char* fixedString = (char*)malloc(yyleng*sizeof(char));
-        int i = 0, next;
-        int j = 0;
-        int length = yyleng;
 
-        assert(str != NULL);
-
-        while(i < length){
-            index = str[i];
-            if(index == '\\'){
-                next = i+1;
-                index = str[next];
-                if(index == 't'){
-                    fixedString[j] = '\t';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == 'n'){
-                    fixedString[j] = '\n';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == '\\'){
-                    fixedString[j] = '\\';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == '\"'){
-                    fixedString[j] = '\"';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-            }
-
-            fixedString[j] = index;
-            j++;
-            i++;
-        }
-
-        alphaListInsert(line, fixedString, "STRING");
-    }
       void commentCheck(int line,char *text){
        
     }
@@ -124,7 +78,7 @@
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
-STRING          \"[^\n"]*\"
+STRING          \"
 IF              "if"
 ELSE            "else"
 WHILE           "while"
@@ -232,7 +186,6 @@ UNKNOWN_TOKEN       .
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {parseString(yylineno, yytext);}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
@@ -270,7 +223,77 @@ UNKNOWN_TOKEN       .
 {LEFT_PARENTHESIS}    {alphaListInsert(yylineno,yytext,"LEFT_PARENTHESIS");}
 {RIGHT_PARENTHESIS}   {alphaListInsert(yylineno,yytext,"RIGHT_PARENTHESIS");}
 
+{STRING}              {
+            char charIndex = '\"';
+            char previousIndex;
+            int index = 0;
+            int line = yylineno;
+            int closingQuoteFlag = 1;
+            char * fixedString =(char*) malloc(1024*sizeof(char*));
 
+            *(fixedString + index) = charIndex;
+            index++;
+
+            charIndex = input();
+            while(charIndex != EOF){
+
+                if(charIndex == '\\'){
+                    previousIndex = charIndex;
+                    charIndex = input();
+
+                    if(charIndex == 'n'){
+                        *(fixedString + index) = '\n';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    if(charIndex == 't'){
+                        *(fixedString + index) = '\t';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    
+                    if(charIndex == '\"'){
+                        *(fixedString + index) = '\"';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    if(charIndex == '\\'){
+                        *(fixedString + index) = '\\';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                }
+
+
+                if(charIndex == '\"'){
+                    *(fixedString + index) = charIndex;
+                    closingQuoteFlag = 0;
+                    break;
+                }
+
+
+                *(fixedString + index) = charIndex;
+
+
+                index++;
+                charIndex = input();
+            }
+
+            if(closingQuoteFlag == 0){
+                alphaListInsert(line, fixedString, "STRING");
+            }
+            else{
+                alphaListInsert(line,"String never closes", "ERROR");
+            }
+}
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
 
