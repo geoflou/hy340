@@ -225,8 +225,8 @@ UNKNOWN_TOKEN       .
 
 {STRING}              {
             char charIndex = '\"';
-            char previousIndex;
             int index = 0;
+            int backSlashCounter = 0;
             int line = yylineno;
             int closingQuoteFlag = 1;
             char * fixedString =(char*) malloc(1024*sizeof(char*));
@@ -238,7 +238,7 @@ UNKNOWN_TOKEN       .
             while(charIndex != EOF){
 
                 if(charIndex == '\\'){
-                    previousIndex = charIndex;
+                    backSlashCounter++;
                     charIndex = input();
 
                     if(charIndex == 'n'){
@@ -264,6 +264,7 @@ UNKNOWN_TOKEN       .
                     }
 
                     if(charIndex == '\\'){
+                        backSlashCounter++;
                         *(fixedString + index) = '\\';
                         index += 1;
                         charIndex = input();
@@ -287,12 +288,18 @@ UNKNOWN_TOKEN       .
                 charIndex = input();
             }
 
+            if(backSlashCounter % 2 != 0){
+                alphaListInsert(line, "ERROR", "Invalid backslash escape sequence");
+                return;
+            }
+
             if(closingQuoteFlag == 0){
                 alphaListInsert(line, fixedString, "STRING");
             }
             else{
-                alphaListInsert(line,"String never closes", "ERROR");
+                alphaListInsert(line, "ERROR", "Closing '\"' expected!");
             }
+
 }
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
