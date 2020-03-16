@@ -238,7 +238,6 @@ UNKNOWN_TOKEN       .
             while(charIndex != EOF){
 
                 if(charIndex == '\\'){
-                    backSlashCounter++;
                     charIndex = input();
 
                     if(charIndex == 'n'){
@@ -270,7 +269,8 @@ UNKNOWN_TOKEN       .
                         charIndex = input();
                         continue;
                     }
-
+                    
+                    backSlashCounter++;
                 }
 
 
@@ -290,7 +290,6 @@ UNKNOWN_TOKEN       .
 
             if(backSlashCounter % 2 != 0){
                 alphaListInsert(line, "ERROR", "Invalid backslash escape sequence");
-                return;
             }
 
             if(closingQuoteFlag == 0){
