@@ -124,61 +124,74 @@ DOT                 "."
 DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
-MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-COMMENT_OPEN        "/*".*
-COMMENT_CLOSE       *."*/"
-/*to nested 8elei ki allo testing*/
+MULTI_LINE_COMMENT  "/*"
 UNKNOWN_TOKEN       .
 %%
 
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
-{COMMENT_OPEN}      {   int openCounter=1;
-                        int closeCounter=0;
-                        char tmp;
-                        int y;
-                       
-            while((tmp=input())!=EOF){
-                
-                    
-            
-           
-                if(tmp=='/'){
-                    tmp=input();
-                    if(tmp=='*'){
-                        openCounter++;
-                        
-                    }
-                    else{
-                    unput(tmp);
-                }
+{MULTI_LINE_COMMENT}    {
+                            int commentCloseFlag = 1;
+                            int index = 2;
+                            int line = yylineno;
+                            char charIndex;
+                            char* fixedToken = (char *)malloc(1024*sizeof(char*));
 
-                }
-                 else if(tmp=='*'){
-                    tmp=input();
-                    if(tmp=='/'){
-                        closeCounter++;
-                        y=openCounter-closeCounter;
-                        if(y==0){
-                alphaListInsert(yylineno,yytext,"NESTED_COMMENT");
-                break;
-            }
-               
-                    }
-                      else{
-                    unput(tmp);
-                }
-                }
-                  
-                 
-            }
-            if(tmp==EOF){
-                printf("Error: comment closure missing! in line %d\n",yylineno);
-                return 0;
-            }
-              
-            
-            }
+                            *(fixedToken + 0) = '/';
+                            *(fixedToken + 1) = '*';
+
+                            charIndex = input();
+                            while(charIndex != EOF && commentCloseFlag != 0){
+
+                                if(charIndex == '\n'){
+                                    charIndex = input();
+                                    continue;
+                                }
+
+
+                                if(charIndex == '/'){
+                                    *(fixedToken + index) = charIndex;
+                                    index++;
+                                    charIndex = input();
+                                    if(charIndex == '*'){
+                                       *(fixedToken + index) = charIndex;
+                                       commentCloseFlag++; 
+                                       index++;
+                                       charIndex = input();
+                                       continue;
+                                    }
+                                }
+
+                                if(charIndex == '*'){
+                                    *(fixedToken + index) = charIndex;
+                                    index++;
+                                    charIndex = input();
+                                    if(charIndex == '/'){
+                                        *(fixedToken + index) = charIndex;
+                                        commentCloseFlag--;
+                                        index++;
+                                        charIndex = input();
+                                        if(commentCloseFlag == 0){
+                                            break;
+                                        }else{
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                                *(fixedToken + index) = charIndex;
+
+                                charIndex = input();
+                                index++;        
+                            }
+
+                            if(commentCloseFlag != 0){
+                                alphaListInsert(line, "ERROR", "Comment never closed");
+                                return;
+                            }
+                            alphaListInsert(line, fixedToken, "MULTI_LINE_COMMENT");
+                            
+}
+
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
