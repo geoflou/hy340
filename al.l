@@ -65,12 +65,6 @@
     }
 
 
-    void parseString(int line, char* str){
-        char index;
-        char* fixedString = (char*)malloc(yyleng*sizeof(char));
-        int i = 0, next;
-        int j = 0;
-        int length = yyleng;
 
         assert(str != NULL);
 
@@ -106,7 +100,6 @@
 
         alphaListInsert(line, fixedString, "STRING");
     }
-
 %}
 
 
@@ -116,7 +109,7 @@
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
-STRING          \"[^\n"]*\"
+STRING          \"
 IF              "if"
 ELSE            "else"
 WHILE           "while"
@@ -163,13 +156,60 @@ DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
 MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
+NESTED_COMMENT      "/*"((\n|"/*"|[^(*/)])*"*/")((\n|[^(*/)])*"*/")*
 /*to nested 8elei ki allo testing*/
 
 %%
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
 {MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
 {NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
+
+{SINGLE_COMMENT}      {alphaListInsert(yylineno, "", "SINGLE_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, "", "MULTI_LINE_COMMENT");}
+{NESTED_COMMENT}      { int openCounter=1;
+                        int closeCounter=0;
+                        char tmp;
+                        int y;
+            while((tmp=input())!=EOF){
+                y=openCounter-closeCounter;
+                
+            if(y==0){
+                alphaListInsert(yylineno,"","NESTED_COMMENT");
+                break;
+            }
+           
+                if(tmp=='/'){
+                    tmp=input();
+                    if(tmp=='*'){
+                        openCounter++;
+                    }
+                    else{
+                    unput(tmp);
+                }
+
+                }
+                 else if(tmp=='*'){
+                    tmp=input();
+                    if(tmp=='/'){
+                        closeCounter++;
+                    }
+                      else{
+                    unput(tmp);
+                }
+                }
+                 
+                 else if(y<0){
+                printf("ERROR: more close comment tokens than open comment tokens\n");
+                break;
+            }
+            else if (y>0){
+                printf("ERROR: more open comment tokens than close comment tokens\n");
+               break; 
+            }
+            }
+              
+            
+            }
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
@@ -179,7 +219,6 @@ NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {parseString(yylineno, yytext);}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
@@ -217,7 +256,83 @@ NESTED_COMMENT      "/*"(\n|"/*"|[^(*/)])*"*/"(\n|"/*"|[^(*/)])*"*/"
 {LEFT_PARENTHESIS}    {alphaListInsert(yylineno,yytext,"LEFT_PARENTHESIS");}
 {RIGHT_PARENTHESIS}   {alphaListInsert(yylineno,yytext,"RIGHT_PARENTHESIS");}
 
+{STRING}              {
+            char charIndex = '\"';
+            int index = 0;
+            int backSlashCounter = 0;
+            int line = yylineno;
+            int closingQuoteFlag = 1;
+            char * fixedString =(char*) malloc(1024*sizeof(char*));
 
+            *(fixedString + index) = charIndex;
+            index++;
+
+            charIndex = input();
+            while(charIndex != EOF){
+
+                if(charIndex == '\\'){
+                    charIndex = input();
+
+                    if(charIndex == 'n'){
+                        *(fixedString + index) = '\n';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    if(charIndex == 't'){
+                        *(fixedString + index) = '\t';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    
+                    if(charIndex == '\"'){
+                        *(fixedString + index) = '\"';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    if(charIndex == '\\'){
+                        backSlashCounter++;
+                        *(fixedString + index) = '\\';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+                    
+                    backSlashCounter++;
+                }
+
+
+                if(charIndex == '\"'){
+                    *(fixedString + index) = charIndex;
+                    closingQuoteFlag = 0;
+                    break;
+                }
+
+
+                *(fixedString + index) = charIndex;
+
+
+                index++;
+                charIndex = input();
+            }
+
+            if(backSlashCounter % 2 != 0){
+                alphaListInsert(line, "ERROR", "Invalid backslash escape sequence");
+            }
+
+            if(closingQuoteFlag == 0){
+                alphaListInsert(line, fixedString, "STRING");
+            }
+            else{
+                alphaListInsert(line, "ERROR", "Closing '\"' expected!");
+            }
+
+}
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
 
