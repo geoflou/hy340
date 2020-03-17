@@ -17,6 +17,7 @@ typedef struct Function{
     //TODO: Find a way to display function arguments
     unsigned int scope;
     unsigned int line;
+
 } Function;
 
 enum SymbolType{
@@ -33,4 +34,5 @@ typedef struct SymbolTableEntry{
     }value;
 
     enum SymbolTableType type;
+
 } SymbolTableEntry;
