@@ -105,7 +105,7 @@
 
 %option yylineno
 %option noyywrap
-
+%x comment
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
@@ -156,7 +156,8 @@ DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
 MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-NESTED_COMMENT      "/*"((\n|"/*"|[^(*/)])*"*/")((\n|[^(*/)])*"*/")*
+COMMENT_OPEN        "/*".*
+COMMENT_CLOSE       *."*/"
 /*to nested 8elei ki allo testing*/
 
 %%
@@ -164,19 +165,19 @@ NESTED_COMMENT      "/*"((\n|"/*"|[^(*/)])*"*/")((\n|[^(*/)])*"*/")*
 {MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
 {NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
 
-{SINGLE_COMMENT}      {alphaListInsert(yylineno, "", "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, "", "MULTI_LINE_COMMENT");}
-{NESTED_COMMENT}      { int openCounter=1;
+{SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
+{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
+{COMMENT_OPEN}      { int openCounter=0;
                         int closeCounter=0;
                         char tmp;
                         int y;
             while((tmp=input())!=EOF){
                 y=openCounter-closeCounter;
-                
-            if(y==0){
-                alphaListInsert(yylineno,"","NESTED_COMMENT");
+                    if(y==0){
+                alphaListInsert(yylineno-1,yytext,"NESTED_COMMENT");
                 break;
-            }
+            }   
+            
            
                 if(tmp=='/'){
                     tmp=input();
@@ -197,7 +198,7 @@ NESTED_COMMENT      "/*"((\n|"/*"|[^(*/)])*"*/")((\n|[^(*/)])*"*/")*
                     unput(tmp);
                 }
                 }
-                 
+                  
                  else if(y<0){
                 printf("ERROR: more close comment tokens than open comment tokens\n");
                 break;
