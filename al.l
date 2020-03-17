@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
-
+    
     struct AlphaToken{
     
         int line;
@@ -128,28 +128,26 @@ MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
 COMMENT_OPEN        "/*".*
 COMMENT_CLOSE       *."*/"
 /*to nested 8elei ki allo testing*/
-
 UNKNOWN_TOKEN       .
 %%
 
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
 {MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
-{COMMENT_OPEN}      { int openCounter=0;
+{COMMENT_OPEN}      {   int openCounter=1;
                         int closeCounter=0;
                         char tmp;
                         int y;
+                       
             while((tmp=input())!=EOF){
-                y=openCounter-closeCounter;
-                    if(y==0){
-                alphaListInsert(yylineno-1,yytext,"NESTED_COMMENT");
-                break;
-            }   
+                
+                    
             
            
                 if(tmp=='/'){
                     tmp=input();
                     if(tmp=='*'){
                         openCounter++;
+                        
                     }
                     else{
                     unput(tmp);
@@ -160,20 +158,23 @@ UNKNOWN_TOKEN       .
                     tmp=input();
                     if(tmp=='/'){
                         closeCounter++;
+                        y=openCounter-closeCounter;
+                        if(y==0){
+                alphaListInsert(yylineno,yytext,"NESTED_COMMENT");
+                break;
+            }
+               
                     }
                       else{
                     unput(tmp);
                 }
                 }
                   
-                 else if(y<0){
-                printf("ERROR: more close comment tokens than open comment tokens\n");
-                break;
+                 
             }
-            else if (y>0){
-                printf("ERROR: more open comment tokens than close comment tokens\n");
-               break; 
-            }
+            if(tmp==EOF){
+                printf("Error: comment closure missing! in line %d\n",yylineno);
+                return 0;
             }
               
             
