@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
-
+    
     struct AlphaToken{
     
         int line;
@@ -65,53 +65,7 @@
     }
 
 
-    void parseString(int line, char* str){
-        char index;
-        char* fixedString = (char*)malloc(yyleng*sizeof(char));
-        int i = 0, next;
-        int j = 0;
-        int length = yyleng;
 
-        assert(str != NULL);
-
-        while(i < length){
-            index = str[i];
-            if(index == '\\'){
-                next = i+1;
-                index = str[next];
-                if(index == 't'){
-                    fixedString[j] = '\t';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == 'n'){
-                    fixedString[j] = '\n';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == '\\'){
-                    fixedString[j] = '\\';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == '\"'){
-                    fixedString[j] = '\"';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-            }
-
-            fixedString[j] = index;
-            j++;
-            i++;
-        }
-
-        alphaListInsert(line, fixedString, "STRING");
-    }
       void commentCheck(int line,char *text){
        
     }
@@ -120,11 +74,11 @@
 
 %option yylineno
 %option noyywrap
-
+%x comment
 ID              [a-zA-Z][a-zA-Z_0-9]*
 WHITE_SPACE           [\r \t]
 NEWLINE         \n
-STRING          \"[^\n"]*\"
+STRING          \"
 IF              "if"
 ELSE            "else"
 WHILE           "while"
@@ -170,59 +124,74 @@ DOT                 "."
 DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
-MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-NESTED_COMMENT      "/*"((\n|"/*"|[^(*/)])*"*/")((\n|[^(*/)])*"*/")*
-/*to nested 8elei ki allo testing*/
-
+MULTI_LINE_COMMENT  "/*"
 UNKNOWN_TOKEN       .
 %%
 
-{SINGLE_COMMENT}      {alphaListInsert(yylineno, "", "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, "", "MULTI_LINE_COMMENT");}
-{NESTED_COMMENT}      { int openCounter=1;
-                        int closeCounter=0;
-                        char tmp;
-                        int y;
-            while((tmp=input())!=EOF){
-                y=openCounter-closeCounter;
-                
-            if(y==0){
-                alphaListInsert(yylineno,"","NESTED_COMMENT");
-                break;
-            }
-           
-                if(tmp=='/'){
-                    tmp=input();
-                    if(tmp=='*'){
-                        openCounter++;
-                    }
-                    else{
-                    unput(tmp);
-                }
+{SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
+{MULTI_LINE_COMMENT}    {
+                            int commentCloseFlag = 1;
+                            int index = 2;
+                            int line = yylineno;
+                            char charIndex;
+                            char* fixedToken = (char *)malloc(1024*sizeof(char*));
 
-                }
-                 else if(tmp=='*'){
-                    tmp=input();
-                    if(tmp=='/'){
-                        closeCounter++;
-                    }
-                      else{
-                    unput(tmp);
-                }
-                }
-                 
-                 else if(y<0){
-                printf("ERROR: more close comment tokens than open comment tokens\n");
-                break;
-            }
-            else if (y>0){
-                printf("ERROR: more open comment tokens than close comment tokens\n");
-               break; 
-            }
-            }
-              
-            
-            }
+                            *(fixedToken + 0) = '/';
+                            *(fixedToken + 1) = '*';
+
+                            charIndex = input();
+                            while(charIndex != EOF && commentCloseFlag != 0){
+
+                                if(charIndex == '\n'){
+                                    charIndex = input();
+                                    continue;
+                                }
+
+
+                                if(charIndex == '/'){
+                                    *(fixedToken + index) = charIndex;
+                                    index++;
+                                    charIndex = input();
+                                    if(charIndex == '*'){
+                                       *(fixedToken + index) = charIndex;
+                                       commentCloseFlag++; 
+                                       index++;
+                                       charIndex = input();
+                                       continue;
+                                    }
+                                }
+
+                                if(charIndex == '*'){
+                                    *(fixedToken + index) = charIndex;
+                                    index++;
+                                    charIndex = input();
+                                    if(charIndex == '/'){
+                                        *(fixedToken + index) = charIndex;
+                                        commentCloseFlag--;
+                                        index++;
+                                        charIndex = input();
+                                        if(commentCloseFlag == 0){
+                                            break;
+                                        }else{
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                                *(fixedToken + index) = charIndex;
+
+                                charIndex = input();
+                                index++;        
+                            }
+
+                            if(commentCloseFlag != 0){
+                                alphaListInsert(line, "ERROR", "Comment never closed");
+                                return;
+                            }
+                            alphaListInsert(line, fixedToken, "MULTI_LINE_COMMENT");
+                            
+}
+
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
@@ -232,7 +201,6 @@ UNKNOWN_TOKEN       .
 {DOUBLE_COLON}        {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
 {DOT}                 {alphaListInsert(yylineno,yytext,"DOT");}
 {DOUBLE_DOT}          {alphaListInsert(yylineno,yytext,"DOUBLE_COLON");}
-{STRING}              {parseString(yylineno, yytext);}
 {IF}                  {alphaListInsert(yylineno, yytext, "IF_KEYWORD");}
 {ELSE}                {alphaListInsert(yylineno, yytext, "ELSE_KEYWORD");}
 {WHILE}               {alphaListInsert(yylineno, yytext, "WHILE_KEYWORD");}
@@ -270,7 +238,84 @@ UNKNOWN_TOKEN       .
 {LEFT_PARENTHESIS}    {alphaListInsert(yylineno,yytext,"LEFT_PARENTHESIS");}
 {RIGHT_PARENTHESIS}   {alphaListInsert(yylineno,yytext,"RIGHT_PARENTHESIS");}
 
+{STRING}              {
+            char charIndex = '\"';
+            int index = 0;
+            int backSlashCounter = 0;
+            int line = yylineno;
+            int closingQuoteFlag = 1;
+            char * fixedString =(char*) malloc(1024*sizeof(char*));
 
+            *(fixedString + index) = charIndex;
+            index++;
+
+            charIndex = input();
+            while(charIndex != EOF){
+
+                if(charIndex == '\\'){
+                    charIndex = input();
+
+                    if(charIndex == 'n'){
+                        *(fixedString + index) = '\n';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    if(charIndex == 't'){
+                        *(fixedString + index) = '\t';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    
+                    if(charIndex == '\"'){
+                        *(fixedString + index) = '\"';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+
+                    if(charIndex == '\\'){
+                        backSlashCounter++;
+                        *(fixedString + index) = '\\';
+                        index += 1;
+                        charIndex = input();
+                        continue;
+                    }
+                    
+                    backSlashCounter++;
+                }
+
+
+                if(charIndex == '\"'){
+                    *(fixedString + index) = charIndex;
+                    closingQuoteFlag = 0;
+                    break;
+                }
+
+
+                *(fixedString + index) = charIndex;
+
+
+                index++;
+                charIndex = input();
+            }
+
+            if(backSlashCounter % 2 != 0){
+                alphaListInsert(line, "ERROR", "Invalid backslash escape sequence");
+                return;
+            }
+
+            if(closingQuoteFlag == 0){
+                alphaListInsert(line, fixedString, "STRING");
+            }
+            else{
+                alphaListInsert(line, "ERROR", "Closing '\"' expected!");
+            }
+
+}
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
 
