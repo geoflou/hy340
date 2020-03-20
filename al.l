@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
-
+    
     struct AlphaToken{
     
         int line;
@@ -155,62 +155,77 @@ DOT                 "."
 DOUBLE_DOT          ".."
 
 SINGLE_COMMENT      "//".*
-MULTI_COMMENT       "/*"(\n|"//"|[^(*/)])*"*/"
-COMMENT_OPEN        "/*".*
-COMMENT_CLOSE       *."*/"
-/*to nested 8elei ki allo testing*/
-
+MULTI_LINE_COMMENT  "/*"
+UNKNOWN_TOKEN       .
 %%
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
 {MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
 {NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
 
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTI_LINE_COMMENT");}
-{COMMENT_OPEN}      { int openCounter=0;
-                        int closeCounter=0;
-                        char tmp;
-                        int y;
-            while((tmp=input())!=EOF){
-                y=openCounter-closeCounter;
-                    if(y==0){
-                alphaListInsert(yylineno-1,yytext,"NESTED_COMMENT");
-                break;
-            }   
-            
-           
-                if(tmp=='/'){
-                    tmp=input();
-                    if(tmp=='*'){
-                        openCounter++;
-                    }
-                    else{
-                    unput(tmp);
-                }
+{MULTI_LINE_COMMENT}    {
+                            int commentCloseFlag = 1;
+                            int index = 2;
+                            int line = yylineno;
+                            char charIndex;
+                            char* fixedToken = (char *)malloc(1024*sizeof(char*));
 
-                }
-                 else if(tmp=='*'){
-                    tmp=input();
-                    if(tmp=='/'){
-                        closeCounter++;
-                    }
-                      else{
-                    unput(tmp);
-                }
-                }
-                  
-                 else if(y<0){
-                printf("ERROR: more close comment tokens than open comment tokens\n");
-                break;
-            }
-            else if (y>0){
-                printf("ERROR: more open comment tokens than close comment tokens\n");
-               break; 
-            }
-            }
-              
-            
-            }
+                            *(fixedToken + 0) = '/';
+                            *(fixedToken + 1) = '*';
+
+                            charIndex = input();
+                            while(charIndex != EOF && commentCloseFlag != 0){
+
+                                if(charIndex == '\n'){
+                                    charIndex = input();
+                                    continue;
+                                }
+
+
+                                if(charIndex == '/'){
+                                    *(fixedToken + index) = charIndex;
+                                    index++;
+                                    charIndex = input();
+                                    if(charIndex == '*'){
+                                       *(fixedToken + index) = charIndex;
+                                       commentCloseFlag++; 
+                                       index++;
+                                       charIndex = input();
+                                       continue;
+                                    }
+                                }
+
+                                if(charIndex == '*'){
+                                    *(fixedToken + index) = charIndex;
+                                    index++;
+                                    charIndex = input();
+                                    if(charIndex == '/'){
+                                        *(fixedToken + index) = charIndex;
+                                        commentCloseFlag--;
+                                        index++;
+                                        charIndex = input();
+                                        if(commentCloseFlag == 0){
+                                            break;
+                                        }else{
+                                            continue;
+                                        }
+                                    }
+                                }
+
+                                *(fixedToken + index) = charIndex;
+
+                                charIndex = input();
+                                index++;        
+                            }
+
+                            if(commentCloseFlag != 0){
+                                alphaListInsert(line, "ERROR", "Comment never closed");
+                                return;
+                            }
+                            alphaListInsert(line, fixedToken, "MULTI_LINE_COMMENT");
+                            
+}
+
 
 {LEFT_BRACE}          {alphaListInsert(yylineno,yytext,"LEFT_BRACE");}
 {RIGHT_BRACE}         {alphaListInsert(yylineno,yytext,"RIGHT_BRACE");}
@@ -324,6 +339,7 @@ COMMENT_CLOSE       *."*/"
 
             if(backSlashCounter % 2 != 0){
                 alphaListInsert(line, "ERROR", "Invalid backslash escape sequence");
+                return;
             }
 
             if(closingQuoteFlag == 0){
