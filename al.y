@@ -12,6 +12,25 @@
 /*yacc stuff*/
 %start program
                 %token ID INTEGER REAL /*tokens*/
+
+                NEWLINE        { printf(" \n"); }
+                STRING         { printf("%s",yytext); }
+                IF             { printf("if"); }
+                ELSE           { printf("else"); }
+                WHILE          { printf("while"); }
+                FOR            { printf("for"); }
+                FUNCTION       { printf("function"); }
+                RETURN         { printf("return"); }
+                BREAK          { printf("break"); }
+                CONTINUE       { printf("continue"); }
+                AND            { printf("and"); }
+                NOT            { printf("not"); }
+                OR             { printf("or"); }
+                LOCAL          { printf("local"); }
+                TRUE           { printf("true"); }
+                FALSE          { printf("false"); }
+                NIL            { printf("nil"); }
+
                 %right OPERATOR_ASSIGN /*= == != ++ -- > < >= <=*/
                 %nonassoc OPERATOR_EQ     
                 %right OPERATOR_NOT    
