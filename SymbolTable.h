@@ -46,10 +46,10 @@ int hashForBucket(char *symbolName);
 
 int hashForScope(int symbolScope);
 
-void InsertEntry(SymbolTableEntry *symbol);
+void insertEntry(SymbolTableEntry *symbol);
 
 SymbolTableEntry *lookupEverything(char *name);
 
-SymbolTableEntry *lookupScope(int scope);
+SymbolTableEntry *lookupScope(char *name, int scope);
 
 void hideEntries(int scope);
