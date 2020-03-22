@@ -71,7 +71,6 @@ SymbolTableEntry *lookupScope(char *name, int scope){
     }
 
     symbolIndex = SymbolTable[bucket] -> next;
-    assert(symbolIndex != NULL);
 
     while(symbolIndex != NULL){
         
@@ -96,5 +95,63 @@ SymbolTableEntry *lookupScope(char *name, int scope){
 
 
 void hideEntries(int scope){
+    hideFromScopeLink(scope);
+    hideFromBuckets(scope);
+    return;
+}
 
+void hideFromScopeLink(int scope){
+    int bucket;
+    SymbolTableEntry *symbolIndex;
+
+    bucket = hashForScope(scope);
+    if(SymbolTable[bucket] == NULL){
+        return;
+    }
+
+    symbolIndex = SymbolTable[bucket] -> next;
+
+    while(symbolIndex != NULL){
+        symbolIndex -> isActive = 0;
+        symbolIndex = symbolIndex ->next;
+    }
+
+    return;
+}
+
+void hideFromBuckets(int scope){
+    int i;
+    SymbolTableEntry *symbolIndex;
+    Variable *varTMP;
+    Function *funcTMP;
+    
+    for(i = 0;i < NON_SCOPE_BUCKETS;i++){
+        
+        if(SymbolTable[i] == NULL){
+            continue;
+        }
+
+        symbolIndex = SymbolTable[i] -> next;
+
+        while(symbolIndex != NULL){
+ 
+            if(symbolIndex -> value.varVal != NULL){
+                varTMP = symbolIndex -> value.varVal;
+                if(varTMP -> scope == scope){
+                    symbolIndex -> isActive = 0;
+                }
+            }
+
+            if(symbolIndex -> value.funcVal != NULL){
+                funcTMP = symbolIndex -> value.funcVal;
+                if(funcTMP -> scope == scope){
+                    symbolIndex -> isActive = 0;
+                }
+            }
+
+            symbolIndex = symbolIndex ->next;
+        }
+    }
+
+    return;
 }

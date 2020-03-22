@@ -53,3 +53,7 @@ SymbolTableEntry *lookupEverything(char *name);
 SymbolTableEntry *lookupScope(char *name, int scope);
 
 void hideEntries(int scope);
+
+void hideFromScopeLink(int scope);
+
+void hideFromBuckets(int scope);
