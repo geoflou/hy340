@@ -5,6 +5,8 @@
 
 #define SYMBOL_TABLE_BUCKETS 1034
 #define NON_SCOPE_BUCKETS 1024
+#define SCOPE_BUCKETS 10
+#define HASH_NUMBER 1787
 
 enum SymbolType{
     GLOBAL,
