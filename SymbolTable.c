@@ -16,6 +16,59 @@ int hashForScope(int symbolScope){
 
 
 void insertEntry(SymbolTableEntry *symbol){
+    int bucket, scopeLink;
+    int scope;
+    char *name;
+    SymbolTableEntry *scopeLinkSymbol, *symbolIndex;
+
+    assert(symbol != NULL);
+
+    if(symbol -> value.funcVal != NULL){
+        scope = symbol -> value.funcVal -> scope;
+        name = strcpy(name, symbol -> value.funcVal -> name);
+    }
+
+    if(symbol -> value.varVal != NULL){
+        scope = symbol -> value.varVal -> scope;
+        name = strcpy(name, symbol -> value.varVal -> name);
+    }
+
+    scopeLinkSymbol = (SymbolTableEntry *) malloc(sizeof(SymbolTableEntry));
+    scopeLinkSymbol -> isActive = symbol ->isActive;
+    scopeLinkSymbol -> value = symbol -> value;
+    scopeLinkSymbol -> type = symbol -> type;
+
+    bucket = hashForBucket(name);
+    scopeLink = hashForScope(scope);
+
+    assert(SymbolTable[bucket] != NULL);
+    assert(SymbolTable[scopeLink] != NULL);
+
+    if(SymbolTable[bucket] -> next == NULL){
+        SymbolTable[bucket] -> next = symbol;
+    }    
+    else{
+        symbolIndex = SymbolTable[bucket] -> next;
+        while(symbolIndex -> next != NULL){
+            symbolIndex = symbolIndex -> next;
+        }
+
+        symbolIndex -> next = symbol;
+    }
+
+    if(SymbolTable[scopeLink] -> next == NULL){
+        SymbolTable[scopeLink] -> next = scopeLinkSymbol;
+    }
+    else{
+        symbolIndex = SymbolTable[scopeLink] -> next;
+        while(symbolIndex -> next != NULL){
+            symbolIndex = symbolIndex -> next;
+        }
+
+        symbolIndex -> next = scopeLinkSymbol;
+    }
+
+    return;
 }
 
 
