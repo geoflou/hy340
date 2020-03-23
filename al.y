@@ -11,47 +11,54 @@
 
 /*yacc stuff*/
 %start program
+
                 %token ID INTEGER REAL /*tokens*/
+                %token STRING         
+                %token IF             
+                %token ELSE           
+                %token WHILE          
+                %token FOR            
+                %token FUNCTION       
+                %token RETURN         
+                %token BREAK          
+                %token CONTINUE       
+                %token AND            
+                %token NOT            
+                %token OR             
+                %token LOCAL          
+                %token TRUE           
+                %token FALSE          
+                %token NIL            
 
-                NEWLINE        { printf(" \n"); }
-                STRING         { printf("%s",yytext); }
-                IF             { printf("if"); }
-                ELSE           { printf("else"); }
-                WHILE          { printf("while"); }
-                FOR            { printf("for"); }
-                FUNCTION       { printf("function"); }
-                RETURN         { printf("return"); }
-                BREAK          { printf("break"); }
-                CONTINUE       { printf("continue"); }
-                AND            { printf("and"); }
-                NOT            { printf("not"); }
-                OR             { printf("or"); }
-                LOCAL          { printf("local"); }
-                TRUE           { printf("true"); }
-                FALSE          { printf("false"); }
-                NIL            { printf("nil"); }
+                /*dependencies from lower to higher*/
+                %left SEMICOLON COLON COMMA DOUBLE_COLON  
 
-                %right OPERATOR_ASSIGN /*= == != ++ -- > < >= <=*/
-                %nonassoc OPERATOR_EQ     
-                %right OPERATOR_NOT    
-                %right OPERATOR_PP     
-                %right OPERATOR_MM     
-                %right OPERATOR_GRT    
-                %right OPERATOR_LES    
-                %right OPERATOR_GRE    
-                %right OPERATOR_LEE    
-
-                %left OPERATOR_MINUS OPERATOR_PLUS /*+, - ,*, / , %*/
-                %left OPERATOR_MUL OPERATOR_DIV
-                %left OPERATOR_MOD
-
-
-                %left LEFT_PARENTHESIS RIGHT_PARENTHESIS /*() {} []*/
                 %left LEFT_BRACKET RIGHT_BRACKET
-                %left LEFT_BRACES RIGHT_BRACES
 
+                %right OPERATOR_ASSIGN
 
-                %left SEMICOLON COLON COMMA DOUBLE_COLON DOT DOUBLE_DOT /*; : , :: . ..*/
+                %left OPERATOR_OR
+
+                %left OPERATOR_AND
+
+                %nonassoc OPERATOR_EQ OPERATOR_NEQ
+
+                %right OPERATOR_GRT OPERATOR_LES OPERATOR_GRE OPERATOR_LEE 
+
+                %left  OPERATOR_PLUS OPERATOR_MINUS
+
+                %left OPERATOR_MUL OPERATOR_DIV OPERATOR_MOD
+
+                %right OPERATOR_NOT OPERATOR_PP OPERATOR_MM
+
+                %left DOT DOUBLE_DOT
+
+                %left LEFT_BRACE RIGHT_BRACE    
+                
+                %left LEFT_PARENTHESIS RIGHT_PARENTHESIS
+
+                
+                 
               %%
 /*syntax analyser*/
 
