@@ -60,7 +60,83 @@
                 
                  
               %%
-/*syntax analyser*/
+      /*File -> preferences -> color theme -> install additional color themes -> Abyss, thank me later*/
 
 
+            /*Alpha grammar rules*/
+
+              program:    stmt*
+                          |/*empty*/
+                          ;
+
+              stmt:       expr;
+                          |ifstmt
+                          |whilestmt
+                          |forstmt
+                          |returnstmt
+                          |BREAK;
+                          |CONTINUE;
+                          |block
+                          |funcdef
+                          |/*empty*/
+                          ;
+
+              expr:        assignexpr
+                           | expr op expr
+                           | term
+                           ;
+
+              op:          +
+                           |-
+                           |*
+                           |/
+                           |%
+                           |>
+                           |>=
+                           |<
+                           |<=
+                           |==
+                           |!=
+                           |AND
+                           |OR 
+                           ;         
+
+             term:        (expr)/*den eimai sigouros gia ta 3 prwta*/
+                          |-expr
+                          |NOT expr
+                          |++lvalue
+                          |lvalue++
+                          |--lvalue
+                          |lvalue--
+                          |primary
+                          ;                  
+
+            assignexpr:   lvalue=expr ;
+
+
+            primary:      lvalue
+                          |call
+                          |objectdef
+                          |(funcdef)
+                          |const
+                          ;
+
+
+            lvalue:       ID
+                          | LOCAL ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
+                          | DOUBLE_COLON ID
+                          |member
+                          ;
+
+            member:       lvalue DOT ID
+                          | lvalue LEFT_BRACE expr RIGHT_BRACE
+                          | call DOT ID
+                          | call LEFT_BRACE expr RIGHT_BRACE
+                          ;     
+
+
+            call:         call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+                          | lvalue callsuffix
+                          |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+                          ;                                            
             %%
