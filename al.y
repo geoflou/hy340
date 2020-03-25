@@ -21,7 +21,7 @@
 
 /*yacc stuff*/
 %start program
-                
+                %expect 1
                 %token ID INTEGER REAL /*tokens*/
                 %token STRING         
                 %token IF             
@@ -38,7 +38,8 @@
                 %token LOCAL          
                 %token TRUE           
                 %token FALSE          
-                %token NIL            
+                %token NIL 
+                %token WHITESPACE           
 
                 /*dependencies from lower to higher*/
                 %left SEMICOLON COLON COMMA DOUBLE_COLON  
@@ -75,9 +76,8 @@
 
             /*Alpha grammar rules*/
 
-              program:    
-                          /*empty*/
-                          | program stmt
+              program: stmt
+                      | program WHITESPACE stmt
                           ;
 
               stmt:       expr;
@@ -93,24 +93,24 @@
                           ;
               
               expr:        assignexpr
-                           | expr op expr
+                           | expr OPERATOR_PLUS expr
+                           | expr OPERATOR_MINUS expr
+                           | expr OPERATOR_MOD expr
+                           | expr OPERATOR_DIV expr
+                           | expr OPERATOR_MUL expr
+                           | expr OPERATOR_GRT expr
+                           | expr OPERATOR_GRE expr
+                           | expr OPERATOR_LES expr
+                           | expr OPERATOR_LEE expr
+                           | expr OPERATOR_EQ expr
+                           | expr OPERATOR_NEQ expr
+                           | expr OPERATOR_AND expr
+                           | expr OPERATOR_OR expr
                            | term
                            ;
-
-              op:          OPERATOR_PLUS
-                           |OPERATOR_MINUS
-                           |OPERATOR_MUL
-                           |OPERATOR_DIV
-                           |OPERATOR_MOD
-                           |OPERATOR_GRT
-                           |OPERATOR_GRE
-                           |OPERATOR_LES
-                           |OPERATOR_LEE
-                           |OPERATOR_EQ
-                           |OPERATOR_NEQ
-                           |OPERATOR_AND
-                           |OPERATOR_OR
-                           ;         
+             
+                          
+             
 
              term:        LEFT_PARENTHESIS expr RIGHT_PARENTHESIS
                           |OPERATOR_MINUS expr
@@ -160,7 +160,7 @@
 
 
             methodcall:    DOUBLE_DOT ID LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-                           | DOT ID LEFT_PARENTHESIS lvalue COMMA elist RIGHT_PARENTHESIS /*den eimai sigouros gi auto den katalava thn ekfwnhsh */
+                           
                            ;
 
 
@@ -181,8 +181,8 @@
 
             indexdelem:    LEFT_BRACKET expr COLON expr RIGHT_BRACKET;
 
-            block:         LEFT_BRACKET RIGHT_BRACKET
-                           |LEFT_BRACKET stmt RIGHT_BRACKET 
+            block:         LEFT_BRACKET stmt RIGHT_BRACKET
+                            
                            ;
 
 
