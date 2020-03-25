@@ -65,42 +65,10 @@
         return;
     }
 
-
-
-        assert(str != NULL);
-
-        while(i < length){
-            index = str[i];
-            if(index == '\\'){
-                next = i+1;
-                index = str[next];
-                if(index == 't'){
-                    fixedString[j] = '\t';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == 'n'){
-                    fixedString[j] = '\n';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-                if(index == '\\'){
-                    fixedString[j] = '\\';
-                    i = i+2;
-                    j++;
-                    continue;
-                }
-            }
-
-            fixedString[j] = index;
-            j++;
-            i++;
-        }
-
-        alphaListInsert(line, fixedString, "STRING");
+	void commentCheck(int line,char *text){
+       
     }
+    
 %}
 
 
@@ -162,9 +130,6 @@ SINGLE_COMMENT      "//".*
 MULTI_LINE_COMMENT  "/*"
 UNKNOWN_TOKEN       .
 %%
-{SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
-{MULTI_COMMENT}       {alphaListInsert(yylineno, yytext, "MULTY_LINE_COMMENT");}
-{NESTED_COMMENT}      {alphaListInsert(yylineno, yytext, "NESTED_COMMENTS");}
 
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
 {MULTI_LINE_COMMENT}    {

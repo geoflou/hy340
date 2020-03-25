@@ -231,15 +231,131 @@
       }
 
       int main(int argc, char* argv[]){
-         if(argc < 2){
-        printf("No input file!\n");
-        return -1;
-    }
+        if(argc < 2){
+          printf("No input file!\n");
+          return -1;
+        }
+		
+		if(argc > 1){
+			if(!(yyin = fopen(argv[1], "r"))){
+				printf("Cannot read file!\n");
+				return 1;
+			}
+		}else{
+			yyin = stdin;
+		}
+        
+        /*adding library function in hashtable
+		ta next ta exw balei ola null*/
+        SymbolTableEntry *print;
+        print -> isActive = 1;
+        print -> value.funcVal -> name = "print";
+        print -> value.funcVal -> scope = 0;
+        print -> value.funcVal -> line = 0;
+        print -> type = LIBFUNC;
+        print -> next = NULL;
+        insertEntry(print);
+		
+		SymbolTableEntry *input;
+        input -> isActive = 1;
+        input -> value.funcVal -> name = "input";
+        input -> value.funcVal -> scope = 0;
+        input -> value.funcVal -> line = 0;
+        input -> type = LIBFUNC;
+        input -> next = NULL;
+        insertEntry(input);
 
-    if(!(yyin = fopen(argv[1], "r"))){
-        printf("Cannot read file!\n");
-        return -1;
-    }
-    yyparse();
-    return 0;
+		SymbolTableEntry *objectmemberkeys;
+        objectmemberkeys -> isActive = 1;
+        objectmemberkeys -> value.funcVal -> name = "objectmemberkeys";
+        objectmemberkeys -> value.funcVal -> scope = 0;
+        objectmemberkeys -> value.funcVal -> line = 0;
+        objectmemberkeys -> type = LIBFUNC;
+        objectmemberkeys -> next = NULL;
+        insertEntry(objectmemberkeys);
+
+		SymbolTableEntry *objecttotalmembers;
+        objecttotalmembers -> isActive = 1;
+        objecttotalmembers -> value.funcVal -> name = "objecttotalmembers";
+        objecttotalmembers -> value.funcVal -> scope = 0;
+        objecttotalmembers -> value.funcVal -> line = 0;
+        objecttotalmembers -> type = LIBFUNC;
+        objecttotalmembers -> next = NULL;
+        insertEntry(objecttotalmembers);
+
+		SymbolTableEntry *objectcopy;
+        objectcopy -> isActive = 1;
+        objectcopy -> value.funcVal -> name = "objectcopy";
+        objectcopy -> value.funcVal -> scope = 0;
+        objectcopy -> value.funcVal -> line = 0;
+        objectcopy -> type = LIBFUNC;
+        objectcopy -> next = NULL;
+        insertEntry(objectcopy);
+		
+		SymbolTableEntry *totalarguments;
+        totalarguments -> isActive = 1;
+        totalarguments -> value.funcVal -> name = "totalarguments";
+        totalarguments -> value.funcVal -> scope = 0;
+        totalarguments -> value.funcVal -> line = 0;
+        totalarguments -> type = LIBFUNC;
+        totalarguments -> next = NULL;
+        insertEntry(totalarguments);
+		
+		SymbolTableEntry *argument;
+        argument -> isActive = 1;
+        argument -> value.funcVal -> name = "argument";
+        argument -> value.funcVal -> scope = 0;
+        argument -> value.funcVal -> line = 0;
+        argument -> type = LIBFUNC;
+        argument -> next = NULL;
+        insertEntry(argument);
+		
+		SymbolTableEntry *typeof;
+        typeof -> isActive = 1;
+        typeof -> value.funcVal -> name = "typeof";
+        typeof -> value.funcVal -> scope = 0;
+        typeof -> value.funcVal -> line = 0;
+        typeof -> type = LIBFUNC;
+        typeof -> next = NULL;
+        insertEntry(typeof);
+		
+		SymbolTableEntry *strtonum;
+        strtonum -> isActive = 1;
+        strtonum -> value.funcVal -> name = "strtonum";
+        strtonum -> value.funcVal -> scope = 0;
+        strtonum -> value.funcVal -> line = 0;
+        strtonum -> type = LIBFUNC;
+        strtonum -> next = NULL;
+        insertEntry(strtonum);
+		
+		SymbolTableEntry *sqrt;
+        sqrt -> isActive = 1;
+        sqrt -> value.funcVal -> name = "sqrt";
+        sqrt -> value.funcVal -> scope = 0;
+        sqrt -> value.funcVal -> line = 0;
+        sqrt -> type = LIBFUNC;
+        sqrt -> next = NULL;
+        insertEntry(sqrt);
+		
+		SymbolTableEntry *cos;
+        cos -> isActive = 1;
+        cos -> value.funcVal -> name = "cos";
+        cos -> value.funcVal -> scope = 0;
+        cos -> value.funcVal -> line = 0;
+        cos -> type = LIBFUNC;
+        cos -> next = NULL;
+        insertEntry(cos);
+		
+		SymbolTableEntry *sin;
+        sin -> isActive = 1;
+        sin -> value.funcVal -> name = "sin";
+        sin -> value.funcVal -> scope = 0;
+        sin -> value.funcVal -> line = 0;
+        sin -> type = LIBFUNC;
+        sin -> next = NULL;
+        insertEntry(sin);
+		
+		
+        yyparse();
+        return 0;
       }
