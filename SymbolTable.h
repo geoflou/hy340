@@ -3,27 +3,32 @@
 #include <assert.h>
 #include <string.h>
 
+#define SYMBOL_TABLE_BUCKETS 1034
+#define NON_SCOPE_BUCKETS 1024
+#define SCOPE_BUCKETS 10
+#define HASH_NUMBER 1787
+
+enum SymbolType{
+    GLOBAL,
+    LOCAL,
+    FORMAL,
+    USERFUNC,
+    LIBFUNC
+};
 
 typedef struct Variable{
     const char *name;
     unsigned int scope;
     unsigned int line;
-
 } Variable;
 
 
 typedef struct Function{
     const char *name;
-    //TODO: Find a way to display function arguments
+    char ** arguments;
     unsigned int scope;
     unsigned int line;
-
 } Function;
-
-enum SymbolType{
-    GLOBAL, LOCAL, FORMAL,
-    USERFUNC, LIBFUNC
-};
 
 
 typedef struct SymbolTableEntry{
@@ -31,8 +36,24 @@ typedef struct SymbolTableEntry{
     union{
         Variable *varVal;
         Function *funcVal;
-    }value;
-
-    enum SymbolTableType type;
-
+    } value;
+    enum SymbolType type;
+    struct SymbolTableEntry *next;
 } SymbolTableEntry;
+
+
+int hashForBucket(char *symbolName);
+
+int hashForScope(int symbolScope);
+
+void insertEntry(SymbolTableEntry *symbol);
+
+SymbolTableEntry *lookupEverything(char *name);
+
+SymbolTableEntry *lookupScope(char *name, int scope);
+
+void hideEntries(int scope);
+
+void hideFromScopeLink(int scope);
+
+void hideFromBuckets(int scope);
