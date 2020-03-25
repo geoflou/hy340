@@ -6,12 +6,22 @@
             #include <stdio.h>
             #include <stdlib.h>
             #include "SymbolTable.h"
+
+
+
+            int yyerror (char* message);
+            int yylex(void);
+
+
+            extern int yylineno;
+            extern char* yytext;
+            extern FILE* yyin();
             
             %}
 
 /*yacc stuff*/
 %start program
-
+                
                 %token ID INTEGER REAL /*tokens*/
                 %token STRING         
                 %token IF             
@@ -65,8 +75,9 @@
 
             /*Alpha grammar rules*/
 
-              program:    stmt*
-                          |/*empty*/
+              program:    
+                          /*empty*/
+                          | program stmt
                           ;
 
               stmt:       expr;
@@ -80,42 +91,42 @@
                           |funcdef
                           |/*empty*/
                           ;
-
+              
               expr:        assignexpr
                            | expr op expr
                            | term
                            ;
 
-              op:          +
-                           |-
-                           |*
-                           |/
-                           |%
-                           |>
-                           |>=
-                           |<
-                           |<=
-                           |==
-                           |!=
-                           |AND
-                           |OR 
+              op:          OPERATOR_PLUS
+                           |OPERATOR_MINUS
+                           |OPERATOR_MUL
+                           |OPERATOR_DIV
+                           |OPERATOR_MOD
+                           |OPERATOR_GRT
+                           |OPERATOR_GRE
+                           |OPERATOR_LES
+                           |OPERATOR_LEE
+                           |OPERATOR_EQ
+                           |OPERATOR_NEQ
+                           |OPERATOR_AND
+                           |OPERATOR_OR
                            ;         
 
              term:        LEFT_PARENTHESIS expr RIGHT_PARENTHESIS
                           |OPERATOR_MINUS expr
                           |OPERATOR_NOT expr
-                          |++lvalue
-                          |lvalue++
-                          |--lvalue
-                          |lvalue--
+                          |OPERATOR_PP lvalue
+                          |lvalue OPERATOR_PP
+                          |OPERATOR_MM lvalue
+                          |lvalue OPERATOR_MM
                           |primary
                           ;                  
 
             assignexpr:   lvalue OPERATOR_ASSIGN expr ;
 
 
-            primary:      lvalue
-                          |call
+            primary:       call
+                          |lvalue
                           |objectdef
                           |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS
                           |const
@@ -154,7 +165,7 @@
 
 
             elist:         expr
-                           | (COMMA expr)*
+                           | LEFT_PARENTHESIS COMMA expr RIGHT_PARENTHESIS COMMA elist
                            ;
 
 
@@ -165,7 +176,7 @@
 
 
             indexed:       indexdelem
-                           | ( COMMA indexdelem )*
+                           | LEFT_PARENTHESIS COMMA indexdelem RIGHT_PARENTHESIS COMMA indexed
                            ;
 
             indexdelem:    LEFT_BRACKET expr COLON expr RIGHT_BRACKET;
@@ -191,8 +202,10 @@
 
 
 
-            idlist:         ID* 
-                            | COMMA ID*  
+            idlist:         |idlist
+                              ID
+                            | COMMA ID
+                              
                               ;
 
 
@@ -211,3 +224,22 @@
             returnstmt:     RETURN 
                             | RETURN expr;                            
             %%
+
+              /*epilogue*/
+      int yyerror(char* message){
+        printf("%s: in line %d",message, yylineno);
+      }
+
+      int main(int argc, char* argv[]){
+         if(argc < 2){
+        printf("No input file!\n");
+        return -1;
+    }
+
+    if(!(yyin = fopen(argv[1], "r"))){
+        printf("Cannot read file!\n");
+        return -1;
+    }
+    yyparse();
+    return 0;
+      }
