@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
-    #include <y.tab.h>
+    #include "al1.h"
     
     struct AlphaToken{
     
@@ -67,9 +67,10 @@
 
 
 
-      void commentCheck(int line,char *text){
-       
-    }
+      
+
+      
+    
 %}
 
 
@@ -91,7 +92,7 @@ CONTINUE        "continue"
 AND             "and"
 NOT             "not"
 OR              "or"
-LOCAL           "local"
+LOCAL_KEYWORD           "local"
 TRUE            "true"
 FALSE           "false"
 NIL             "nil"
@@ -131,6 +132,9 @@ SINGLE_COMMENT      "//".*
 MULTI_LINE_COMMENT  "/*"
 UNKNOWN_TOKEN       .
 %%
+
+
+
 
 {SINGLE_COMMENT}      {alphaListInsert(yylineno, yytext, "SINGLE_LINE_COMMENT");}
 {MULTI_LINE_COMMENT}    {
@@ -215,7 +219,7 @@ UNKNOWN_TOKEN       .
 {CONTINUE}            {alphaListInsert(yylineno, yytext, "CONTINUE_KEYWORD");}
 {AND}                 {alphaListInsert(yylineno, yytext, "AND_KEYWORD");}
 {OR}                  {alphaListInsert(yylineno, yytext, "OR_KEYWORD");}
-{LOCAL}               {alphaListInsert(yylineno, yytext, "LOCAL_KEYWORD");}
+{LOCAL_KEYWORD}               {alphaListInsert(yylineno, yytext, "LOCAL_KEYWORD");}
 {TRUE}                {alphaListInsert(yylineno, yytext, "TRUE_KEYWORD");}
 {FALSE}               {alphaListInsert(yylineno, yytext, "FALSE_KEYWORD");}
 {NIL}                 {alphaListInsert(yylineno, yytext, "NIL_KEYWORD");}
@@ -323,24 +327,5 @@ UNKNOWN_TOKEN       .
 
 {ID}    {alphaListInsert(yylineno, yytext, "ID");}
 
-{UNKNOWN_TOKEN} {alphaListInsert(yylineno, yytext, "UNKNOWN_TOKEN");}
-
 %%
 
-int main(int argc, char* argv[]){
-    
-    if(argc < 2){
-        printf("No input file!\n");
-        return -1;
-    }
-
-    if(!(yyin = fopen(argv[1], "r"))){
-        printf("Cannot read file!\n");
-        return -1;
-    }
-
-    yylex();
-    printAlphaList();
-
-    return 0;    
-}

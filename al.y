@@ -20,6 +20,13 @@
             %}
 
 /*yacc stuff*/
+  %union {
+    int intVal;
+    char *strVal;
+    double doubleVal;
+    
+  }
+
 %start program
                 %expect 1
                 %token ID INTEGER REAL /*tokens*/
@@ -34,8 +41,8 @@
                 %token CONTINUE       
                 %token AND            
                 %token NOT            
-                %token OR             
-                %token LOCAL          
+                %token OR  
+                %token LOCAL_KEYWORD                    
                 %token TRUE           
                 %token FALSE          
                 %token NIL 
@@ -134,7 +141,7 @@
 
 
             lvalue:       ID
-                          | LOCAL ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
+                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
                           | DOUBLE_COLON ID
                           |member
                           ;
@@ -212,7 +219,7 @@
             ifstmt:         IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt  
                             | IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt
                             ;
-
+                                  
 
             whilestmt:      WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt;
 
@@ -230,16 +237,8 @@
         printf("%s: in line %d",message, yylineno);
       }
 
-      int main(int argc, char* argv[]){
-         if(argc < 2){
-        printf("No input file!\n");
-        return -1;
-    }
-
-    if(!(yyin = fopen(argv[1], "r"))){
-        printf("Cannot read file!\n");
-        return -1;
-    }
-    yyparse();
-    return 0;
-      }
+                      int main(int argc, char* argv[]){
+                      
+                    yyparse();
+                    return 0;
+                      }
