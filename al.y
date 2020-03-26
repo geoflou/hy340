@@ -16,17 +16,19 @@
             extern int yylineno;
             extern char* yytext;
             extern FILE* yyin();
+
+            int scope;
             
             %}
 
 /*yacc stuff*/
-  %union {
-    int intVal;
-    char *strVal;
-    double doubleVal;
-    
-  }
-
+  
+  %union { 
+    int intVal; 
+    char *strVal; 
+    double doubleVal; 
+  } 
+  
 %start program
                 %expect 1
                 %token ID INTEGER REAL /*tokens*/
@@ -41,8 +43,8 @@
                 %token CONTINUE       
                 %token AND            
                 %token NOT            
-                %token OR  
-                %token LOCAL_KEYWORD                    
+                %token OR             
+                %token LOCAL          
                 %token TRUE           
                 %token FALSE          
                 %token NIL 
@@ -83,8 +85,8 @@
 
             /*Alpha grammar rules*/
 
-              program: stmt
-                      | program WHITESPACE stmt
+              program:    stmt
+                          | program WHITESPACE stmt
                           ;
 
               stmt:       expr;
@@ -99,26 +101,23 @@
                           |/*empty*/
                           ;
               
-              expr:        assignexpr
-                           | expr OPERATOR_PLUS expr
-                           | expr OPERATOR_MINUS expr
-                           | expr OPERATOR_MOD expr
-                           | expr OPERATOR_DIV expr
-                           | expr OPERATOR_MUL expr
-                           | expr OPERATOR_GRT expr
-                           | expr OPERATOR_GRE expr
-                           | expr OPERATOR_LES expr
-                           | expr OPERATOR_LEE expr
-                           | expr OPERATOR_EQ expr
-                           | expr OPERATOR_NEQ expr
-                           | expr OPERATOR_AND expr
-                           | expr OPERATOR_OR expr
-                           | term
-                           ;
+              expr:       assignexpr
+                          | expr OPERATOR_PLUS expr
+                          | expr OPERATOR_MINUS expr
+                          | expr OPERATOR_MOD expr
+                          | expr OPERATOR_DIV expr
+                          | expr OPERATOR_MUL expr
+                          | expr OPERATOR_GRT expr
+                          | expr OPERATOR_GRE expr
+                          | expr OPERATOR_LES expr
+                          | expr OPERATOR_LEE expr
+                          | expr OPERATOR_EQ expr
+                          | expr OPERATOR_NEQ expr
+                          | expr OPERATOR_AND expr
+                          | expr OPERATOR_OR expr
+                          | term
+                          ;
              
-                          
-             
-
              term:        LEFT_PARENTHESIS expr RIGHT_PARENTHESIS
                           |OPERATOR_MINUS expr
                           |OPERATOR_NOT expr
@@ -129,8 +128,8 @@
                           |primary
                           ;                  
 
-            assignexpr:   lvalue OPERATOR_ASSIGN expr ;
-
+            assignexpr:   lvalue OPERATOR_ASSIGN expr
+                          ;
 
             primary:       call
                           |lvalue
@@ -139,9 +138,11 @@
                           |const
                           ;
 
+            lvalue:       ID {
+                                
 
-            lvalue:       ID
-                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
+                          }
+                          | LOCAL ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
                           | DOUBLE_COLON ID
                           |member
                           ;
@@ -152,84 +153,70 @@
                           | call LEFT_BRACE expr RIGHT_BRACE
                           ;     
 
-
             call:         call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
                           | lvalue callsuffix
                           |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
                           ;       
 
-            callsuffix:    normalcall
-                           | methodcall
-                           ;
+            callsuffix:   normalcall
+                          | methodcall
+                          ;
 
+            normalcall:   LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+                          ; 
 
-            normalcall:    LEFT_PARENTHESIS elist RIGHT_PARENTHESIS; 
+            methodcall:   DOUBLE_DOT ID LEFT_PARENTHESIS elist RIGHT_PARENTHESIS 
+                          ;
 
+            elist:        expr
+                          | LEFT_PARENTHESIS COMMA expr RIGHT_PARENTHESIS COMMA elist
+                          ;
 
-            methodcall:    DOUBLE_DOT ID LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-                           
-                           ;
+            objectdef:    LEFT_BRACE  RIGHT_BRACE
+                          |LEFT_BRACE elist RIGHT_BRACE 
+                          |LEFT_BRACE indexed RIGHT_BRACE 
+                          ;
 
+            indexed:      indexdelem
+                          | LEFT_PARENTHESIS COMMA indexdelem RIGHT_PARENTHESIS COMMA indexed
+                          ;
 
-            elist:         expr
-                           | LEFT_PARENTHESIS COMMA expr RIGHT_PARENTHESIS COMMA elist
-                           ;
+            indexdelem:   LEFT_BRACKET expr COLON expr RIGHT_BRACKET
+                          ;
 
+            block:        LEFT_BRACKET stmt RIGHT_BRACKET  
+                          ;
 
-            objectdef:     LEFT_BRACE  RIGHT_BRACE
-                           |LEFT_BRACE elist RIGHT_BRACE 
-                           |LEFT_BRACE indexed RIGHT_BRACE 
-                           ;
+            funcdef:      FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
+                          | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
+                          ;
 
+            const:        INTEGER
+                          |REAL
+                          |STRING
+                          |NIL
+                          |TRUE
+                          |FALSE
+                          ;
 
-            indexed:       indexdelem
-                           | LEFT_PARENTHESIS COMMA indexdelem RIGHT_PARENTHESIS COMMA indexed
-                           ;
+            idlist:       |idlist
+                          ID
+                          | COMMA ID  
+                          ;
 
-            indexdelem:    LEFT_BRACKET expr COLON expr RIGHT_BRACKET;
+            ifstmt:       IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt  
+                          | IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt
+                          ;
 
-            block:         LEFT_BRACKET stmt RIGHT_BRACKET
-                            
-                           ;
+            whilestmt:    WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt
+                          ;
 
+            forstmt:      FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt
+                          ;
 
-            funcdef:        FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
-                            | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
-                            ;
-
-
-            const:          INTEGER
-                            |REAL
-                            |STRING
-                            |NIL
-                            |TRUE
-                            |FALSE
-                            ;
-
-
-
-
-            idlist:         |idlist
-                              ID
-                            | COMMA ID
-                              
-                              ;
-
-
-            ifstmt:         IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt  
-                            | IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt
-                            ;
-                                  
-
-            whilestmt:      WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt;
-
-
-
-            forstmt:        FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt;
-
-
-            returnstmt:     RETURN 
-                            | RETURN expr;                            
+            returnstmt:   RETURN 
+                          | RETURN expr
+                          ;                            
             %%
 
               /*epilogue*/
@@ -238,19 +225,6 @@
       }
 
       int main(int argc, char* argv[]){
-        if(argc < 2){
-          printf("No input file!\n");
-          return -1;
-        }
-		
-		if(argc > 1){
-			if(!(yyin = fopen(argv[1], "r"))){
-				printf("Cannot read file!\n");
-				return 1;
-			}
-		}else{
-			yyin = stdin;
-		}
         
         /*adding library function in hashtable
 		ta next ta exw balei ola null*/
