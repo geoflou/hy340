@@ -8,6 +8,7 @@ void initTable(void){
     int i;
 
     for(i = 0;i < SYMBOL_TABLE_BUCKETS;i++){
+        SymbolTable[i] = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         SymbolTable[i] -> isActive = 0;
         SymbolTable[i] -> next = NULL;
         SymbolTable[i] -> type = GLOBAL;
@@ -35,7 +36,6 @@ void insertEntry(SymbolTableEntry *symbol){
     int scope;
     char *name;
     SymbolTableEntry *scopeLinkSymbol, *symbolIndex;
-
     assert(symbol != NULL);
 
     if(symbol -> value.funcVal != NULL){
