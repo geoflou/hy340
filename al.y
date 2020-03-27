@@ -53,8 +53,8 @@
                 %token FALSE          
                 %token NIL 
                 %token WHITESPACE  
-                %type <doubleVal> expr 
-                %type <intVal> exprmod         
+               
+                   
 
                 /*dependencies from lower to higher*/
                 %left SEMICOLON COLON COMMA DOUBLE_COLON  
@@ -108,19 +108,14 @@
                           ;
               
               expr:       assignexpr
-                          | expr OPERATOR_PLUS expr     {$$ = $1 + $3;}
-                          | expr OPERATOR_MINUS expr    {$$ = $1 - $3;}
-                          
-                          | expr OPERATOR_DIV expr      {if($3==0){
-                                                        yyerror("Division by 0");
-                                                                        }
-                                                         else{
-                                                             $$ = $1 / $3;
-                                                         }               
-                                                                }
-                          | expr OPERATOR_MUL expr      {$$ = $1 * $3;}
-                          | expr OPERATOR_GRT expr      {$$ = $1 > $3;}
-                          | expr OPERATOR_GRE expr      {$$ = $1 >= $3;}
+                          | expr OPERATOR_PLUS expr    
+                          | expr OPERATOR_MINUS expr   
+                          | expr OPERATOR_MOD expr          
+                          | expr OPERATOR_DIV expr           
+                                                       
+                          | expr OPERATOR_MUL expr     
+                          | expr OPERATOR_GRT expr     
+                          | expr OPERATOR_GRE expr     
                           | expr OPERATOR_LES expr
                           | expr OPERATOR_LEE expr
                           | expr OPERATOR_EQ expr
@@ -289,18 +284,37 @@
             funcdef:      FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           { 
-                              if(lookupEverything($2)==NULL){
-                                Function *newfunc= (Function *)malloc(sizeof(struct Function));
-                                SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                              if(yylval.strVal=="print" || yylval.strVal=="input" || yylval.strVal=="objectmemberkeys" || yylval.strVal=="objecttotalmembers" || 
+                              yylval.strVal=="objectcopy" || yylval.strVal=="totalarguments" || yylval.strVal=="argument" ||
+                               yylval.strVal=="typeof" || yylval.strVal=="strtonum" ||yylval.strVal=="sqrt" || yylval.strVal=="cos" || yylval.strVal=="sin"){
+                                   yyerror("LIBRARY FUNCTIONS\n");
+                               }
+                               else{
+                                    i = Scope;
+                                    while(i>=0){
+                                       tmp = lookupScope(yylval.strVal, i);
+                                    if(tmp != NULL && i!=0){
+                                        yyerror("Redeclaration of function");
+                                    }
+                                        i--;
+                                        if(i==0 && tmp!= NULL){
+                                            break;
+                                                            }
+                                                }
+                               if(i<0){
+                                   Function *newfunc= (Function *)malloc(sizeof(struct Function));
+                                SymbolTableEntry *newnode= (SymbolTableEntry *)malloc(sizeof(struct SymbolTableEntry));
                                 newfunc->name=yytext;
                                 newfunc->scope=0;
                                 newfunc->line=yylineno;
                                 newnode->type=USERFUNC;
                                 newnode-> value.funcVal=newfunc;
                                 newnode->isActive=1;
-                                 
-                                insertEntry(newnode);    
-                              }
+
+                                insertEntry(newnode);
+                                        }
+                                   
+                                    }
                           }
                           ;
 
