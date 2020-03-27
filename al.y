@@ -265,6 +265,8 @@
 
       int main(int argc, char* argv[]){
         printf("OK\n");
+        
+        initTable();
         /*adding library function in hashtable
 		ta next ta exw balei ola null*/
         SymbolTableEntry *print;
