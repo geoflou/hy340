@@ -208,3 +208,28 @@ void hideFromBuckets(int scope){
 
     return;
 }
+
+
+void printEntries(void){
+    int i;
+    SymbolTableEntry *symbolIndex;
+    Variable *varTMP;
+    Function *funcTMP; 
+
+    for(i = 0;i < 10;i++){
+       
+        printf("---------------  Scope #%d  ---------------\n", i);
+        symbolIndex = SymbolTable[NON_SCOPE_BUCKETS + i];
+       
+        if(symbolIndex == NULL){
+           continue;
+        }
+
+        while(symbolIndex != NULL){
+            //TODO:Make the appropriate prints
+            symbolIndex = symbolIndex -> next;
+        }
+
+    }
+    return;
+}

@@ -41,6 +41,7 @@ typedef struct SymbolTableEntry{
     struct SymbolTableEntry *next;
 } SymbolTableEntry;
 
+void initTable(void);
 
 int hashForBucket(char *symbolName);
 
@@ -57,3 +58,5 @@ void hideEntries(int scope);
 void hideFromScopeLink(int scope);
 
 void hideFromBuckets(int scope);
+
+void printEntries(void);
