@@ -393,7 +393,6 @@
       int main(int argc, char* argv[]){
 
         initTable();   
-        printf("OK\n");
         /*adding library function in hashtable
 		ta next ta exw balei ola null*/
         SymbolTableEntry *print = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));

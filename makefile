@@ -5,4 +5,5 @@ a.out:
 
 clean:
 	rm al1.c al.c
+	rm al1.h
 	rm *.out
