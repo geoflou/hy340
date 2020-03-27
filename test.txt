@@ -1,42 +1,12 @@
-
-
-3.14
-2.14
-7.43
-8.00
-while
-5
-/*kati edw /*pame
-katw me enter*/
-*/
-else
-"lala"
-//       nai
-//\n
-nil
-++
-*
-continue
-(
-)
-[
-
-// nai
-
-
-
-/*la 
-
-
-la*/
-//lala/*lolo*/
-/*nai /* oxi */ */
-/* kati // kati allo */
-// kati /* oxi 
-kati */
-/*1 /*2 /*3 /*4 */ */
-/*mpla*/
- */ */
- /*2/*3 /*4 */ */ */ */
-
-/*lala */
+x = 2;
+function foo(){
+	function foo(bar){
+		local foo = 2;
+		return bar + foo;
+	}
+	{
+		local foo = [{foo:[{foo:foo}]}];
+		foo.foo..foo(::foo);
+	}
+	x = (function(){});
+}

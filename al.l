@@ -137,7 +137,7 @@ UNKNOWN_TOKEN       .
 %%
 
 
-{SLASH_COMMENT}      {return "SLASH_COMMENT";}
+{SLASH_COMMENT}      {}
 {MULTI_COMMENT}    {
                             int commentCloseFlag = 1;
                             int index = 2;
@@ -198,7 +198,7 @@ UNKNOWN_TOKEN       .
                                 return -1;
                             }
                             
-                            return "MULTI_COMMENT";
+                            
 }
 
 {LEFT_BRACE}          {return LEFT_BRACE;}
