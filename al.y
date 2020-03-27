@@ -17,7 +17,7 @@
             extern char* yytext;
             extern FILE* yyin();
 
-            int scope = 0;
+            int Scope = 0;
             int i;
             SymbolTableEntry* tmp;
 
@@ -142,33 +142,52 @@
                           |const
                           ;
 
-            lvalue:       ID 
-                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
-                          | DOUBLE_COLON ID
-                          |member
-                           {
-                                i = scope;
+            lvalue:       ID {
+                                i = Scope;
                                 yylval.strVal = yytext;
 
                                 while(i >= 0){
-                                   lookupScope(yylval.strVal, i);
+                                   tmp = lookupScope(yylval.strVal, i);
 
                                     if(tmp != NULL){ /*we found xxx in this scope*/
-                                        if(0){/*check if there is a redefinition
-                                               or if this function can access this var
-                                                */
-
+                                        if((getEnrtyType(tmp) == USERFUNC) || (getEnrtyType(tmp) == LIBFUNC)){
+                                        /*check if there is a redefinitio or if this function can access this var*/
+                                            printf("ERROR: var %s redefined as a function\n", yylval.strVal);
                                         }
                                         break;
                                     }
+                                    i--;
                                 }
 
                                 if(i < 0){ /*we didn't find id in the table so we add it*/
-                                    
-
+                                    if(Scope == 0){/*we have a global id*/
+                                        Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                        SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                        newvar -> name = yytext;
+                                        newvar -> scope = 0;
+                                        newvar -> line = yylineno;
+                                        newnode -> type = GLOBAL;
+                                        newnode -> value.varVal = newvar;
+                                        newnode -> isActive = 1;
+                                 
+                                        insertEntry(newnode);
+                                    }else{/*it's a local id*/
+                                        Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                        SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                        newvar -> name = yytext;
+                                        newvar -> scope = Scope;
+                                        newvar -> line = yylineno;
+                                        newnode -> type = LOCAL;
+                                        newnode -> value.varVal = newvar;
+                                        newnode -> isActive = 1;
+                                 
+                                        insertEntry(newnode);
+                                    }
                                 }
-
-                          }
+                              }
+                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
+                          | DOUBLE_COLON ID
+                          |member
                           ;
                          
 
@@ -216,16 +235,16 @@
                           | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           { 
                               if(lookupEverything($2)==NULL){
-                                  Function *newfunc= (Function *)malloc(sizeof(struct Function));
-                                 SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-                                 newfunc->name=yytext;
-                                 newfunc->scope=0;
-                                 newfunc->line=yylineno;
-                                 newnode->type=USERFUNC;
-                                 newnode-> value.funcVal=newfunc;
-                                 newnode->isActive=1;
+                                Function *newfunc= (Function *)malloc(sizeof(struct Function));
+                                SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                newfunc->name=yytext;
+                                newfunc->scope=0;
+                                newfunc->line=yylineno;
+                                newnode->type=USERFUNC;
+                                newnode-> value.funcVal=newfunc;
+                                newnode->isActive=1;
                                  
-                                 insertEntry(newnode);    
+                                insertEntry(newnode);    
                               }
                           }
                           ;
@@ -264,9 +283,9 @@
       }
 
       int main(int argc, char* argv[]){
+
+        initTable();   
         printf("OK\n");
-        
-        initTable();
         /*adding library function in hashtable
 		ta next ta exw balei ola null*/
         SymbolTableEntry *print;
