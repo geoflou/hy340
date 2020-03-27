@@ -241,10 +241,89 @@ void printEntries(void){
         }
 
         while(symbolIndex != NULL){
-            //TODO:Make the appropriate prints
+            printf("\"%s\"  [%s]    (line %d)   (scope %d)\n",getEntryName(symbolIndex),
+                getEntryType(symbolIndex), getEntryLine(symbolIndex), getEntryScope(symbolIndex));
             symbolIndex = symbolIndex -> next;
         }
 
     }
     return;
+}
+
+
+char *getEntryType(SymbolTableEntry *symbol){
+    switch (symbol -> type)
+    {
+    case GLOBAL:
+        return "global variable";
+    
+    case LOCAL:
+        return "local variable";
+    
+    case FORMAL:
+        return "formal argument";
+
+    case USERFUNC:
+        return "user function";
+
+    case LIBFUNC:
+        return "library function";
+    
+    default:
+        assert(0);
+    }
+}
+
+
+char *getEntryName(SymbolTableEntry *symbol){
+    Variable *varTMP;
+    Function *funcTMP;
+
+    if(symbol -> value.funcVal != NULL){
+        funcTMP = symbol -> value.funcVal;
+        return funcTMP -> name;
+    }
+
+    if(symbol -> value.varVal != NULL){
+        varTMP = symbol -> value.varVal;
+        return varTMP -> name;
+    }
+
+    assert(0);
+}
+
+
+int getEntryLine(SymbolTableEntry *symbol){
+    Variable *varTMP;
+    Function *funcTMP;
+
+    if(symbol -> value.funcVal != NULL){
+        funcTMP = symbol -> value.funcVal;
+        return funcTMP -> line;
+    }
+
+    if(symbol -> value.varVal != NULL){
+        varTMP = symbol -> value.varVal;
+        return varTMP -> line;
+    }
+
+    assert(0);
+}
+
+
+int getEntryScope(SymbolTableEntry *symbol){
+    Variable *varTMP;
+    Function *funcTMP;
+
+    if(symbol -> value.funcVal != NULL){
+        funcTMP = symbol -> value.funcVal;
+        return funcTMP -> scope;
+    }
+
+    if(symbol -> value.varVal != NULL){
+        varTMP = symbol -> value.varVal;
+        return varTMP -> scope;
+    }
+
+    assert(0);
 }

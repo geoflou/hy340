@@ -60,3 +60,11 @@ void hideFromScopeLink(int scope);
 void hideFromBuckets(int scope);
 
 void printEntries(void);
+
+char *getEntryType(SymbolTableEntry *symbol);
+
+char *getEntryName(SymbolTableEntry *symbol);
+
+int getEntryLine(SymbolTableEntry *symbol);
+
+int getEntryScope(SymbolTableEntry *symbol);
