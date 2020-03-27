@@ -21,6 +21,9 @@
             int Scope = 0;
             int i;
             SymbolTableEntry* tmp;
+            char* funcname1 = "$f";
+            int funcname2 = 1;
+            char* funcname;
 
             %}
 
@@ -152,7 +155,7 @@
                                 yylval.strVal = yytext;
 
                                 while(i >= 0){
-                                   tmp = lookupScope(yylval.strVal, i);
+                                    tmp = lookupScope(yylval.strVal, i);
 
                                     if(tmp != NULL){ /*we found xxx in this scope*/
                                         if((*getEntryType(tmp) == USERFUNC) || (*getEntryType(tmp) == LIBFUNC)){
@@ -283,40 +286,53 @@
                           ;
 
             funcdef:      FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
+                          {
+                              funcname = strcat(funcname1, (char*)funcname2);
+                              funcname2++;
+                            
+                              Function *newfunc= (Function *)malloc(sizeof(struct Function));
+                              SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                              newfunc -> name = funcname;
+                              newfunc -> scope = Scope;
+                              newfunc -> line = yylineno;
+                              newnode -> type = USERFUNC;
+                              newnode -> funcVal = newfunc;
+                              newnode -> isActive = 1;
+                             
+                              insertEntry(newnode); 
+                          }
                           | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           { 
-                              if(yylval.strVal=="print" || yylval.strVal=="input" || yylval.strVal=="objectmemberkeys" || yylval.strVal=="objecttotalmembers" || 
-                              yylval.strVal=="objectcopy" || yylval.strVal=="totalarguments" || yylval.strVal=="argument" ||
-                               yylval.strVal=="typeof" || yylval.strVal=="strtonum" ||yylval.strVal=="sqrt" || yylval.strVal=="cos" || yylval.strVal=="sin"){
-                                   yyerror("LIBRARY FUNCTIONS\n");
-                               }
-                               else{
-                                    i = Scope;
-                                    while(i>=0){
-                                       tmp = lookupScope(yylval.strVal, i);
-                                    if(tmp != NULL && i!=0){
-                                        yyerror("Redeclaration of function");
-                                    }
-                                        i--;
-                                        if(i==0 && tmp!= NULL){
-                                            break;
-                                                            }
-                                                }
-                               if(i<0){
-                                   Function *newfunc= (Function *)malloc(sizeof(struct Function));
-                                SymbolTableEntry *newnode= (SymbolTableEntry *)malloc(sizeof(struct SymbolTableEntry));
-                                newfunc->name=yytext;
-                                newfunc->scope=0;
-                                newfunc->line=yylineno;
-                                newnode->type=USERFUNC;
-                                newnode-> funcVal=newfunc;
-                                newnode->isActive=1;
+                                i = Scope;
+                                yylval.strVal = yytext;
 
-                                insertEntry(newnode);
+                                while(i >= 0){
+                                   tmp = lookupScope(yylval.strVal, i);
+
+                                    if(tmp != NULL){ /*we found xxx in this scope*/
+                                        if(*getEntryType(tmp) == USERFUNC){
+                                            printf("ERROR: function %s already exists\n", yylval.strVal);
+                                        }else if(*getEntryType(tmp) == LIBFUNC){
+                                            printf("ERROR: function %s cannot shadow a library function\n", yylval.strVal);
                                         }
-                                   
+                                        break;
                                     }
-                          }
+                                    i--;
+                                }
+
+                                if(i < 0){ /*we didn't find id in the table so we add it*/
+                                    Function *newfunc= (Function *)malloc(sizeof(struct Function));
+                                    SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                    newfunc -> name = yytext;
+                                    newfunc -> scope = Scope;
+                                    newfunc -> line = yylineno;
+                                    newnode -> type = USERFUNC;
+                                    newnode -> funcVal = newfunc;
+                                    newnode -> isActive = 1;
+                             
+                                    insertEntry(newnode);                                
+                                }
+                          }      
                           ;
 
             const:        INTEGER
@@ -327,9 +343,31 @@
                           |FALSE
                           ;
 
-            idlist:       |idlist
-                          ID
-                          | COMMA ID  
+            idlist:     |ID
+                        | COMMA ID  
+                          {
+                              yylval.strVal = yytext;
+                              tmp = lookupScope(yylval.strVal, Scope);
+                              if(tmp != NULL){
+                                  if(*getEntryType(tmp) == LIBFUNC){
+                                  /*check if this var can shadow a lib function*/
+                                      printf("ERROR: var %s cannot shadow a library function\n", yylval.strVal);   
+                                  }else{
+                                      printf("ERROR: formal redeclaration of var %s\n", yylval.strVal);
+                                  }
+                              }else{
+                                  /*add the new formal*/
+                                  Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                  SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                  newvar -> name = yytext;
+                                  newvar -> scope = Scope;
+                                  newvar -> line = yylineno;
+                                  newnode -> type = FORMAL;
+                                  newnode -> varVal = newvar;        
+                                  newnode -> isActive = 1;
+                                  insertEntry(newnode);
+                              }
+                          }
                           ;
 
             ifstmt:       IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt  
