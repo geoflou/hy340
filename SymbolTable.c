@@ -328,28 +328,3 @@ int getEntryScope(SymbolTableEntry *symbol){
 
     assert(0);
 }
-
-
-
-void main(void){
-    SymbolTableEntry *symbol = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
-    Variable *var = (Variable*)malloc(sizeof(Variable));
-
-    var -> line = 1;
-    var -> name = "Elpizw na doylepseis";
-    var -> scope = 7;
-
-    initTable();
-
-    symbol -> isActive = 1;
-    symbol -> type = GLOBAL;
-    symbol -> varVal = var;
-    symbol -> funcVal = NULL;
-    symbol -> next = NULL;
-
-    lookupEverything(symbol->varVal->name);
-    insertEntry(symbol);
-    printEntries();
-
-    return;
-}
