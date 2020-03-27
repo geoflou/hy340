@@ -17,8 +17,10 @@
             extern char* yytext;
             extern FILE* yyin();
 
-            int scope;
-            
+            int scope = 0;
+            int i;
+            SymbolTableEntry* tmp;
+
             %}
 
 /*yacc stuff*/
@@ -28,7 +30,7 @@
     char *strVal; 
     double doubleVal; 
   } 
-  
+
 %start program
                 %expect 1
                 %token ID INTEGER REAL /*tokens*/
@@ -139,7 +141,26 @@
                           ;
 
             lvalue:       ID {
-                                
+                                i = scope;
+                                yylval.strVal = yytext;
+
+                                while(i >= 0){
+                                    tmp = lookUpScope(yylval.strVal, i);
+
+                                    if(tmp != NULL){ /*we found xxx in this scope*/
+                                        if(){/*check if there is a redefinition
+                                               or if this function can access this var
+                                                */
+
+                                        }
+                                        break;
+                                    }
+                                }
+
+                                if(i < 0){ /*we didn't find id in the table so we add it*/
+                                    
+
+                                }
 
                           }
                           | LOCAL ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/

@@ -4,6 +4,21 @@
 SymbolTableEntry *SymbolTable[1034];
 
 
+void initTable(void){
+    int i;
+
+    for(i = 0;i < SYMBOL_TABLE_BUCKETS;i++){
+        SymbolTable[i] -> isActive = 0;
+        SymbolTable[i] -> next = NULL;
+        SymbolTable[i] -> type = GLOBAL;
+        SymbolTable[i] -> value.funcVal = NULL;
+        SymbolTable[i] -> value.varVal = NULL;
+    }
+
+    return;
+}
+
+
 int hashForBucket(char *symbolName){
     assert(symbolName != NULL);
     return (atoi(symbolName) * HASH_NUMBER) % NON_SCOPE_BUCKETS;
@@ -207,4 +222,108 @@ void hideFromBuckets(int scope){
     }
 
     return;
+}
+
+
+void printEntries(void){
+    int i;
+    SymbolTableEntry *symbolIndex;
+    Variable *varTMP;
+    Function *funcTMP; 
+
+    for(i = 0;i < 10;i++){
+       
+        printf("---------------  Scope #%d  ---------------\n", i);
+        symbolIndex = SymbolTable[NON_SCOPE_BUCKETS + i];
+       
+        if(symbolIndex == NULL){
+           continue;
+        }
+
+        while(symbolIndex != NULL){
+            printf("\"%s\"  [%s]    (line %d)   (scope %d)\n",getEntryName(symbolIndex),
+                getEntryType(symbolIndex), getEntryLine(symbolIndex), getEntryScope(symbolIndex));
+            symbolIndex = symbolIndex -> next;
+        }
+
+    }
+    return;
+}
+
+
+char *getEntryType(SymbolTableEntry *symbol){
+    switch (symbol -> type)
+    {
+    case GLOBAL:
+        return "global variable";
+    
+    case LOCAL:
+        return "local variable";
+    
+    case FORMAL:
+        return "formal argument";
+
+    case USERFUNC:
+        return "user function";
+
+    case LIBFUNC:
+        return "library function";
+    
+    default:
+        assert(0);
+    }
+}
+
+
+char *getEntryName(SymbolTableEntry *symbol){
+    Variable *varTMP;
+    Function *funcTMP;
+
+    if(symbol -> value.funcVal != NULL){
+        funcTMP = symbol -> value.funcVal;
+        return funcTMP -> name;
+    }
+
+    if(symbol -> value.varVal != NULL){
+        varTMP = symbol -> value.varVal;
+        return varTMP -> name;
+    }
+
+    assert(0);
+}
+
+
+int getEntryLine(SymbolTableEntry *symbol){
+    Variable *varTMP;
+    Function *funcTMP;
+
+    if(symbol -> value.funcVal != NULL){
+        funcTMP = symbol -> value.funcVal;
+        return funcTMP -> line;
+    }
+
+    if(symbol -> value.varVal != NULL){
+        varTMP = symbol -> value.varVal;
+        return varTMP -> line;
+    }
+
+    assert(0);
+}
+
+
+int getEntryScope(SymbolTableEntry *symbol){
+    Variable *varTMP;
+    Function *funcTMP;
+
+    if(symbol -> value.funcVal != NULL){
+        funcTMP = symbol -> value.funcVal;
+        return funcTMP -> scope;
+    }
+
+    if(symbol -> value.varVal != NULL){
+        varTMP = symbol -> value.varVal;
+        return varTMP -> scope;
+    }
+
+    assert(0);
 }
