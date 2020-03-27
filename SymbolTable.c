@@ -4,6 +4,21 @@
 SymbolTableEntry *SymbolTable[1034];
 
 
+void initTable(void){
+    int i;
+
+    for(i = 0;i < SYMBOL_TABLE_BUCKETS;i++){
+        SymbolTable[i] -> isActive = 0;
+        SymbolTable[i] -> next = NULL;
+        SymbolTable[i] -> type = GLOBAL;
+        SymbolTable[i] -> value.funcVal = NULL;
+        SymbolTable[i] -> value.varVal = NULL;
+    }
+
+    return;
+}
+
+
 int hashForBucket(char *symbolName){
     assert(symbolName != NULL);
     return (atoi(symbolName) * HASH_NUMBER) % NON_SCOPE_BUCKETS;
