@@ -17,7 +17,7 @@
             extern char* yytext;
             extern FILE* yyin();
 
-            int scope = 0;
+            int Scope = 0;
             int i;
             SymbolTableEntry* tmp;
 
@@ -151,33 +151,92 @@
                           |const
                           ;
 
-            lvalue:       ID 
-                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
-                          | DOUBLE_COLON ID
-                          |member
-                           {
-                                i = scope;
+            lvalue:       ID {
+                                i = Scope;
                                 yylval.strVal = yytext;
 
                                 while(i >= 0){
-                                   lookupScope(yylval.strVal, i);
+                                   tmp = lookupScope(yylval.strVal, i);
 
                                     if(tmp != NULL){ /*we found xxx in this scope*/
-                                        if(0){/*check if there is a redefinition
-                                               or if this function can access this var
-                                                */
-
+                                        if((*getEntryType(tmp) == USERFUNC) || (*getEntryType(tmp) == LIBFUNC)){
+                                        /*check if there is a redefinitio or if this function can access this var*/
+                                            printf("ERROR: var %s redefined as a function\n", yylval.strVal);
                                         }
                                         break;
                                     }
+                                    i--;
                                 }
 
                                 if(i < 0){ /*we didn't find id in the table so we add it*/
-                                    
-
+                                    if(Scope == 0){/*we have a global id*/
+                                        Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                        SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                        newvar -> name = yytext;
+                                        newvar -> scope = 0;
+                                        newvar -> line = yylineno;
+                                        newnode -> type = GLOBAL;
+                                        newnode -> value.varVal = newvar;
+                                        newnode -> isActive = 1;
+                                 
+                                        insertEntry(newnode);
+                                    }else{/*it's a local id*/
+                                        Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                        SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                        newvar -> name = yytext;
+                                        newvar -> scope = Scope;
+                                        newvar -> line = yylineno;
+                                        newnode -> type = LOCAL;
+                                        newnode -> value.varVal = newvar;
+                                        newnode -> isActive = 1;
+                                 
+                                        insertEntry(newnode);
+                                    }
                                 }
+                              }
+                          | LOCAL_KEYWORD ID 
+                          {
+                            tmp = lookupScope(yylval.strVal, 0);
 
+                                if(tmp != NULL){ /*we found xxx in this scope*/
+                                    if(*getEntryType(tmp) == LIBFUNC){
+                                    /*check if this var can shadow a lib function*/
+                                        printf("ERROR: var %s cannot shadow a library function\n", yylval.strVal);
+                                    }
+                                }
+                                /*we didn't find id in the table so we add it*/
+                                if(Scope == 0){/*we have a global id*/
+                                    Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                    SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                    newvar -> name = yytext;
+                                    newvar -> scope = 0;
+                                    newvar -> line = yylineno;
+                                    newnode -> type = GLOBAL;
+                                    newnode -> value.varVal = newvar;
+                                    newnode -> isActive = 1;
+
+                                    insertEntry(newnode);
+                                }else{/*it's a local id*/
+                                    Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                    SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                    newvar -> name = yytext;
+                                    newvar -> scope = Scope;
+                                    newvar -> line = yylineno;
+                                    newnode -> type = LOCAL;
+                                    newnode -> value.varVal = newvar;                                        newnode -> isActive = 1;
+                                 
+                                    insertEntry(newnode);
+                                }
                           }
+                          | DOUBLE_COLON ID
+                          {
+                            tmp = lookupScope(yylval.strVal, 0);
+
+                            if(tmp == NULL){ /*we didn't find xxx in scope 0*/
+                                printf("ERROR: could not find global %s\n", yylval.strVal);
+                            }
+                          }
+                          |member
                           ;
                          
 
@@ -218,23 +277,29 @@
             indexdelem:   LEFT_BRACKET expr COLON expr RIGHT_BRACKET
                           ;
 
-            block:        LEFT_BRACKET stmt RIGHT_BRACKET  
+            block:        LEFT_BRACKET {Scope++;} stmt RIGHT_BRACKET 
+                            {/*when we see { we increase Scope and when we see }
+                            we first hide all entries in this scope because they are local
+                            and then we decrease Scope*/
+                             hideEntries(Scope);
+                             Scope--;
+                            } 
                           ;
 
             funcdef:      FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           { 
                               if(lookupEverything($2)==NULL){
-                                  Function *newfunc= (Function *)malloc(sizeof(struct Function));
-                                 SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-                                 newfunc->name=yytext;
-                                 newfunc->scope=0;
-                                 newfunc->line=yylineno;
-                                 newnode->type=USERFUNC;
-                                 newnode-> value.funcVal=newfunc;
-                                 newnode->isActive=1;
+                                Function *newfunc= (Function *)malloc(sizeof(struct Function));
+                                SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                newfunc->name=yytext;
+                                newfunc->scope=0;
+                                newfunc->line=yylineno;
+                                newnode->type=USERFUNC;
+                                newnode-> value.funcVal=newfunc;
+                                newnode->isActive=1;
                                  
-                                 insertEntry(newnode);    
+                                insertEntry(newnode);    
                               }
                           }
                           ;
@@ -273,122 +338,144 @@
       }
 
       int main(int argc, char* argv[]){
+
+        initTable();   
         printf("OK\n");
-        
-        initTable();
-        /*adding library function in hashtable
-		ta next ta exw balei ola null*/
-        SymbolTableEntry *print;
-        print -> isActive = 1;
-        print -> value.funcVal -> name = "print";
-        print -> value.funcVal -> scope = 0;
-        print -> value.funcVal -> line = 0;
+        /*adding library function in hashtable*/
+        Function *funcPrint= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *print= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcPrint -> name = "print";
+        funcPrint -> scope = 0;
+        funcPrint -> line = 0;
         print -> type = LIBFUNC;
-        print -> next = NULL;
+        print -> value.funcVal = funcPrint;
+        print -> isActive = 1;
+                                 
         insertEntry(print);
-        lookupEverything(print->value.funcVal->name);
-		
-		SymbolTableEntry *input;
-        input -> isActive = 1;
-        input -> value.funcVal -> name = "input";
-        input -> value.funcVal -> scope = 0;
-        input -> value.funcVal -> line = 0;
+    
+		Function *funcInput= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *input= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcInput -> name = "input";
+        funcInput -> scope = 0;
+        funcInput -> line = 0;
         input -> type = LIBFUNC;
-        input -> next = NULL;
+        input -> value.funcVal = funcInput;
+        input -> isActive = 1;
+                                 
         insertEntry(input);
 
-		SymbolTableEntry *objectmemberkeys;
-        objectmemberkeys -> isActive = 1;
-        objectmemberkeys -> value.funcVal -> name = "objectmemberkeys";
-        objectmemberkeys -> value.funcVal -> scope = 0;
-        objectmemberkeys -> value.funcVal -> line = 0;
+        Function *funcObjectmemberkeys= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *objectmemberkeys= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcObjectmemberkeys -> name = "objectmemberkeys";
+        funcObjectmemberkeys -> scope = 0;
+        funcObjectmemberkeys -> line = 0;
         objectmemberkeys -> type = LIBFUNC;
-        objectmemberkeys -> next = NULL;
+        objectmemberkeys -> value.funcVal = funcObjectmemberkeys;
+        objectmemberkeys -> isActive = 1;
+
         insertEntry(objectmemberkeys);
 
-		SymbolTableEntry *objecttotalmembers;
+        Function *funcObjecttotalmembers= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *objecttotalmembers= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcObjecttotalmembers -> name = "objecttotalmembers";
+        funcObjecttotalmembers -> scope = 0;
+        funcObjecttotalmembers -> line = yylineno;
+        objecttotalmembers -> type = 0;
+        objecttotalmembers -> value.funcVal = funcObjecttotalmembers;
         objecttotalmembers -> isActive = 1;
-        objecttotalmembers -> value.funcVal -> name = "objecttotalmembers";
-        objecttotalmembers -> value.funcVal -> scope = 0;
-        objecttotalmembers -> value.funcVal -> line = 0;
-        objecttotalmembers -> type = LIBFUNC;
-        objecttotalmembers -> next = NULL;
-        insertEntry(objecttotalmembers);
 
-		SymbolTableEntry *objectcopy;
-        objectcopy -> isActive = 1;
-        objectcopy -> value.funcVal -> name = "objectcopy";
-        objectcopy -> value.funcVal -> scope = 0;
-        objectcopy -> value.funcVal -> line = 0;
+        insertEntry(objecttotalmembers);
+        
+		Function *funcObjectcopy= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *objectcopy= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcObjectcopy -> name = "objectcopy";
+        funcObjectcopy -> scope = 0;
+        funcObjectcopy -> line = 0;
         objectcopy -> type = LIBFUNC;
-        objectcopy -> next = NULL;
+        objectcopy -> value.funcVal = funcObjectcopy;
+        objectcopy -> isActive = 1;
+
         insertEntry(objectcopy);
-		
-		SymbolTableEntry *totalarguments;
-        totalarguments -> isActive = 1;
-        totalarguments -> value.funcVal -> name = "totalarguments";
-        totalarguments -> value.funcVal -> scope = 0;
-        totalarguments -> value.funcVal -> line = 0;
+        
+		Function *funcTotalarguments= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *totalarguments= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcTotalarguments -> name = "totalarguments";
+        funcTotalarguments -> scope = 0;
+        funcTotalarguments -> line = 0;
         totalarguments -> type = LIBFUNC;
-        totalarguments -> next = NULL;
+        totalarguments -> value.funcVal = funcTotalarguments;
+        totalarguments -> isActive = 1;
+
         insertEntry(totalarguments);
-		
-		SymbolTableEntry *argument;
-        argument -> isActive = 1;
-        argument -> value.funcVal -> name = "argument";
-        argument -> value.funcVal -> scope = 0;
-        argument -> value.funcVal -> line = 0;
+        
+		Function *funcArgument= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *argument= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcArgument -> name = "argument";
+        funcArgument -> scope = 0;
+        funcArgument -> line = 0;
         argument -> type = LIBFUNC;
-        argument -> next = NULL;
+        argument -> value.funcVal = funcArgument;
+        argument -> isActive = 1;
+
         insertEntry(argument);
-		
-		SymbolTableEntry *Typeof;
-        Typeof -> isActive = 1;
-        Typeof -> value.funcVal -> name = "typeof";
-        Typeof -> value.funcVal -> scope = 0;
-        Typeof -> value.funcVal -> line = 0;
-        Typeof -> type = LIBFUNC;
-        Typeof -> next = NULL;
-        insertEntry(Typeof);
-		
-		SymbolTableEntry *strtonum;
-        strtonum -> isActive = 1;
-        strtonum -> value.funcVal -> name = "strtonum";
-        strtonum -> value.funcVal -> scope = 0;
-        strtonum -> value.funcVal -> line = 0;
+
+		Function *funcTypeof= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *ptrtypeof= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcTypeof -> name = "typeof";
+        funcTypeof -> scope = 0;
+        funcTypeof -> line = 0;
+        ptrtypeof -> type = LIBFUNC;
+        ptrtypeof -> value.funcVal = funcTypeof;
+        ptrtypeof -> isActive = 1;
+
+        insertEntry(ptrtypeof);
+
+		Function *funcStrtonum= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *strtonum= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcStrtonum -> name = "strtonum";
+        funcStrtonum -> scope = 0;
+        funcStrtonum -> line = 0;
         strtonum -> type = LIBFUNC;
-        strtonum -> next = NULL;
+        strtonum -> value.funcVal = funcStrtonum;
+        strtonum -> isActive = 1;
+
         insertEntry(strtonum);
-		
-		SymbolTableEntry *sqrt;
-        sqrt -> isActive = 1;
-        sqrt -> value.funcVal -> name = "sqrt";
-        sqrt -> value.funcVal -> scope = 0;
-        sqrt -> value.funcVal -> line = 0;
+
+        Function *funcSqrt= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *sqrt= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcSqrt -> name = "sqrt";
+        funcSqrt -> scope = 0;
+        funcSqrt -> line = 0;
         sqrt -> type = LIBFUNC;
-        sqrt -> next = NULL;
-        insertEntry(sqrt);
+        sqrt -> value.funcVal = funcSqrt;
+        sqrt -> isActive = 1;
+
+        insertEntry(sqrt);		
 		
-		SymbolTableEntry *cos;
-        cos -> isActive = 1;
-        cos -> value.funcVal -> name = "cos";
-        cos -> value.funcVal -> scope = 0;
-        cos -> value.funcVal -> line = 0;
+        Function *funcCos= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *cos= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcCos -> name = "cos";
+        funcCos -> scope = 0;
+        funcCos -> line = 0;
         cos -> type = LIBFUNC;
-        cos -> next = NULL;
+        cos -> value.funcVal = funcCos;
+        cos -> isActive = 1;
+
         insertEntry(cos);
-		
-		SymbolTableEntry *sin;
-        sin -> isActive = 1;
-        sin -> value.funcVal -> name = "sin";
-        sin -> value.funcVal -> scope = 0;
-        sin -> value.funcVal -> line = 0;
+
+		Function *funcSin= (Function *)malloc(sizeof(struct Function));
+        SymbolTableEntry *sin= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        funcSin -> name = "sin";
+        funcSin -> scope = 0;
+        funcSin -> line = 0;
         sin -> type = LIBFUNC;
-        sin -> next = NULL;
+        sin -> value.funcVal = funcSin;
+        sin -> isActive = 1;
+
         insertEntry(sin);
 		
-		
         yyparse();
+        printEntries();
         return 0;
       }
      
