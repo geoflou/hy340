@@ -12,8 +12,8 @@ void initTable(void){
         SymbolTable[i] -> isActive = 0;
         SymbolTable[i] -> next = NULL;
         SymbolTable[i] -> type = GLOBAL;
-        SymbolTable[i] -> value.funcVal = NULL;
-        SymbolTable[i] -> value.varVal = NULL;
+        SymbolTable[i] -> funcVal = NULL;
+        SymbolTable[i] -> varVal = NULL;
     }
 
     return;
@@ -39,19 +39,21 @@ void insertEntry(SymbolTableEntry *symbol){
 
     assert(symbol != NULL);
 
-    if(symbol -> value.funcVal != NULL){
-        scope = symbol -> value.funcVal -> scope;
-        name = strcpy(name, symbol -> value.funcVal -> name);
+    if(symbol -> funcVal != NULL){
+        scope = symbol -> funcVal -> scope;
+        name = strcpy(name, symbol -> funcVal -> name);
     }
 
-    if(symbol -> value.varVal != NULL){
-        scope = symbol -> value.varVal -> scope;
-        name = strcpy(name, symbol -> value.varVal -> name);
+    if(symbol -> varVal != NULL){
+        scope = symbol -> varVal -> scope;
+        name = strcpy(name, symbol -> varVal -> name);
     }
 
     scopeLinkSymbol = (SymbolTableEntry *) malloc(sizeof(SymbolTableEntry));
     scopeLinkSymbol -> isActive = symbol ->isActive;
-    scopeLinkSymbol -> value = symbol -> value;
+    scopeLinkSymbol -> varVal = symbol -> varVal;
+    scopeLinkSymbol -> funcVal = symbol -> funcVal;
+    scopeLinkSymbol -> next = NULL;
     scopeLinkSymbol -> type = symbol -> type;
     bucket = hashForBucket(name);
     scopeLink = hashForScope(scope);
@@ -104,15 +106,15 @@ SymbolTableEntry *lookupEverything(char *name){
 
     while(symbolIndex != NULL){
         
-        if(symbolIndex -> value.varVal != NULL){
-            varTMP = symbolIndex -> value.varVal;
+        if(symbolIndex -> varVal != NULL){
+            varTMP = symbolIndex -> varVal;
             if(strcmp(varTMP -> name, name) == 0){
                 return symbolIndex;
             }
         }
 
-        if(symbolIndex -> value.funcVal != NULL){
-            funcTMP = symbolIndex -> value.funcVal;
+        if(symbolIndex -> funcVal != NULL){
+            funcTMP = symbolIndex -> funcVal;
             if(strcmp(funcTMP -> name, name) == 0){
                 return symbolIndex;
             }
@@ -141,15 +143,15 @@ SymbolTableEntry *lookupScope(char *name, int scope){
 
     while(symbolIndex != NULL){
         
-        if(symbolIndex -> value.varVal != NULL){
-            varTMP = symbolIndex -> value.varVal;
+        if(symbolIndex -> varVal != NULL){
+            varTMP = symbolIndex -> varVal;
             if(strcmp(varTMP -> name, name) == 0){
                 return symbolIndex;
             }
         }
 
-        if(symbolIndex -> value.funcVal != NULL){
-            funcTMP = symbolIndex -> value.funcVal;
+        if(symbolIndex -> funcVal != NULL){
+            funcTMP = symbolIndex -> funcVal;
             if(strcmp(funcTMP -> name, name) == 0){
                 return symbolIndex;
             }
@@ -202,15 +204,15 @@ void hideFromBuckets(int scope){
 
         while(symbolIndex != NULL){
  
-            if(symbolIndex -> value.varVal != NULL){
-                varTMP = symbolIndex -> value.varVal;
+            if(symbolIndex -> varVal != NULL){
+                varTMP = symbolIndex -> varVal;
                 if(varTMP -> scope == scope){
                     symbolIndex -> isActive = 0;
                 }
             }
 
-            if(symbolIndex -> value.funcVal != NULL){
-                funcTMP = symbolIndex -> value.funcVal;
+            if(symbolIndex -> funcVal != NULL){
+                funcTMP = symbolIndex -> funcVal;
                 if(funcTMP -> scope == scope){
                     symbolIndex -> isActive = 0;
                 }
@@ -278,13 +280,13 @@ char *getEntryName(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> name;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> name;
     }
 
@@ -296,13 +298,13 @@ int getEntryLine(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> line;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> line;
     }
 
@@ -314,13 +316,13 @@ int getEntryScope(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> scope;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> scope;
     }
 
