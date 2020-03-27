@@ -335,7 +335,7 @@
         printf("OK\n");
         /*adding library function in hashtable
 		ta next ta exw balei ola null*/
-        SymbolTableEntry *print;
+        SymbolTableEntry *print = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         print -> isActive = 1;
         print -> value.funcVal -> name = "print";
         print -> value.funcVal -> scope = 0;
@@ -345,7 +345,7 @@
         insertEntry(print);
         lookupEverything(print->value.funcVal->name);
 		
-		SymbolTableEntry *input;
+		SymbolTableEntry *input= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         input -> isActive = 1;
         input -> value.funcVal -> name = "input";
         input -> value.funcVal -> scope = 0;
@@ -354,7 +354,7 @@
         input -> next = NULL;
         insertEntry(input);
 
-		SymbolTableEntry *objectmemberkeys;
+		SymbolTableEntry *objectmemberkeys= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         objectmemberkeys -> isActive = 1;
         objectmemberkeys -> value.funcVal -> name = "objectmemberkeys";
         objectmemberkeys -> value.funcVal -> scope = 0;
@@ -363,7 +363,7 @@
         objectmemberkeys -> next = NULL;
         insertEntry(objectmemberkeys);
 
-		SymbolTableEntry *objecttotalmembers;
+		SymbolTableEntry *objecttotalmembers= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         objecttotalmembers -> isActive = 1;
         objecttotalmembers -> value.funcVal -> name = "objecttotalmembers";
         objecttotalmembers -> value.funcVal -> scope = 0;
@@ -372,7 +372,7 @@
         objecttotalmembers -> next = NULL;
         insertEntry(objecttotalmembers);
 
-		SymbolTableEntry *objectcopy;
+		SymbolTableEntry *objectcopy= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         objectcopy -> isActive = 1;
         objectcopy -> value.funcVal -> name = "objectcopy";
         objectcopy -> value.funcVal -> scope = 0;
@@ -381,7 +381,7 @@
         objectcopy -> next = NULL;
         insertEntry(objectcopy);
 		
-		SymbolTableEntry *totalarguments;
+		SymbolTableEntry *totalarguments= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         totalarguments -> isActive = 1;
         totalarguments -> value.funcVal -> name = "totalarguments";
         totalarguments -> value.funcVal -> scope = 0;
@@ -390,7 +390,7 @@
         totalarguments -> next = NULL;
         insertEntry(totalarguments);
 		
-		SymbolTableEntry *argument;
+		SymbolTableEntry *argument= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         argument -> isActive = 1;
         argument -> value.funcVal -> name = "argument";
         argument -> value.funcVal -> scope = 0;
@@ -399,7 +399,7 @@
         argument -> next = NULL;
         insertEntry(argument);
 		
-		SymbolTableEntry *Typeof;
+		SymbolTableEntry *Typeof= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         Typeof -> isActive = 1;
         Typeof -> value.funcVal -> name = "typeof";
         Typeof -> value.funcVal -> scope = 0;
@@ -408,7 +408,7 @@
         Typeof -> next = NULL;
         insertEntry(Typeof);
 		
-		SymbolTableEntry *strtonum;
+		SymbolTableEntry *strtonum= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         strtonum -> isActive = 1;
         strtonum -> value.funcVal -> name = "strtonum";
         strtonum -> value.funcVal -> scope = 0;
@@ -417,7 +417,7 @@
         strtonum -> next = NULL;
         insertEntry(strtonum);
 		
-		SymbolTableEntry *sqrt;
+		SymbolTableEntry *sqrt= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         sqrt -> isActive = 1;
         sqrt -> value.funcVal -> name = "sqrt";
         sqrt -> value.funcVal -> scope = 0;
@@ -426,7 +426,7 @@
         sqrt -> next = NULL;
         insertEntry(sqrt);
 		
-		SymbolTableEntry *cos;
+		SymbolTableEntry *cos= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         cos -> isActive = 1;
         cos -> value.funcVal -> name = "cos";
         cos -> value.funcVal -> scope = 0;
@@ -435,7 +435,7 @@
         cos -> next = NULL;
         insertEntry(cos);
 		
-		SymbolTableEntry *sin;
+		SymbolTableEntry *sin= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         sin -> isActive = 1;
         sin -> value.funcVal -> name = "sin";
         sin -> value.funcVal -> scope = 0;
