@@ -185,8 +185,48 @@
                                     }
                                 }
                               }
-                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
+                          | LOCAL_KEYWORD ID 
+                          {
+                            tmp = lookupScope(yylval.strVal, 0);
+
+                                if(tmp != NULL){ /*we found xxx in this scope*/
+                                    if((*getEntryType(tmp) == USERFUNC) || (*getEntryType(tmp) == LIBFUNC)){
+                                    /*check if there is a redefinitio or if this function can access this var*/
+                                        printf("ERROR: var %s redefined as a function\n", yylval.strVal);
+                                    }
+                                }
+                                /*we didn't find id in the table so we add it*/
+                                if(Scope == 0){/*we have a global id*/
+                                    Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                    SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                    newvar -> name = yytext;
+                                    newvar -> scope = 0;
+                                    newvar -> line = yylineno;
+                                    newnode -> type = GLOBAL;
+                                    newnode -> value.varVal = newvar;
+                                    newnode -> isActive = 1;
+
+                                    insertEntry(newnode);
+                                }else{/*it's a local id*/
+                                    Variable *newvar= (Variable *)malloc(sizeof(struct Variable));
+                                    SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                    newvar -> name = yytext;
+                                    newvar -> scope = Scope;
+                                    newvar -> line = yylineno;
+                                    newnode -> type = LOCAL;
+                                    newnode -> value.varVal = newvar;                                        newnode -> isActive = 1;
+                                 
+                                    insertEntry(newnode);
+                                }
+                          }
                           | DOUBLE_COLON ID
+                          {
+                            tmp = lookupScope(yylval.strVal, 0);
+
+                            if(tmp == NULL){ /*we didn't find xxx in scope 0*/
+                                printf("ERROR: could not find global %s\n", yylval.strVal);
+                            }
+                          }
                           |member
                           ;
                          
@@ -228,7 +268,13 @@
             indexdelem:   LEFT_BRACKET expr COLON expr RIGHT_BRACKET
                           ;
 
-            block:        LEFT_BRACKET stmt RIGHT_BRACKET  
+            block:        LEFT_BRACKET {Scope++;} stmt RIGHT_BRACKET 
+                            {/*when we see { we increase Scope and when we see }
+                            we first hide all entries in this scope because they are local
+                            and then we decrease Scope*/
+                             hideEntries(Scope);
+                             Scope--;
+                            } 
                           ;
 
             funcdef:      FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
