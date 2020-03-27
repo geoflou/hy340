@@ -6,6 +6,7 @@
             #include <stdio.h>
             #include <stdlib.h>
             #include "SymbolTable.h"
+            #include "al1.h"
 
 
 
@@ -150,7 +151,7 @@
                                    tmp = lookupScope(yylval.strVal, i);
 
                                     if(tmp != NULL){ /*we found xxx in this scope*/
-                                        if((getEnrtyType(tmp) == USERFUNC) || (getEnrtyType(tmp) == LIBFUNC)){
+                                        if((*getEntryType(tmp) == USERFUNC) || (*getEntryType(tmp) == LIBFUNC)){
                                         /*check if there is a redefinitio or if this function can access this var*/
                                             printf("ERROR: var %s redefined as a function\n", yylval.strVal);
                                         }
