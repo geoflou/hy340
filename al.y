@@ -190,9 +190,9 @@
                             tmp = lookupScope(yylval.strVal, 0);
 
                                 if(tmp != NULL){ /*we found xxx in this scope*/
-                                    if((*getEntryType(tmp) == USERFUNC) || (*getEntryType(tmp) == LIBFUNC)){
-                                    /*check if there is a redefinitio or if this function can access this var*/
-                                        printf("ERROR: var %s redefined as a function\n", yylval.strVal);
+                                    if(*getEntryType(tmp) == LIBFUNC){
+                                    /*check if this var can shadow a lib function*/
+                                        printf("ERROR: var %s cannot shadow a library function\n", yylval.strVal);
                                     }
                                 }
                                 /*we didn't find id in the table so we add it*/
