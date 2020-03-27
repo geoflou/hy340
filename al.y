@@ -37,7 +37,7 @@
                 %token <strVal> ID /*tokens*/
                 %token <intVal> INTEGER 
                 %token <doubleVal> REAL 
-                %token STRING         
+                %token <strVal> STRING         
                 %token IF             
                 %token ELSE           
                 %token WHILE          
@@ -53,7 +53,9 @@
                 %token TRUE           
                 %token FALSE          
                 %token NIL 
-                %token WHITESPACE           
+                %token WHITESPACE  
+                %type <doubleVal> expr 
+                %type <intVal> exprmod         
 
                 /*dependencies from lower to higher*/
                 %left SEMICOLON COLON COMMA DOUBLE_COLON  
@@ -94,26 +96,32 @@
                           | program WHITESPACE stmt
                           ;
 
-              stmt:       expr;
+              stmt:       expr SEMICOLON
                           |ifstmt
                           |whilestmt
                           |forstmt
                           |returnstmt
-                          |BREAK;
-                          |CONTINUE;
+                          |BREAK SEMICOLON
+                          |CONTINUE SEMICOLON
                           |block
                           |funcdef
                           |/*empty*/
                           ;
               
               expr:       assignexpr
-                          | expr OPERATOR_PLUS expr
-                          | expr OPERATOR_MINUS expr
-                          | expr OPERATOR_MOD expr
-                          | expr OPERATOR_DIV expr
-                          | expr OPERATOR_MUL expr
-                          | expr OPERATOR_GRT expr
-                          | expr OPERATOR_GRE expr
+                          | expr OPERATOR_PLUS expr     {$$ = $1 + $3;}
+                          | expr OPERATOR_MINUS expr    {$$ = $1 - $3;}
+                          
+                          | expr OPERATOR_DIV expr      {if($3==0){
+                                                        yyerror("Division by 0");
+                                                                        }
+                                                         else{
+                                                             $$ = $1 / $3;
+                                                         }               
+                                                                }
+                          | expr OPERATOR_MUL expr      {$$ = $1 * $3;}
+                          | expr OPERATOR_GRT expr      {$$ = $1 > $3;}
+                          | expr OPERATOR_GRE expr      {$$ = $1 >= $3;}
                           | expr OPERATOR_LES expr
                           | expr OPERATOR_LEE expr
                           | expr OPERATOR_EQ expr
@@ -122,7 +130,8 @@
                           | expr OPERATOR_OR expr
                           | term
                           ;
-             
+            
+
              term:        LEFT_PARENTHESIS expr RIGHT_PARENTHESIS
                           |OPERATOR_MINUS expr
                           |OPERATOR_NOT expr
