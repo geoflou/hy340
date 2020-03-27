@@ -27,7 +27,7 @@ int hashForBucket(char *symbolName){
 
 
 int hashForScope(int symbolScope){
-    return ((symbolScope * HASH_NUMBER) % SCOPE_BUCKETS) + NON_SCOPE_BUCKETS;
+    return (symbolScope % SCOPE_BUCKETS) + NON_SCOPE_BUCKETS;
 }
 
 
@@ -41,12 +41,12 @@ void insertEntry(SymbolTableEntry *symbol){
 
     if(symbol -> funcVal != NULL){
         scope = symbol -> funcVal -> scope;
-        name = strcpy(name, symbol -> funcVal -> name);
+        name =  symbol -> funcVal -> name;
     }
 
     if(symbol -> varVal != NULL){
         scope = symbol -> varVal -> scope;
-        name = strcpy(name, symbol -> varVal -> name);
+        name = symbol -> varVal -> name;
     }
 
     scopeLinkSymbol = (SymbolTableEntry *) malloc(sizeof(SymbolTableEntry));
@@ -55,6 +55,7 @@ void insertEntry(SymbolTableEntry *symbol){
     scopeLinkSymbol -> funcVal = symbol -> funcVal;
     scopeLinkSymbol -> next = NULL;
     scopeLinkSymbol -> type = symbol -> type;
+
     bucket = hashForBucket(name);
     scopeLink = hashForScope(scope);
 
@@ -96,7 +97,6 @@ SymbolTableEntry *lookupEverything(char *name){
     Function *funcTMP;
 
     assert(name != NULL);
-
     bucket = hashForBucket(name);
     if(SymbolTable[bucket] == NULL){
         return NULL;
@@ -327,4 +327,29 @@ int getEntryScope(SymbolTableEntry *symbol){
     }
 
     assert(0);
+}
+
+
+
+void main(void){
+    SymbolTableEntry *symbol = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+    Variable *var = (Variable*)malloc(sizeof(Variable));
+
+    var -> line = 1;
+    var -> name = "Elpizw na doylepseis";
+    var -> scope = 7;
+
+    initTable();
+
+    symbol -> isActive = 1;
+    symbol -> type = GLOBAL;
+    symbol -> varVal = var;
+    symbol -> funcVal = NULL;
+    symbol -> next = NULL;
+
+    lookupEverything(symbol->varVal->name);
+    insertEntry(symbol);
+    printEntries();
+
+    return;
 }
