@@ -36,6 +36,7 @@ void insertEntry(SymbolTableEntry *symbol){
     int scope;
     char *name;
     SymbolTableEntry *scopeLinkSymbol, *symbolIndex;
+
     assert(symbol != NULL);
 
     if(symbol -> value.funcVal != NULL){
@@ -52,7 +53,6 @@ void insertEntry(SymbolTableEntry *symbol){
     scopeLinkSymbol -> isActive = symbol ->isActive;
     scopeLinkSymbol -> value = symbol -> value;
     scopeLinkSymbol -> type = symbol -> type;
-
     bucket = hashForBucket(name);
     scopeLink = hashForScope(scope);
 
@@ -100,8 +100,7 @@ SymbolTableEntry *lookupEverything(char *name){
         return NULL;
     }
 
-    symbolIndex = SymbolTable[bucket] -> next;
-    assert(symbolIndex != NULL);
+    symbolIndex = SymbolTable[bucket];
 
     while(symbolIndex != NULL){
         
@@ -239,7 +238,7 @@ void printEntries(void){
         if(symbolIndex == NULL){
            continue;
         }
-
+        symbolIndex = symbolIndex -> next;
         while(symbolIndex != NULL){
             printf("\"%s\"  [%s]    (line %d)   (scope %d)\n",getEntryName(symbolIndex),
                 getEntryType(symbolIndex), getEntryLine(symbolIndex), getEntryScope(symbolIndex));
