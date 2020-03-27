@@ -4,6 +4,7 @@
     #include <string.h>
     #include <stdio.h>
     #include "al1.h"
+    #include "SymbolTable.h"
 
     /*for double/real values we use strtod (str to double)*/
     char* useless_ptr;
@@ -130,14 +131,14 @@ DOUBLE_COLON        "::"
 DOT                 "."
 DOUBLE_DOT          ".."
 
-SINGLE_COMMENT      "//".*
-MULTI_LINE_COMMENT  "/*"
+SLASH_COMMENT      "//".*
+MULTI_COMMENT       "/*"
 UNKNOWN_TOKEN       .
 %%
 
 
-{SINGLE_COMMENT}      {return SINGLE_LINE_COMMENT;}
-{MULTI_LINE_COMMENT}    {
+{SLASH_COMMENT}      {return "SLASH_COMMENT";}
+{MULTI_COMMENT}    {
                             int commentCloseFlag = 1;
                             int index = 2;
                             int line = yylineno;
@@ -194,10 +195,10 @@ UNKNOWN_TOKEN       .
 
                             if(commentCloseFlag != 0){
                                 printf("In line %d ERROR: Comment never closed\n",line);
-                                return ERROR;
+                                return -1;
                             }
                             
-                            return MULTI_LINE_COMMENT;
+                            return "MULTI_COMMENT";
 }
 
 {LEFT_BRACE}          {return LEFT_BRACE;}
@@ -208,40 +209,40 @@ UNKNOWN_TOKEN       .
 {DOUBLE_COLON}        {return DOUBLE_COLON;}
 {DOT}                 {return DOT;}
 {DOUBLE_DOT}          {return DOUBLE_COLON;}
-{IF}                  {return IF_KEYWORD;}
-{ELSE}                {return ELSE_KEYWORD;}
-{WHILE}               {return WHILE_KEYWORD;}
-{FOR}                 {return FOR_KEYWORD;}
+{IF}                  {return IF;}
+{ELSE}                {return ELSE;}
+{WHILE}               {return WHILE;}
+{FOR}                 {return FOR;}
 {FUNCTION}            {yylval.strVal = strdup(yytext);
-                       return FUNCTION_KEYWORD, yylineno;
+                       return FUNCTION, yylineno;
                       }
-{RETURN}              {return RETURN_KEYWORD;}
-{BREAK}               {return BREAK_KEYWORD;}
-{CONTINUE}            {return CONTINUE_KEYWORD;}
-{AND}                 {return AND_KEYWORD;}
-{OR}                  {return OR_KEYWORD;}
+{RETURN}              {return RETURN;}
+{BREAK}               {return BREAK;}
+{CONTINUE}            {return CONTINUE;}
+{AND}                 {return AND;}
+{OR}                  {return OR;}
 {LOCAL_KEYWORD}       {return LOCAL_KEYWORD;}
-{TRUE}                {return TRUE_KEYWORD;}
-{FALSE}               {return FALSE_KEYWORD;}
-{NIL}                 {return NIL_KEYWORD;}
+{TRUE}                {return TRUE;}
+{FALSE}               {return FALSE;}
+{NIL}                 {return NIL;}
 {WHITE_SPACE}         {}
 {NEWLINE}             {}
-{OPERATOR_PLUS}       {return PLUS;}
-{OPERATOR_MINUS}      {return MINUS;}
-{OPERATOR_MUL}        {return MULTIPLICATION;}
-{OPERATOR_DIV}        {return DIVISION;}
-{OPERATOR_ASSIGN}     {return ASSIGNMENT;}
-{OPERATOR_MOD}        {return MODULO;}
-{OPERATOR_EQ}         {return EQUAL;}
-{OPERATOR_NOT}        {return NOT;}
-{OPERATOR_PP}         {return INCREMENT;}
-{OPERATOR_MM}         {return DECREMENT;}
-{OPERATOR_GRT}        {return GREATER;}
-{OPERATOR_LES}        {return LESSER;}
-{OPERATOR_GRE}        {return GREATER EQUAL;}
-{OPERATOR_LEE}        {return LESSER EQUAL;}
+{OPERATOR_PLUS}       {return OPERATOR_PLUS;}
+{OPERATOR_MINUS}      {return OPERATOR_MINUS;}
+{OPERATOR_MUL}        {return OPERATOR_MUL;}
+{OPERATOR_DIV}        {return OPERATOR_DIV;}
+{OPERATOR_ASSIGN}     {return OPERATOR_ASSIGN;}
+{OPERATOR_MOD}        {return OPERATOR_MOD;}
+{OPERATOR_EQ}         {return OPERATOR_EQ;}
+{OPERATOR_NOT}        {return OPERATOR_NOT;}
+{OPERATOR_PP}         {return OPERATOR_PP;}
+{OPERATOR_MM}         {return OPERATOR_MM;}
+{OPERATOR_GRT}        {return OPERATOR_GRT;}
+{OPERATOR_LES}        {return OPERATOR_LES;}
+{OPERATOR_GRE}        {return OPERATOR_GRE;}
+{OPERATOR_LEE}        {return OPERATOR_LEE;}
 {INTEGER}             {yylval.intVal = atoi(yytext);
-                       return INT, yylineno;}
+                       return INTEGER, yylineno;}
 {REAL}                {yylval.doubleVal = strtod(yytext, &useless_ptr);
                        return REAL, yylineno;}
 {LEFT_BRACKET}        {return LEFT_BRACKET;}
@@ -317,7 +318,7 @@ UNKNOWN_TOKEN       .
 
             if(backSlashCounter % 2 != 0){
                 printf("In line %d ERROR: Invalid backslash escape sequence\n",line);
-                return ERROR;
+                return -1;
             }
 
             if(closingQuoteFlag == 0){
@@ -326,7 +327,7 @@ UNKNOWN_TOKEN       .
             }
             else{
                 printf("In line %d ERROR: Closing '\"' expected\n", line);
-                return ERROR;
+                return -1;
             }
 
 }
