@@ -33,20 +33,22 @@
 
 %start program
                 %expect 1
-                %token ID INTEGER REAL /*tokens*/
+                %token <strVal> ID /*tokens*/
+                %token <intVal> INTEGER 
+                %token <doubleVal> REAL 
                 %token STRING         
                 %token IF             
                 %token ELSE           
                 %token WHILE          
                 %token FOR            
-                %token FUNCTION       
+                %token <strVal> FUNCTION       
                 %token RETURN         
                 %token BREAK          
                 %token CONTINUE       
                 %token AND            
                 %token NOT            
                 %token OR             
-                %token LOCAL          
+                %token LOCAL_KEYWORD          
                 %token TRUE           
                 %token FALSE          
                 %token NIL 
@@ -140,15 +142,19 @@
                           |const
                           ;
 
-            lvalue:       ID {
+            lvalue:       ID 
+                          | LOCAL_KEYWORD ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
+                          | DOUBLE_COLON ID
+                          |member
+                           {
                                 i = scope;
                                 yylval.strVal = yytext;
 
                                 while(i >= 0){
-                                    tmp = lookUpScope(yylval.strVal, i);
+                                   lookupScope(yylval.strVal, i);
 
                                     if(tmp != NULL){ /*we found xxx in this scope*/
-                                        if(){/*check if there is a redefinition
+                                        if(0){/*check if there is a redefinition
                                                or if this function can access this var
                                                 */
 
@@ -163,10 +169,8 @@
                                 }
 
                           }
-                          | LOCAL ID /*mallon prepei na ftia3w ena token pou 8a legetai local token alla den eimai sigouros*/
-                          | DOUBLE_COLON ID
-                          |member
                           ;
+                         
 
             member:       lvalue DOT ID
                           | lvalue LEFT_BRACE expr RIGHT_BRACE
@@ -210,6 +214,20 @@
 
             funcdef:      FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
+                          { 
+                              if(lookupEverything($2)==NULL){
+                                  Function *newfunc= (Function *)malloc(sizeof(struct Function));
+                                 SymbolTableEntry *newnode= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                                 newfunc->name=yytext;
+                                 newfunc->scope=0;
+                                 newfunc->line=yylineno;
+                                 newnode->type=USERFUNC;
+                                 newnode-> value.funcVal=newfunc;
+                                 newnode->isActive=1;
+                                 
+                                 insertEntry(newnode);    
+                              }
+                          }
                           ;
 
             const:        INTEGER
@@ -246,7 +264,7 @@
       }
 
       int main(int argc, char* argv[]){
-        
+        printf("OK\n");
         /*adding library function in hashtable
 		ta next ta exw balei ola null*/
         SymbolTableEntry *print;
@@ -257,6 +275,7 @@
         print -> type = LIBFUNC;
         print -> next = NULL;
         insertEntry(print);
+        lookupEverything(print->value.funcVal->name);
 		
 		SymbolTableEntry *input;
         input -> isActive = 1;
@@ -312,14 +331,14 @@
         argument -> next = NULL;
         insertEntry(argument);
 		
-		SymbolTableEntry *typeof;
-        typeof -> isActive = 1;
-        typeof -> value.funcVal -> name = "typeof";
-        typeof -> value.funcVal -> scope = 0;
-        typeof -> value.funcVal -> line = 0;
-        typeof -> type = LIBFUNC;
-        typeof -> next = NULL;
-        insertEntry(typeof);
+		SymbolTableEntry *Typeof;
+        Typeof -> isActive = 1;
+        Typeof -> value.funcVal -> name = "typeof";
+        Typeof -> value.funcVal -> scope = 0;
+        Typeof -> value.funcVal -> line = 0;
+        Typeof -> type = LIBFUNC;
+        Typeof -> next = NULL;
+        insertEntry(Typeof);
 		
 		SymbolTableEntry *strtonum;
         strtonum -> isActive = 1;
@@ -361,3 +380,6 @@
         yyparse();
         return 0;
       }
+     
+
+
