@@ -6,6 +6,7 @@
             #include <stdio.h>
             #include <stdlib.h>
             #include "SymbolTable.h"
+            #include "al1.h"
 
 
 
@@ -56,8 +57,8 @@
                 %token FALSE          
                 %token NIL 
                 %token WHITESPACE  
-                %type <doubleVal> expr 
-                %type <intVal> exprmod         
+               
+                   
 
                 /*dependencies from lower to higher*/
                 %left SEMICOLON COLON COMMA DOUBLE_COLON  
@@ -111,19 +112,14 @@
                           ;
               
               expr:       assignexpr
-                          | expr OPERATOR_PLUS expr     {$$ = $1 + $3;}
-                          | expr OPERATOR_MINUS expr    {$$ = $1 - $3;}
-                          
-                          | expr OPERATOR_DIV expr      {if($3==0){
-                                                        yyerror("Division by 0");
-                                                                        }
-                                                         else{
-                                                             $$ = $1 / $3;
-                                                         }               
-                                                                }
-                          | expr OPERATOR_MUL expr      {$$ = $1 * $3;}
-                          | expr OPERATOR_GRT expr      {$$ = $1 > $3;}
-                          | expr OPERATOR_GRE expr      {$$ = $1 >= $3;}
+                          | expr OPERATOR_PLUS expr    
+                          | expr OPERATOR_MINUS expr   
+                          | expr OPERATOR_MOD expr          
+                          | expr OPERATOR_DIV expr           
+                                                       
+                          | expr OPERATOR_MUL expr     
+                          | expr OPERATOR_GRT expr     
+                          | expr OPERATOR_GRE expr     
                           | expr OPERATOR_LES expr
                           | expr OPERATOR_LEE expr
                           | expr OPERATOR_EQ expr
@@ -159,7 +155,7 @@
                                 yylval.strVal = yytext;
 
                                 while(i >= 0){
-                                   tmp = lookupScope(yylval.strVal, i);
+                                    tmp = lookupScope(yylval.strVal, i);
 
                                     if(tmp != NULL){ /*we found xxx in this scope*/
                                         if((*getEntryType(tmp) == USERFUNC) || (*getEntryType(tmp) == LIBFUNC)){
@@ -179,7 +175,7 @@
                                         newvar -> scope = 0;
                                         newvar -> line = yylineno;
                                         newnode -> type = GLOBAL;
-                                        newnode -> value.varVal = newvar;
+                                        newnode -> varVal = newvar;
                                         newnode -> isActive = 1;
                                  
                                         insertEntry(newnode);
@@ -190,7 +186,7 @@
                                         newvar -> scope = Scope;
                                         newvar -> line = yylineno;
                                         newnode -> type = LOCAL;
-                                        newnode -> value.varVal = newvar;
+                                        newnode -> varVal = newvar;
                                         newnode -> isActive = 1;
                                  
                                         insertEntry(newnode);
@@ -215,7 +211,7 @@
                                     newvar -> scope = 0;
                                     newvar -> line = yylineno;
                                     newnode -> type = GLOBAL;
-                                    newnode -> value.varVal = newvar;
+                                    newnode -> varVal = newvar;
                                     newnode -> isActive = 1;
 
                                     insertEntry(newnode);
@@ -226,7 +222,7 @@
                                     newvar -> scope = Scope;
                                     newvar -> line = yylineno;
                                     newnode -> type = LOCAL;
-                                    newnode -> value.varVal = newvar;                                        newnode -> isActive = 1;
+                                    newnode -> varVal = newvar;                                        newnode -> isActive = 1;
                                  
                                     insertEntry(newnode);
                                 }
@@ -300,7 +296,7 @@
                               newfunc -> scope = Scope;
                               newfunc -> line = yylineno;
                               newnode -> type = USERFUNC;
-                              newnode -> value.funcVal = newfunc;
+                              newnode -> funcVal = newfunc;
                               newnode -> isActive = 1;
                              
                               insertEntry(newnode); 
@@ -331,7 +327,7 @@
                                     newfunc -> scope = Scope;
                                     newfunc -> line = yylineno;
                                     newnode -> type = USERFUNC;
-                                    newnode -> value.funcVal = newfunc;
+                                    newnode -> funcVal = newfunc;
                                     newnode -> isActive = 1;
                              
                                     insertEntry(newnode);                                
@@ -347,9 +343,8 @@
                           |FALSE
                           ;
 
-            idlist:       |idlist
-                          |ID
-                          | COMMA ID  
+            idlist:     |ID
+                        | COMMA ID  
                           {
                               yylval.strVal = yytext;
                               tmp = lookupScope(yylval.strVal, Scope);
@@ -368,8 +363,8 @@
                                   newvar -> scope = Scope;
                                   newvar -> line = yylineno;
                                   newnode -> type = FORMAL;
-                                  newnode -> value.varVal = newvar;                                        newnode -> isActive = 1;
-                                 
+                                  newnode -> varVal = newvar;        
+                                  newnode -> isActive = 1;
                                   insertEntry(newnode);
                               }
                           }
@@ -398,140 +393,142 @@
       int main(int argc, char* argv[]){
 
         initTable();   
-        printf("OK\n");
-        /*adding library function in hashtable*/
-        Function *funcPrint= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *print= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcPrint -> name = "print";
-        funcPrint -> scope = 0;
-        funcPrint -> line = 0;
-        print -> type = LIBFUNC;
-        print -> value.funcVal = funcPrint;
+        /*adding library function in hashtable
+		ta next ta exw balei ola null*/
+        SymbolTableEntry *print = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *printFunc = (Function *)malloc(sizeof(Function));
         print -> isActive = 1;
-                                 
+        printFunc -> name = "print";
+        printFunc -> scope = 0;
+        printFunc -> line = 0;
+        print -> funcVal = printFunc;
+        print -> type = LIBFUNC;
+        print -> next = NULL;
         insertEntry(print);
-    
-		Function *funcInput= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *input= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcInput -> name = "input";
-        funcInput -> scope = 0;
-        funcInput -> line = 0;
-        input -> type = LIBFUNC;
-        input -> value.funcVal = funcInput;
+        lookupEverything(print->funcVal->name);
+
+		SymbolTableEntry *input= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *inputFunc = (Function*)malloc(sizeof(Function));
         input -> isActive = 1;
-                                 
+        inputFunc -> name = "input";
+        inputFunc -> scope = 0;
+        inputFunc -> line = 0;
+        input -> funcVal = inputFunc;
+        input -> type = LIBFUNC;
+        input -> next = NULL;
         insertEntry(input);
 
-        Function *funcObjectmemberkeys= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *objectmemberkeys= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcObjectmemberkeys -> name = "objectmemberkeys";
-        funcObjectmemberkeys -> scope = 0;
-        funcObjectmemberkeys -> line = 0;
-        objectmemberkeys -> type = LIBFUNC;
-        objectmemberkeys -> value.funcVal = funcObjectmemberkeys;
+		SymbolTableEntry *objectmemberkeys= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *objectmemberkeysFunc = (Function*)malloc(sizeof(Function));
         objectmemberkeys -> isActive = 1;
-
+        objectmemberkeysFunc -> name = "objectmemberkeys";
+        objectmemberkeysFunc -> scope = 0;
+        objectmemberkeysFunc -> line = 0;
+        objectmemberkeys -> funcVal = objectmemberkeysFunc;
+        objectmemberkeys -> type = LIBFUNC;
+        objectmemberkeys -> next = NULL;
         insertEntry(objectmemberkeys);
 
-        Function *funcObjecttotalmembers= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *objecttotalmembers= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcObjecttotalmembers -> name = "objecttotalmembers";
-        funcObjecttotalmembers -> scope = 0;
-        funcObjecttotalmembers -> line = yylineno;
-        objecttotalmembers -> type = 0;
-        objecttotalmembers -> value.funcVal = funcObjecttotalmembers;
+		SymbolTableEntry *objecttotalmembers= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *objecttotalmembersFunc = (Function*)malloc(sizeof(Function));
         objecttotalmembers -> isActive = 1;
-
+        objecttotalmembersFunc -> name = "objecttotalmembers";
+        objecttotalmembersFunc -> scope = 0;
+        objecttotalmembersFunc -> line = 0;
+        objecttotalmembers -> funcVal = objecttotalmembersFunc;
+        objecttotalmembers -> type = LIBFUNC;
+        objecttotalmembers -> next = NULL;
         insertEntry(objecttotalmembers);
-        
-		Function *funcObjectcopy= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *objectcopy= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcObjectcopy -> name = "objectcopy";
-        funcObjectcopy -> scope = 0;
-        funcObjectcopy -> line = 0;
-        objectcopy -> type = LIBFUNC;
-        objectcopy -> value.funcVal = funcObjectcopy;
+
+		SymbolTableEntry *objectcopy= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *objectcopyFunc = (Function*)malloc(sizeof(Function));
         objectcopy -> isActive = 1;
-
+        objectcopyFunc -> name = "objectcopy";
+        objectcopyFunc -> scope = 0;
+        objectcopyFunc -> line = 0;
+        objectcopy -> funcVal = objectcopyFunc;
+        objectcopy -> type = LIBFUNC;
+        objectcopy -> next = NULL;
         insertEntry(objectcopy);
-        
-		Function *funcTotalarguments= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *totalarguments= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcTotalarguments -> name = "totalarguments";
-        funcTotalarguments -> scope = 0;
-        funcTotalarguments -> line = 0;
-        totalarguments -> type = LIBFUNC;
-        totalarguments -> value.funcVal = funcTotalarguments;
-        totalarguments -> isActive = 1;
-
-        insertEntry(totalarguments);
-        
-		Function *funcArgument= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *argument= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcArgument -> name = "argument";
-        funcArgument -> scope = 0;
-        funcArgument -> line = 0;
-        argument -> type = LIBFUNC;
-        argument -> value.funcVal = funcArgument;
-        argument -> isActive = 1;
-
-        insertEntry(argument);
-
-		Function *funcTypeof= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *ptrtypeof= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcTypeof -> name = "typeof";
-        funcTypeof -> scope = 0;
-        funcTypeof -> line = 0;
-        ptrtypeof -> type = LIBFUNC;
-        ptrtypeof -> value.funcVal = funcTypeof;
-        ptrtypeof -> isActive = 1;
-
-        insertEntry(ptrtypeof);
-
-		Function *funcStrtonum= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *strtonum= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcStrtonum -> name = "strtonum";
-        funcStrtonum -> scope = 0;
-        funcStrtonum -> line = 0;
-        strtonum -> type = LIBFUNC;
-        strtonum -> value.funcVal = funcStrtonum;
-        strtonum -> isActive = 1;
-
-        insertEntry(strtonum);
-
-        Function *funcSqrt= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *sqrt= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcSqrt -> name = "sqrt";
-        funcSqrt -> scope = 0;
-        funcSqrt -> line = 0;
-        sqrt -> type = LIBFUNC;
-        sqrt -> value.funcVal = funcSqrt;
-        sqrt -> isActive = 1;
-
-        insertEntry(sqrt);		
 		
-        Function *funcCos= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *cos= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcCos -> name = "cos";
-        funcCos -> scope = 0;
-        funcCos -> line = 0;
-        cos -> type = LIBFUNC;
-        cos -> value.funcVal = funcCos;
+		SymbolTableEntry *totalarguments= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *totalargumentsFunc = (Function*)malloc(sizeof(Function));
+        totalarguments -> isActive = 1;
+        totalargumentsFunc -> name = "totalarguments";
+        totalargumentsFunc -> scope = 0;
+        totalargumentsFunc -> line = 0;
+        totalarguments -> funcVal = totalargumentsFunc;
+        totalarguments -> type = LIBFUNC;
+        totalarguments -> next = NULL;
+        insertEntry(totalarguments);
+		
+		SymbolTableEntry *argument= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *argumentFunc = (Function*)malloc(sizeof(Function));
+        argument -> isActive = 1;
+        argumentFunc -> name = "argument";
+        argumentFunc -> scope = 0;
+        argumentFunc -> line = 0;
+        argument -> funcVal = argumentFunc;
+        argument -> type = LIBFUNC;
+        argument -> next = NULL;
+        insertEntry(argument);
+		
+		SymbolTableEntry *Typeof= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *TypeofFunc = (Function*)malloc(sizeof(Function));
+        Typeof -> isActive = 1;
+        TypeofFunc -> name = "typeof";
+        TypeofFunc -> scope = 0;
+        TypeofFunc -> line = 0;
+        Typeof -> funcVal = TypeofFunc;
+        Typeof -> type = LIBFUNC;
+        Typeof -> next = NULL;
+        insertEntry(Typeof);
+		
+		SymbolTableEntry *strtonum= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *strtonumFunc =  (Function*)malloc(sizeof(Function));
+        strtonum -> isActive = 1;
+        strtonumFunc -> name = "strtonum";
+        strtonumFunc -> scope = 0;
+        strtonumFunc -> line = 0;
+        strtonum -> funcVal = strtonumFunc;
+        strtonum -> type = LIBFUNC;
+        strtonum -> next = NULL;
+        insertEntry(strtonum);
+		
+		SymbolTableEntry *sqrt= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *sqrtFunc = (Function*)malloc(sizeof(Function));
+        sqrt -> isActive = 1;
+        sqrtFunc -> name = "sqrt";
+        sqrtFunc -> scope = 0;
+        sqrtFunc -> line = 0;
+        sqrt -> funcVal = sqrtFunc;
+        sqrt -> type = LIBFUNC;
+        sqrt -> next = NULL;
+        insertEntry(sqrt);
+		
+		SymbolTableEntry *cos= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *cosFunc =  (Function*)malloc(sizeof(Function));
         cos -> isActive = 1;
-
+        cosFunc -> name = "cos";
+        cosFunc -> scope = 0;
+        cosFunc -> line = 0;
+        cos -> funcVal = cosFunc;
+        cos -> type = LIBFUNC;
+        cos -> next = NULL;
         insertEntry(cos);
-
-		Function *funcSin= (Function *)malloc(sizeof(struct Function));
-        SymbolTableEntry *sin= (SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-        funcSin -> name = "sin";
-        funcSin -> scope = 0;
-        funcSin -> line = 0;
-        sin -> type = LIBFUNC;
-        sin -> value.funcVal = funcSin;
+		
+		SymbolTableEntry *sin= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *sinFunc = (Function*)malloc(sizeof(Function));
         sin -> isActive = 1;
-
+        sinFunc -> name = "sin";
+        sinFunc -> scope = 0;
+        sinFunc -> line = 0;
+        sin -> funcVal = sinFunc;
+        sin -> type = LIBFUNC;
+        sin -> next = NULL;
         insertEntry(sin);
 		
+		printEntries();
         yyparse();
         printEntries();
         return 0;

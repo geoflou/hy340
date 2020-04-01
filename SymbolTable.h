@@ -33,10 +33,8 @@ typedef struct Function{
 
 typedef struct SymbolTableEntry{
     int isActive;
-    union{
-        Variable *varVal;
-        Function *funcVal;
-    } value;
+    Variable *varVal;
+    Function *funcVal;
     enum SymbolType type;
     struct SymbolTableEntry *next;
 } SymbolTableEntry;

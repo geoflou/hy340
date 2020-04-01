@@ -8,11 +8,12 @@ void initTable(void){
     int i;
 
     for(i = 0;i < SYMBOL_TABLE_BUCKETS;i++){
+        SymbolTable[i] = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         SymbolTable[i] -> isActive = 0;
         SymbolTable[i] -> next = NULL;
         SymbolTable[i] -> type = GLOBAL;
-        SymbolTable[i] -> value.funcVal = NULL;
-        SymbolTable[i] -> value.varVal = NULL;
+        SymbolTable[i] -> funcVal = NULL;
+        SymbolTable[i] -> varVal = NULL;
     }
 
     return;
@@ -26,7 +27,7 @@ int hashForBucket(char *symbolName){
 
 
 int hashForScope(int symbolScope){
-    return ((symbolScope * HASH_NUMBER) % SCOPE_BUCKETS) + NON_SCOPE_BUCKETS;
+    return (symbolScope % SCOPE_BUCKETS) + NON_SCOPE_BUCKETS;
 }
 
 
@@ -38,19 +39,21 @@ void insertEntry(SymbolTableEntry *symbol){
 
     assert(symbol != NULL);
 
-    if(symbol -> value.funcVal != NULL){
-        scope = symbol -> value.funcVal -> scope;
-        name = strcpy(name, symbol -> value.funcVal -> name);
+    if(symbol -> funcVal != NULL){
+        scope = symbol -> funcVal -> scope;
+        name =  symbol -> funcVal -> name;
     }
 
-    if(symbol -> value.varVal != NULL){
-        scope = symbol -> value.varVal -> scope;
-        name = strcpy(name, symbol -> value.varVal -> name);
+    if(symbol -> varVal != NULL){
+        scope = symbol -> varVal -> scope;
+        name = symbol -> varVal -> name;
     }
 
     scopeLinkSymbol = (SymbolTableEntry *) malloc(sizeof(SymbolTableEntry));
     scopeLinkSymbol -> isActive = symbol ->isActive;
-    scopeLinkSymbol -> value = symbol -> value;
+    scopeLinkSymbol -> varVal = symbol -> varVal;
+    scopeLinkSymbol -> funcVal = symbol -> funcVal;
+    scopeLinkSymbol -> next = NULL;
     scopeLinkSymbol -> type = symbol -> type;
 
     bucket = hashForBucket(name);
@@ -94,26 +97,24 @@ SymbolTableEntry *lookupEverything(char *name){
     Function *funcTMP;
 
     assert(name != NULL);
-
     bucket = hashForBucket(name);
     if(SymbolTable[bucket] == NULL){
         return NULL;
     }
 
-    symbolIndex = SymbolTable[bucket] -> next;
-    assert(symbolIndex != NULL);
+    symbolIndex = SymbolTable[bucket];
 
     while(symbolIndex != NULL){
         
-        if(symbolIndex -> value.varVal != NULL){
-            varTMP = symbolIndex -> value.varVal;
+        if(symbolIndex -> varVal != NULL){
+            varTMP = symbolIndex -> varVal;
             if(strcmp(varTMP -> name, name) == 0){
                 return symbolIndex;
             }
         }
 
-        if(symbolIndex -> value.funcVal != NULL){
-            funcTMP = symbolIndex -> value.funcVal;
+        if(symbolIndex -> funcVal != NULL){
+            funcTMP = symbolIndex -> funcVal;
             if(strcmp(funcTMP -> name, name) == 0){
                 return symbolIndex;
             }
@@ -142,15 +143,15 @@ SymbolTableEntry *lookupScope(char *name, int scope){
 
     while(symbolIndex != NULL){
         
-        if(symbolIndex -> value.varVal != NULL){
-            varTMP = symbolIndex -> value.varVal;
+        if(symbolIndex -> varVal != NULL){
+            varTMP = symbolIndex -> varVal;
             if(strcmp(varTMP -> name, name) == 0){
                 return symbolIndex;
             }
         }
 
-        if(symbolIndex -> value.funcVal != NULL){
-            funcTMP = symbolIndex -> value.funcVal;
+        if(symbolIndex -> funcVal != NULL){
+            funcTMP = symbolIndex -> funcVal;
             if(strcmp(funcTMP -> name, name) == 0){
                 return symbolIndex;
             }
@@ -203,15 +204,15 @@ void hideFromBuckets(int scope){
 
         while(symbolIndex != NULL){
  
-            if(symbolIndex -> value.varVal != NULL){
-                varTMP = symbolIndex -> value.varVal;
+            if(symbolIndex -> varVal != NULL){
+                varTMP = symbolIndex -> varVal;
                 if(varTMP -> scope == scope){
                     symbolIndex -> isActive = 0;
                 }
             }
 
-            if(symbolIndex -> value.funcVal != NULL){
-                funcTMP = symbolIndex -> value.funcVal;
+            if(symbolIndex -> funcVal != NULL){
+                funcTMP = symbolIndex -> funcVal;
                 if(funcTMP -> scope == scope){
                     symbolIndex -> isActive = 0;
                 }
@@ -239,7 +240,7 @@ void printEntries(void){
         if(symbolIndex == NULL){
            continue;
         }
-
+        symbolIndex = symbolIndex -> next;
         while(symbolIndex != NULL){
             printf("\"%s\"  [%s]    (line %d)   (scope %d)\n",getEntryName(symbolIndex),
                 getEntryType(symbolIndex), getEntryLine(symbolIndex), getEntryScope(symbolIndex));
@@ -279,13 +280,13 @@ char *getEntryName(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> name;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> name;
     }
 
@@ -297,13 +298,13 @@ int getEntryLine(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> line;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> line;
     }
 
@@ -315,13 +316,13 @@ int getEntryScope(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> scope;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> scope;
     }
 

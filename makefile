@@ -1,7 +1,9 @@
-a.out: al.l
+a.out:  
+	bison --yacc --defines --output=al1.c al.y
 	flex --outfile=al.c al.l
-	gcc  al.c
+	gcc  al1.c al.c SymbolTable.c 
 
 clean:
-	rm *.c
+	rm al1.c al.c
+	rm al1.h
 	rm *.out
