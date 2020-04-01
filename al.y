@@ -95,59 +95,58 @@
 
             /*Alpha grammar rules*/
 
-              program:    stmt
-                          | program WHITESPACE stmt
+              program:    stmt  {print("stmt -> program\n");}
+                          | program WHITESPACE stmt {print("program WHITESPACE stmt -> program\n");}
                           ;
 
-              stmt:       expr SEMICOLON
-                          |ifstmt
-                          |whilestmt
-                          |forstmt
-                          |returnstmt
-                          |BREAK SEMICOLON
-                          |CONTINUE SEMICOLON
-                          |block
-                          |funcdef
-                          |/*empty*/
+              stmt:       expr SEMICOLON        {print("expr ; -> stmt\n");}
+                          |ifstmt               {print("IF -> stmt\n");}
+                          |whilestmt            {print("WHILE -> stmt\n");}
+                          |forstmt              {print("FOR -> stmt\n");}
+                          |returnstmt           {print("RETURN -> stmt\n");}
+                          |BREAK SEMICOLON      {print("BREAK -> stmt\n");}
+                          |CONTINUE SEMICOLON   {print("CONTINUE -> stmt\n");}
+                          |block                {print("BLOCK -> stmt\n");}
+                          |funcdef              {print("FUNCDEF -> stmt\n");}
+                          |/*empty*/            {print("EMPTY -> stmt\n");}
                           ;
               
-              expr:       assignexpr
-                          | expr OPERATOR_PLUS expr    
-                          | expr OPERATOR_MINUS expr   
-                          | expr OPERATOR_MOD expr          
-                          | expr OPERATOR_DIV expr           
-                                                       
-                          | expr OPERATOR_MUL expr     
-                          | expr OPERATOR_GRT expr     
-                          | expr OPERATOR_GRE expr     
-                          | expr OPERATOR_LES expr
-                          | expr OPERATOR_LEE expr
-                          | expr OPERATOR_EQ expr
-                          | expr OPERATOR_NEQ expr
-                          | expr OPERATOR_AND expr
-                          | expr OPERATOR_OR expr
-                          | term
+              expr:       assignexpr                   {print("assignexpr -> expr\n");}
+                          | expr OPERATOR_PLUS expr    {print("expr + expr -> expr\n");}
+                          | expr OPERATOR_MINUS expr   {print("expr - expr -> expr\n");}
+                          | expr OPERATOR_MOD expr     {print("expr % expr -> expr\n");}
+                          | expr OPERATOR_DIV expr     {print("expr / expr -> expr\n");}
+                          | expr OPERATOR_MUL expr     {print("expr * expr -> expr\n");}
+                          | expr OPERATOR_GRT expr     {print("expr > expr -> expr\n");}
+                          | expr OPERATOR_GRE expr     {print("expr >= expr -> expr\n");}
+                          | expr OPERATOR_LES expr     {print("expr < expr -> expr\n");}
+                          | expr OPERATOR_LEE expr     {print("expr <= expr -> expr\n");}
+                          | expr OPERATOR_EQ expr      {print("expr == expr -> expr\n");}
+                          | expr OPERATOR_NEQ expr     {print("expr != expr -> expr\n");}
+                          | expr OPERATOR_AND expr     {print("expr && expr -> expr\n");}
+                          | expr OPERATOR_OR expr      {print("expr || expr -> expr\n");}
+                          | term                       {print("term -> expr\n");}
                           ;
             
 
-             term:        LEFT_PARENTHESIS expr RIGHT_PARENTHESIS
-                          |OPERATOR_MINUS expr
-                          |OPERATOR_NOT expr
-                          |OPERATOR_PP lvalue
-                          |lvalue OPERATOR_PP
-                          |OPERATOR_MM lvalue
-                          |lvalue OPERATOR_MM
-                          |primary
+             term:        LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {print("( expr ) -> term\n");}
+                          |OPERATOR_MINUS expr                      {print("- expr -> term\n");}
+                          |OPERATOR_NOT expr                        {print("! expr -> term\n");}
+                          |OPERATOR_PP lvalue                       {print("++ expr -> term\n");}
+                          |lvalue OPERATOR_PP                       {print("expr ++ -> term\n");}
+                          |OPERATOR_MM lvalue                       {print("-- expr -> term\n");}
+                          |lvalue OPERATOR_MM                       {print("expr -- -> term\n");}
+                          |primary                                  {print("primary -> term\n");}
                           ;                  
 
-            assignexpr:   lvalue OPERATOR_ASSIGN expr
+            assignexpr:   lvalue OPERATOR_ASSIGN expr   {print("lvalue = expr -> assignexpr\n");}
                           ;
 
-            primary:       call
-                          |lvalue
-                          |objectdef
-                          |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS
-                          |const
+            primary:       call                                         {print("call -> primary\n");}
+                          |lvalue                                       {print("lvalue -> primary\n");}
+                          |objectdef                                    {print("objectdef -> primary\n");}
+                          |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS   {print("( funcdef ) -> primary\n");}
+                          |const                                        {print("const -> primary\n");}
                           ;
 
             lvalue:       ID {
@@ -192,6 +191,7 @@
                                         insertEntry(newnode);
                                     }
                                 }
+                              print("ID -> lvalue\n");
                               }
                           | LOCAL_KEYWORD ID 
                           {
@@ -222,10 +222,12 @@
                                     newvar -> scope = Scope;
                                     newvar -> line = yylineno;
                                     newnode -> type = LOCAL;
-                                    newnode -> varVal = newvar;                                        newnode -> isActive = 1;
+                                    newnode -> varVal = newvar;
+                                    newnode -> isActive = 1;
                                  
                                     insertEntry(newnode);
                                 }
+                          print("LOCAL ID -> lvalue\n");
                           }
                           | DOUBLE_COLON ID
                           {
@@ -234,54 +236,66 @@
                             if(tmp == NULL){ /*we didn't find xxx in scope 0*/
                                 printf("ERROR: could not find global %s\n", yylval.strVal);
                             }
+                          print(":: ID -> lvalue\n");
                           }
-                          |member
+                          |member   {print("member -> lvalue\n");}
                           ;
                          
 
-            member:       lvalue DOT ID
-                          | lvalue LEFT_BRACE expr RIGHT_BRACE
-                          | call DOT ID
-                          | call LEFT_BRACE expr RIGHT_BRACE
+            member:       lvalue DOT ID                         {print("lvalue . ID -> member\n");}
+                          | lvalue LEFT_BRACE expr RIGHT_BRACE  {print("lvalue ( expr ) -> member\n");}
+                          | call DOT ID                         {print("call . ID -> member\n");}
+                          | call LEFT_BRACE expr RIGHT_BRACE    {print("call ( expr ) -> member\n");}
                           ;     
 
-            call:         call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-                          | lvalue callsuffix
-                          |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+            call:         call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS                                         {print("call ( elist ) -> call\n");}
+                          | lvalue callsuffix                                                                   {print("lvalue callsuffix -> member\n");}
+                          |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS  {print("( funcdef ) ( elist ) -> member\n");}
                           ;       
 
-            callsuffix:   normalcall
-                          | methodcall
+            callsuffix:   normalcall        {print("normalcall -> callsuffix\n");}
+                          | methodcall      {print("methodcall -> callsuffix\n");}
                           ;
 
-            normalcall:   LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+            normalcall:   LEFT_PARENTHESIS elist RIGHT_PARENTHESIS  {print("( elist ) -> normalcall\n");}
                           ; 
 
-            methodcall:   DOUBLE_DOT ID LEFT_PARENTHESIS elist RIGHT_PARENTHESIS 
+            methodcall:   DOUBLE_DOT ID LEFT_PARENTHESIS elist RIGHT_PARENTHESIS    {print(":: ID ( elist ) -> methodcall\n");}
                           ;
 
-            elist:        expr
-                          | LEFT_PARENTHESIS COMMA expr RIGHT_PARENTHESIS COMMA elist
+            elist:        expr            {print("expr -> elist\n");}
+                          | COMMA elist   {print(", expr -> elist\n");}
+                          |/*empty*/      {print("EMPTY -> elist\n");}
                           ;
 
-            objectdef:    LEFT_BRACE  RIGHT_BRACE
-                          |LEFT_BRACE elist RIGHT_BRACE 
-                          |LEFT_BRACE indexed RIGHT_BRACE 
+            objectdef:    LEFT_BRACE  RIGHT_BRACE           {print("[ ] -> obgectdef\n");}
+                          |LEFT_BRACE elist RIGHT_BRACE     {print("[ elist ] -> obgectdef\n");}
+                          |LEFT_BRACE indexed RIGHT_BRACE   {print("[ indexed ] -> obgectdef\n");}
                           ;
 
-            indexed:      indexdelem
-                          | LEFT_PARENTHESIS COMMA indexdelem RIGHT_PARENTHESIS COMMA indexed
+            indexed:      indexdelem            {print("indexdelem -> indexed\n");}
+                          | COMMA indexdelem    {print(", indexdelem -> indexed\n");}
+                          |/*empty*/            {print("EMPTY -> indexed\n");}
                           ;
 
-            indexdelem:   LEFT_BRACKET expr COLON expr RIGHT_BRACKET
+            indexdelem:   LEFT_BRACKET expr COLON expr RIGHT_BRACKET    {print("{ expr : expr } -> indexdelem\n");}    
                           ;
 
-            block:        LEFT_BRACKET {Scope++;} stmt RIGHT_BRACKET 
+            block:        LEFT_BRACKET {Scope++;} RIGHT_BRACKET    
                             {/*when we see { we increase Scope and when we see }
                             we first hide all entries in this scope because they are local
                             and then we decrease Scope*/
                              hideEntries(Scope);
                              Scope--;
+                             printf("{ } -> block\n");
+                            }
+                          | LEFT_BRACKET {Scope++;} stmt RIGHT_BRACKET 
+                            {/*when we see { we increase Scope and when we see }
+                            we first hide all entries in this scope because they are local
+                            and then we decrease Scope*/
+                             hideEntries(Scope);
+                             Scope--;
+                             printf("{ stmt } -> block\n");
                             } 
                           ;
 
@@ -300,6 +314,7 @@
                               newnode -> isActive = 1;
                              
                               insertEntry(newnode); 
+                              printf("function ( idlist ) block -> funcdef\n");
                           }
                           | FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block
                           { 
@@ -332,18 +347,19 @@
                              
                                     insertEntry(newnode);                                
                                 }
+                                printf("function ID ( idlist ) block -> funcdef\n");
                           }      
                           ;
 
-            const:        INTEGER
-                          |REAL
-                          |STRING
-                          |NIL
-                          |TRUE
-                          |FALSE
+            const:        INTEGER   {printf("INTEGER -> const\n");}
+                          |REAL     {printf("REAL -> const\n");}
+                          |STRING   {printf("STRING -> const\n");}   
+                          |NIL      {printf("NILL -> const\n");}
+                          |TRUE     {printf("TRUE -> const\n");}
+                          |FALSE    {printf("FALSE -> const\n");}
                           ;
 
-            idlist:     |ID
+            idlist:     ID          {printf("ID -> idlist\n");}
                         | COMMA ID  
                           {
                               yylval.strVal = yytext;
@@ -367,21 +383,24 @@
                                   newnode -> isActive = 1;
                                   insertEntry(newnode);
                               }
+                              printf(", ID -> idlist\n");
                           }
+                          | /*EMPTY*/   {printf("EMPTY -> idlist\n");}
                           ;
 
-            ifstmt:       IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt  
-                          | IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt
+            ifstmt:       IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt               {printf("IF ( expr ) stmt -> ifstmt\n");}
+                          | IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt   {printf("IF ( expr ) stmt ELSE stmt -> ifstmt\n");}
                           ;
 
-            whilestmt:    WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt
+            whilestmt:    WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt    {printf("WHILE ( expr ) stmt -> whilestmt\n");}
                           ;
 
-            forstmt:      FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt
+            forstmt:      FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt 
+                            {printf("FOR ( elist ; expr ; elist ) stmt -> forstmt\n");}
                           ;
 
-            returnstmt:   RETURN 
-                          | RETURN expr
+            returnstmt:   RETURN            {printf("RETURN -> returnstmt\n");}
+                          | RETURN expr     {printf("RETURN expr -> returnstmt\n");}
                           ;                            
             %%
 
