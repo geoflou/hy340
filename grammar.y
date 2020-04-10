@@ -72,7 +72,7 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     |forstmt    {printf("FOR -> stmt\n");}
     |returnstmt {printf("RETURN -> stmt\n");}
     |BREAK SEMICOLON    {printf("BREAK -> stmt\n");}
-    |CONTINUE SEMICOLON {printf("CONTINUE ->stmt\n");}
+    |CONTINUE SEMICOLON {printf("CONTINUE -> stmt\n");}
     |block  {printf("block -> stmt\n");}
     |funcdef    {printf("funcdef -> stmt\n");}
     ;
@@ -132,7 +132,7 @@ member: lvalue DOT ID   {printf("lvalue.ID -> member\n");}
 call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS    {printf("(call) -> call\n");}
     |lvalue callsuffix  {printf("lvalue callsuffix -> call\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-        {printf("(funcdef)(elist) ->  call\n");}
+        {printf("(funcdef)(elist) -> call\n");}
     ;
 
 callsuffix: normcall    {printf("normcall -> callsuffix\n");}
