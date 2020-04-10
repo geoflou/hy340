@@ -21,6 +21,8 @@
 
 %start program
 
+    %expect 1
+
 %%
 
 %%
@@ -32,5 +34,6 @@ int yyerror(char *message){
 
 int main(int argc, char* argv[]){
     initTable();
+    printEntries();
     return 0;
 }

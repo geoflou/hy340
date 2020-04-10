@@ -1,5 +1,5 @@
 a.out:  
-	bison --yacc --defines --output=grammar.c al.y
+	bison --yacc --defines --output=grammar.c grammar.y
 	flex --outfile=al.c al.l
 	gcc  grammar.c al.c SymbolTable.c 
 
