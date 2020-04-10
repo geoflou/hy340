@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
-    #include "al1.h"
+    #include "grammar.h"
     #include "SymbolTable.h"
 
     /*for double/real values we use strtod (str to double)*/
