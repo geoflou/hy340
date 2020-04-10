@@ -31,6 +31,6 @@ int yyerror(char *message){
 }
 
 int main(int argc, char* argv[]){
-    
+    initTable();
     return 0;
 }

@@ -41,6 +41,8 @@ typedef struct SymbolTableEntry{
 
 void initTable(void);
 
+void insertLibraryFunctions();
+
 int hashForBucket(char *symbolName);
 
 int hashForScope(int symbolScope);
