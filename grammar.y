@@ -211,6 +211,7 @@ int yyerror(char *message){
 
 int main(int argc, char* argv[]){
     initTable();
+    yyparse();
     printEntries();
     return 0;
 }
