@@ -146,8 +146,6 @@ normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
     ;
 
 methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");}
-    |lvalue DOT ID LEFT_PARENTHESIS lvalue COMMA elist RIGHT_PARENTHESIS
-        {printf("lvalue.id(lvalue, elist) -> methodcall\n");}
     ;
 
 elist: expr
