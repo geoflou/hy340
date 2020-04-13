@@ -21,6 +21,8 @@
 
 %start program
 
+%expect 1
+
 %token <strVal> ID
 %token <intVal> INTEGER
 %token <doubleVal> REAL
@@ -83,23 +85,20 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     ;
 
 expr: assignexpr    {printf("assignexpr -> expr");}
-    |expr op expr  {printf("expr op expr -> expr");}
-    |term
-    ;
-
-op: OPERATOR_PLUS
-    |OPERATOR_MINUS
-    |OPERATOR_MUL
-    |OPERATOR_DIV
-    |OPERATOR_MOD
-    |OPERATOR_GRT
-    |OPERATOR_GRE
-    |OPERATOR_LES
-    |OPERATOR_LEE
-    |OPERATOR_EQ
-    |OPERATOR_NEQ
-    |OPERATOR_AND
-    |OPERATOR_OR
+    | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");}
+    | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");}
+    | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");}
+    | expr OPERATOR_DIV expr    {printf("expr / expr -> expr\n");}
+    | expr OPERATOR_MUL expr    {printf("expr * expr -> expr\n");}
+    | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");}
+    | expr OPERATOR_GRE expr    {printf("expr >= expr -> expr\n");}
+    | expr OPERATOR_LES expr    {printf("expr < expr -> expr\n");}
+    | expr OPERATOR_LEE expr    {printf("expr <= expr -> expr\n");}
+    | expr OPERATOR_EQ expr {printf("expr == expr -> expr\n");}
+    | expr OPERATOR_NEQ expr    {printf("expr != expr -> expr\n");}
+    | expr OPERATOR_AND expr    {printf("expr && expr -> expr\n");}
+    | expr OPERATOR_OR expr {printf("expr || expr -> expr\n");}
+    |term   {printf("term -> expr\n");}  
     ;
 
 term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
@@ -130,6 +129,8 @@ lvalue: ID  {printf("ID -> lvalue\n");}
 
 member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");}
     |lvalue LEFT_BRACE expr RIGHT_BRACE {printf("lvalue[expr] -> member\n");}
+    |call DOT ID    {printf("call.id -> member\n");}
+    |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}
     ;
 
 call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");}
@@ -154,12 +155,11 @@ elist: expr
     ;
 
 objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");}
-    |LEFT_BRACE indexed RIGHT_BRACE {printf("[index] -> objectdef\n]");}
+    |LEFT_BRACE indexed RIGHT_BRACE {printf("[indexed] -> objectdef\n]");}
     ;
 
 indexed: indexedelem
-    |indexed COMMA indexedelem
-    |
+    |indexedelem COMMA indexed
     ;
 
 indexedelem: LEFT_BRACKET expr COLON expr RIGHT_BRACKET {printf("{expr : expr} -> indexed elem\n");}
@@ -186,15 +186,15 @@ idlist: ID
     |
     ;
 
-ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");}
-    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> ifstmt\n");}
+ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> ifstmt\n");}
+    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");}
     ;
 
 whilestmt: WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("while(expr) -> whilestmt\n");}
     ;    
 
 forstmt: FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt
-    {printf("for(elist;expr;elist)stmt -> forstmt\n");}
+        {printf("for(elist;expr;elist)stmt -> forstmt\n");}
     ;
 
 returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");} 
