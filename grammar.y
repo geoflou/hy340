@@ -10,6 +10,7 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
+    int scope = 0;
 %}
 
 %union{
@@ -122,8 +123,53 @@ primary: lvalue {printf("lvalue -> primary\n");}
     ;
 
 lvalue: ID  {printf("ID -> lvalue\n");}
-    |LOCAL_KEYWORD ID   {printf("local ID -> lvalue\n");}
-    |DOUBLE_COLON ID    {printf("::ID -> lvalue\n");}
+    |LOCAL_KEYWORD ID   {printf("local ID -> lvalue\n");
+                         if(lookupScope(yylval.strVal,scope)){
+                             comparelibfunc(yylval.strVal);
+                            
+                         }
+                         else{
+                             Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+                             SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                             newvar->name = yylval.strVal;
+                             newvar->scope = scope;
+                             newvar->line = yylineno;
+                             if(scope==0){
+                                 newnode->type = GLOBAL;
+                             }
+                             else{
+                                 newnode->type = LOCAL;
+                             }
+                             newnode->varVal = newvar;
+                             newnode->isActive = 1;
+                             insertEntry(newnode);
+                         }
+                           
+                                                        }
+    |DOUBLE_COLON ID    {printf("::ID -> lvalue\n");
+                        if(scope==0){
+                            if(lookupScope(yylval.strVal,0)){
+                            comparelibfunc(yylval.strVal);
+                                        }
+                            else{
+                                Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+                             SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                             newvar->name = yylval.strVal;
+                             newvar->scope = scope;
+                             newvar->line = yylineno;
+                             newnode->type = GLOBAL;
+                             newnode->varVal = newvar;
+                             newnode->isActive = 1;
+                             insertEntry(newnode);
+                            }
+                            }
+                            else{
+                                if(lookupScope(yylval.strVal,0)==NULL){
+                                    yyerror("Global variable cannot be found");
+                                }
+                            }
+                            
+                            }
     |member {printf("member -> lvalue\n");}
     ;
 
@@ -212,7 +258,7 @@ int main(int argc, char* argv[]){
 
     yyparse();
 
-    //printEntries();
+    printEntries();
 
     return 0;
 }
