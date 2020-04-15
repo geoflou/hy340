@@ -8,12 +8,15 @@ void initTable(void){
     int i;
 
     for(i = 0;i < SYMBOL_TABLE_BUCKETS;i++){
+        SymbolTable[i] = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
         SymbolTable[i] -> isActive = 0;
         SymbolTable[i] -> next = NULL;
         SymbolTable[i] -> type = GLOBAL;
-        SymbolTable[i] -> value.funcVal = NULL;
-        SymbolTable[i] -> value.varVal = NULL;
+        SymbolTable[i] -> funcVal = NULL;
+        SymbolTable[i] -> varVal = NULL;
     }
+
+    insertLibraryFunctions();
 
     return;
 }
@@ -26,7 +29,7 @@ int hashForBucket(char *symbolName){
 
 
 int hashForScope(int symbolScope){
-    return ((symbolScope * HASH_NUMBER) % SCOPE_BUCKETS) + NON_SCOPE_BUCKETS;
+    return (symbolScope % SCOPE_BUCKETS) + NON_SCOPE_BUCKETS;
 }
 
 
@@ -38,19 +41,21 @@ void insertEntry(SymbolTableEntry *symbol){
 
     assert(symbol != NULL);
 
-    if(symbol -> value.funcVal != NULL){
-        scope = symbol -> value.funcVal -> scope;
-        name = strcpy(name, symbol -> value.funcVal -> name);
+    if(symbol -> funcVal != NULL){
+        scope = symbol -> funcVal -> scope;
+        name =  symbol -> funcVal -> name;
     }
 
-    if(symbol -> value.varVal != NULL){
-        scope = symbol -> value.varVal -> scope;
-        name = strcpy(name, symbol -> value.varVal -> name);
+    if(symbol -> varVal != NULL){
+        scope = symbol -> varVal -> scope;
+        name = symbol -> varVal -> name;
     }
 
     scopeLinkSymbol = (SymbolTableEntry *) malloc(sizeof(SymbolTableEntry));
     scopeLinkSymbol -> isActive = symbol ->isActive;
-    scopeLinkSymbol -> value = symbol -> value;
+    scopeLinkSymbol -> varVal = symbol -> varVal;
+    scopeLinkSymbol -> funcVal = symbol -> funcVal;
+    scopeLinkSymbol -> next = NULL;
     scopeLinkSymbol -> type = symbol -> type;
 
     bucket = hashForBucket(name);
@@ -94,26 +99,24 @@ SymbolTableEntry *lookupEverything(char *name){
     Function *funcTMP;
 
     assert(name != NULL);
-
     bucket = hashForBucket(name);
     if(SymbolTable[bucket] == NULL){
         return NULL;
     }
 
-    symbolIndex = SymbolTable[bucket] -> next;
-    assert(symbolIndex != NULL);
+    symbolIndex = SymbolTable[bucket];
 
     while(symbolIndex != NULL){
         
-        if(symbolIndex -> value.varVal != NULL){
-            varTMP = symbolIndex -> value.varVal;
+        if(symbolIndex -> varVal != NULL){
+            varTMP = symbolIndex -> varVal;
             if(strcmp(varTMP -> name, name) == 0){
                 return symbolIndex;
             }
         }
 
-        if(symbolIndex -> value.funcVal != NULL){
-            funcTMP = symbolIndex -> value.funcVal;
+        if(symbolIndex -> funcVal != NULL){
+            funcTMP = symbolIndex -> funcVal;
             if(strcmp(funcTMP -> name, name) == 0){
                 return symbolIndex;
             }
@@ -142,15 +145,15 @@ SymbolTableEntry *lookupScope(char *name, int scope){
 
     while(symbolIndex != NULL){
         
-        if(symbolIndex -> value.varVal != NULL){
-            varTMP = symbolIndex -> value.varVal;
+        if(symbolIndex -> varVal != NULL){
+            varTMP = symbolIndex -> varVal;
             if(strcmp(varTMP -> name, name) == 0){
                 return symbolIndex;
             }
         }
 
-        if(symbolIndex -> value.funcVal != NULL){
-            funcTMP = symbolIndex -> value.funcVal;
+        if(symbolIndex -> funcVal != NULL){
+            funcTMP = symbolIndex -> funcVal;
             if(strcmp(funcTMP -> name, name) == 0){
                 return symbolIndex;
             }
@@ -203,15 +206,15 @@ void hideFromBuckets(int scope){
 
         while(symbolIndex != NULL){
  
-            if(symbolIndex -> value.varVal != NULL){
-                varTMP = symbolIndex -> value.varVal;
+            if(symbolIndex -> varVal != NULL){
+                varTMP = symbolIndex -> varVal;
                 if(varTMP -> scope == scope){
                     symbolIndex -> isActive = 0;
                 }
             }
 
-            if(symbolIndex -> value.funcVal != NULL){
-                funcTMP = symbolIndex -> value.funcVal;
+            if(symbolIndex -> funcVal != NULL){
+                funcTMP = symbolIndex -> funcVal;
                 if(funcTMP -> scope == scope){
                     symbolIndex -> isActive = 0;
                 }
@@ -239,7 +242,7 @@ void printEntries(void){
         if(symbolIndex == NULL){
            continue;
         }
-
+        symbolIndex = symbolIndex -> next;
         while(symbolIndex != NULL){
             printf("\"%s\"  [%s]    (line %d)   (scope %d)\n",getEntryName(symbolIndex),
                 getEntryType(symbolIndex), getEntryLine(symbolIndex), getEntryScope(symbolIndex));
@@ -279,13 +282,13 @@ char *getEntryName(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> name;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> name;
     }
 
@@ -297,13 +300,13 @@ int getEntryLine(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> line;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> line;
     }
 
@@ -315,15 +318,153 @@ int getEntryScope(SymbolTableEntry *symbol){
     Variable *varTMP;
     Function *funcTMP;
 
-    if(symbol -> value.funcVal != NULL){
-        funcTMP = symbol -> value.funcVal;
+    if(symbol -> funcVal != NULL){
+        funcTMP = symbol -> funcVal;
         return funcTMP -> scope;
     }
 
-    if(symbol -> value.varVal != NULL){
-        varTMP = symbol -> value.varVal;
+    if(symbol -> varVal != NULL){
+        varTMP = symbol -> varVal;
         return varTMP -> scope;
     }
 
     assert(0);
+}
+
+
+void insertLibraryFunctions(void){
+    SymbolTableEntry *print = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *printFunc = (Function *)malloc(sizeof(Function));
+        print -> isActive = 1;
+        printFunc -> name = "print";
+        printFunc -> scope = 0;
+        printFunc -> line = 0;
+        print -> funcVal = printFunc;
+        print -> type = LIBFUNC;
+        print -> next = NULL;
+        insertEntry(print);
+        lookupEverything(print->funcVal->name);
+
+		SymbolTableEntry *input= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *inputFunc = (Function*)malloc(sizeof(Function));
+        input -> isActive = 1;
+        inputFunc -> name = "input";
+        inputFunc -> scope = 0;
+        inputFunc -> line = 0;
+        input -> funcVal = inputFunc;
+        input -> type = LIBFUNC;
+        input -> next = NULL;
+        insertEntry(input);
+
+		SymbolTableEntry *objectmemberkeys= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *objectmemberkeysFunc = (Function*)malloc(sizeof(Function));
+        objectmemberkeys -> isActive = 1;
+        objectmemberkeysFunc -> name = "objectmemberkeys";
+        objectmemberkeysFunc -> scope = 0;
+        objectmemberkeysFunc -> line = 0;
+        objectmemberkeys -> funcVal = objectmemberkeysFunc;
+        objectmemberkeys -> type = LIBFUNC;
+        objectmemberkeys -> next = NULL;
+        insertEntry(objectmemberkeys);
+
+		SymbolTableEntry *objecttotalmembers= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *objecttotalmembersFunc = (Function*)malloc(sizeof(Function));
+        objecttotalmembers -> isActive = 1;
+        objecttotalmembersFunc -> name = "objecttotalmembers";
+        objecttotalmembersFunc -> scope = 0;
+        objecttotalmembersFunc -> line = 0;
+        objecttotalmembers -> funcVal = objecttotalmembersFunc;
+        objecttotalmembers -> type = LIBFUNC;
+        objecttotalmembers -> next = NULL;
+        insertEntry(objecttotalmembers);
+
+		SymbolTableEntry *objectcopy= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *objectcopyFunc = (Function*)malloc(sizeof(Function));
+        objectcopy -> isActive = 1;
+        objectcopyFunc -> name = "objectcopy";
+        objectcopyFunc -> scope = 0;
+        objectcopyFunc -> line = 0;
+        objectcopy -> funcVal = objectcopyFunc;
+        objectcopy -> type = LIBFUNC;
+        objectcopy -> next = NULL;
+        insertEntry(objectcopy);
+		
+		SymbolTableEntry *totalarguments= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *totalargumentsFunc = (Function*)malloc(sizeof(Function));
+        totalarguments -> isActive = 1;
+        totalargumentsFunc -> name = "totalarguments";
+        totalargumentsFunc -> scope = 0;
+        totalargumentsFunc -> line = 0;
+        totalarguments -> funcVal = totalargumentsFunc;
+        totalarguments -> type = LIBFUNC;
+        totalarguments -> next = NULL;
+        insertEntry(totalarguments);
+		
+		SymbolTableEntry *argument= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *argumentFunc = (Function*)malloc(sizeof(Function));
+        argument -> isActive = 1;
+        argumentFunc -> name = "argument";
+        argumentFunc -> scope = 0;
+        argumentFunc -> line = 0;
+        argument -> funcVal = argumentFunc;
+        argument -> type = LIBFUNC;
+        argument -> next = NULL;
+        insertEntry(argument);
+		
+		SymbolTableEntry *Typeof= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *TypeofFunc = (Function*)malloc(sizeof(Function));
+        Typeof -> isActive = 1;
+        TypeofFunc -> name = "typeof";
+        TypeofFunc -> scope = 0;
+        TypeofFunc -> line = 0;
+        Typeof -> funcVal = TypeofFunc;
+        Typeof -> type = LIBFUNC;
+        Typeof -> next = NULL;
+        insertEntry(Typeof);
+		
+		SymbolTableEntry *strtonum= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *strtonumFunc =  (Function*)malloc(sizeof(Function));
+        strtonum -> isActive = 1;
+        strtonumFunc -> name = "strtonum";
+        strtonumFunc -> scope = 0;
+        strtonumFunc -> line = 0;
+        strtonum -> funcVal = strtonumFunc;
+        strtonum -> type = LIBFUNC;
+        strtonum -> next = NULL;
+        insertEntry(strtonum);
+		
+		SymbolTableEntry *sqrt= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *sqrtFunc = (Function*)malloc(sizeof(Function));
+        sqrt -> isActive = 1;
+        sqrtFunc -> name = "sqrt";
+        sqrtFunc -> scope = 0;
+        sqrtFunc -> line = 0;
+        sqrt -> funcVal = sqrtFunc;
+        sqrt -> type = LIBFUNC;
+        sqrt -> next = NULL;
+        insertEntry(sqrt);
+		
+		SymbolTableEntry *cos= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *cosFunc =  (Function*)malloc(sizeof(Function));
+        cos -> isActive = 1;
+        cosFunc -> name = "cos";
+        cosFunc -> scope = 0;
+        cosFunc -> line = 0;
+        cos -> funcVal = cosFunc;
+        cos -> type = LIBFUNC;
+        cos -> next = NULL;
+        insertEntry(cos);
+		
+		SymbolTableEntry *sin= (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+        Function *sinFunc = (Function*)malloc(sizeof(Function));
+        sin -> isActive = 1;
+        sinFunc -> name = "sin";
+        sinFunc -> scope = 0;
+        sinFunc -> line = 0;
+        sin -> funcVal = sinFunc;
+        sin -> type = LIBFUNC;
+        sin -> next = NULL;
+        insertEntry(sin);
+
+        return;
 }

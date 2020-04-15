@@ -33,15 +33,15 @@ typedef struct Function{
 
 typedef struct SymbolTableEntry{
     int isActive;
-    union{
-        Variable *varVal;
-        Function *funcVal;
-    } value;
+    Variable *varVal;
+    Function *funcVal;
     enum SymbolType type;
     struct SymbolTableEntry *next;
 } SymbolTableEntry;
 
 void initTable(void);
+
+void insertLibraryFunctions();
 
 int hashForBucket(char *symbolName);
 
