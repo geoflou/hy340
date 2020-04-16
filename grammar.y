@@ -10,7 +10,9 @@
     extern int yylineno;
     extern char* yytext;
     extern FILE* yyin;
+
     int scope = 0;
+
 %}
 
 %union{
