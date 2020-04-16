@@ -215,6 +215,7 @@ lvalue: ID  {
                 
                 insertEntry(newnode);
             }
+
         }else{
             if(lookupScope(yylval.strVal,0)==NULL){
                 yyerror("Global variable cannot be found");
@@ -263,8 +264,16 @@ indexed: indexedelem
 indexedelem: LEFT_BRACKET expr COLON expr RIGHT_BRACKET {printf("{expr : expr} -> indexed elem\n");}
     ;
 
-block: LEFT_BRACKET set RIGHT_BRACKET {printf("block with stmts -> block");} 
-    |LEFT_BRACKET RIGHT_BRACKET   {printf("empty block -> block\n");}
+block: LEFT_BRACKET {scope++;} set RIGHT_BRACKET {
+        printf("block with stmts -> block");
+        hideEntries(scope);
+        scope--;
+    } 
+    |LEFT_BRACKET {scope++;} RIGHT_BRACKET   {
+            printf("empty block -> block\n");
+            hideEntries(scope);
+            scope--;
+        }
     ;
 
 funcdef: FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block    {printf("function id(idlist)block -> funcdef\n");}
