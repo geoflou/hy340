@@ -276,7 +276,17 @@ block: LEFT_BRACKET {scope++;} set RIGHT_BRACKET {
         }
     ;
 
-funcdef: FUNCTION ID LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block    {printf("function id(idlist)block -> funcdef\n");}
+funcdef: FUNCTION ID {
+    SymbolTableEntry *temp;
+    SymbolTableEntry *new_entry;
+
+    temp = lookupEverything(yylval.strVal);
+    
+    if(temp == NULL){
+        
+    }
+
+}   LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block    {printf("function id(idlist)block -> funcdef\n", yytext);}
     |FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block    {printf("function (idlist)block -> funcdef\n");}
     ;
 
@@ -288,8 +298,104 @@ const: REAL
     |FALSE
     ;
 
-idlist: ID
-    |ID COMMA idlist
+idlist: ID {
+        SymbolTableEntry *temp;
+        SymbolTableEntry *new_entry;
+        Variable *new_var;
+
+        temp = lookupEverything(yylval.strVal);
+
+        if(temp == NULL){
+            new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+            new_var = (Variable*)malloc(sizeof(Variable));
+
+            new_var -> name = yylval.strVal;
+            new_var -> scope = scope + 1;
+            new_var -> line = yylineno;
+
+            new_entry -> isActive = 1;
+            new_entry -> varVal = new_var;
+            new_entry -> funcVal = NULL;
+            new_entry -> type = FORMAL;
+
+            insertEntry(new_entry);
+           
+        }else{
+            if(temp -> type == LIBFUNC){
+                printf("ERROR: ARGUMENT NAME REDEFINITION! %s IS A LIBRARY FUNCTION\n", yylval.strVal);
+                return;
+            }
+
+            if(temp -> type == USERFUNC && temp -> isActive == 1){
+                printf("ERROR: ARGUMENT NAME REDEFINITION! %s IS AN ACTIVE USER FUNCTION\n", yylval.strVal);
+                return;
+            }
+
+            new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+            new_var = (Variable*)malloc(sizeof(Variable));
+
+            new_var -> name = yylval.strVal;
+            new_var -> scope = scope + 1;
+            new_var -> line = yylineno;
+
+            new_entry -> isActive = 1;
+            new_entry -> varVal = new_var;
+            new_entry -> funcVal = NULL;
+            new_entry -> type = FORMAL;
+
+            insertEntry(new_entry);
+        }
+
+    }
+    |ID {
+            SymbolTableEntry *temp;
+            SymbolTableEntry *new_entry;
+            Variable *new_var;
+
+            temp = lookupEverything(yylval.strVal);
+
+            if(temp == NULL){
+                new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+                new_var = (Variable*)malloc(sizeof(Variable));
+
+                new_var -> name = yylval.strVal;
+                new_var -> scope = scope + 1;
+                new_var -> line = yylineno;
+
+                new_entry -> isActive = 1;
+                new_entry -> varVal = new_var;
+                new_entry -> funcVal = NULL;
+                new_entry -> type = FORMAL;
+
+                insertEntry(new_entry);
+
+            }else{
+                if(temp -> type == LIBFUNC){
+                    printf("ERROR: ARGUMENT NAME REDEFINITION! %s IS A LIBRARY FUNCTION\n", yylval.strVal);
+                    return;
+                }
+
+                if(temp -> type == USERFUNC && temp -> isActive == 1){
+                    printf("ERROR: ARGUMENT NAME REDEFINITION! %s IS AN ACTIVE USER FUNCTION\n", yylval.strVal);
+                    return;
+                }
+
+                new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+                new_var = (Variable*)malloc(sizeof(Variable));
+
+                new_var -> name = yylval.strVal;
+                new_var -> scope = scope + 1;
+                new_var -> line = yylineno;
+
+                new_entry -> isActive = 1;
+                new_entry -> varVal = new_var;
+                new_entry -> funcVal = NULL;
+                new_entry -> type = FORMAL;
+
+                insertEntry(new_entry);
+            } 
+
+        } COMMA idlist
     |
     ;
 
