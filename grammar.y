@@ -123,53 +123,53 @@ primary: lvalue {printf("lvalue -> primary\n");}
     ;
 
 lvalue: ID  {printf("ID -> lvalue\n");}
-    |LOCAL_KEYWORD ID   {printf("local ID -> lvalue\n");
-                         if(lookupScope(yylval.strVal,scope)){
-                             comparelibfunc(yylval.strVal);
+    |LOCAL_KEYWORD ID   {
+        printf("local ID -> lvalue\n");
+        if(lookupScope(yylval.strVal,scope)){
+            comparelibfunc(yylval.strVal);
                             
-                         }
-                         else{
-                             Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
-                             SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-                             newvar->name = yylval.strVal;
-                             newvar->scope = scope;
-                             newvar->line = yylineno;
-                             if(scope==0){
-                                 newnode->type = GLOBAL;
-                             }
-                             else{
-                                 newnode->type = LOCAL;
-                             }
-                             newnode->varVal = newvar;
-                             newnode->isActive = 1;
-                             insertEntry(newnode);
-                         }
+        }else{
+            Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+            SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+            newvar->name = yylval.strVal;
+            newvar->scope = scope;
+            newvar->line = yylineno;
+            
+            if(scope==0){
+                newnode->type = GLOBAL;
+            }else{
+                newnode->type = LOCAL;
+            }
+
+            newnode->varVal = newvar;
+            newnode->isActive = 1;
+            insertEntry(newnode);
+        }
                            
-                                                        }
-    |DOUBLE_COLON ID    {printf("::ID -> lvalue\n");
-                        if(scope==0){
-                            if(lookupScope(yylval.strVal,0)){
-                            comparelibfunc(yylval.strVal);
-                                        }
-                            else{
-                                Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
-                             SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-                             newvar->name = yylval.strVal;
-                             newvar->scope = scope;
-                             newvar->line = yylineno;
-                             newnode->type = GLOBAL;
-                             newnode->varVal = newvar;
-                             newnode->isActive = 1;
-                             insertEntry(newnode);
-                            }
-                            }
-                            else{
-                                if(lookupScope(yylval.strVal,0)==NULL){
-                                    yyerror("Global variable cannot be found");
-                                }
-                            }
+    }
+    |DOUBLE_COLON ID    {
+        printf("::ID -> lvalue\n");
+        if(scope==0){
+            if(lookupScope(yylval.strVal,0)){
+                comparelibfunc(yylval.strVal);
+                }else{
+                    Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+                    SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                    newvar->name = yylval.strVal;
+                    newvar->scope = scope;
+                    newvar->line = yylineno;
+                    newnode->type = GLOBAL;
+                    newnode->varVal = newvar;
+                    newnode->isActive = 1;
+                    insertEntry(newnode);
+                }   
+        }else{
+            if(lookupScope(yylval.strVal,0)==NULL){
+                yyerror("Global variable cannot be found");
+            }
+        }
                             
-                            }
+    }
     |member {printf("member -> lvalue\n");}
     ;
 
