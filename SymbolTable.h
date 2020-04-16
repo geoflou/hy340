@@ -68,3 +68,5 @@ char *getEntryName(SymbolTableEntry *symbol);
 int getEntryLine(SymbolTableEntry *symbol);
 
 int getEntryScope(SymbolTableEntry *symbol);
+
+void comparelibfunc(char *name);
