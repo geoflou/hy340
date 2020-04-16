@@ -1,4 +1,5 @@
 #include "SymbolTable.h"
+
 int i;
 
 SymbolTableEntry *SymbolTable[1034];

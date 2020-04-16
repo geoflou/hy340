@@ -13,6 +13,10 @@
 
     int scope = 0;
 
+    Function* temp_func;
+    int arg_index = 0;
+
+    int anonFuncCounter = 1;
 %}
 
 %union{
@@ -277,17 +281,145 @@ block: LEFT_BRACKET {scope++;} set RIGHT_BRACKET {
     ;
 
 funcdef: FUNCTION ID {
-    SymbolTableEntry *temp;
-    SymbolTableEntry *new_entry;
 
-    temp = lookupEverything(yylval.strVal);
-    
-    if(temp == NULL){
-        
+        temp_func -> name = yylval.strVal;
+        temp_func -> scope = scope + 1;
+        temp_func -> line = yylineno;
+
+    }   LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS {
+        SymbolTableEntry *temp;
+        SymbolTableEntry *new_entry;
+        Function *new_func;
+        int i;
+
+        temp = lookupEverything(temp_func -> name);
+
+        if(temp == NULL){
+            new_entry = (SymbolTableEntry *)malloc(sizeof(SymbolTableEntry));
+            new_func =  (Function *)malloc(sizeof(Function));
+            new_func -> arguments = (char**)malloc(10*sizeof(char *));
+
+            new_func -> name = strdup(temp_func -> name);
+            new_func -> scope = temp_func -> scope;
+            new_func -> line = temp_func -> line;
+            for(i = 0;i < arg_index;i++)
+                new_func -> arguments[i] = strdup(temp_func -> arguments[i]);
+
+            new_entry -> isActive = 1;
+            new_entry -> varVal = NULL;
+            new_entry -> funcVal = new_func;
+            new_entry -> type = USERFUNC;
+
+            insertEntry(new_entry);
+        }
+        else{
+            if(temp -> type == LIBFUNC){
+                printf("ERROR: FUNCTION NAME REDEFINITION! %s IS A LIBRARY FUNCTION\n", temp_func -> name);
+                return;
+            }
+
+            if(temp -> type == USERFUNC){
+                printf("ERROR: FUNCTION NAME REDEFINITION %s IS ALREADY IN USE\n", temp_func -> name);
+                return;
+            }
+
+            new_entry = (SymbolTableEntry *)malloc(sizeof(SymbolTableEntry));
+            new_func =  (Function *)malloc(sizeof(Function));
+            new_func -> arguments = (char**)malloc(10*sizeof(char *));
+
+            new_func -> name = strdup(temp_func -> name);
+            new_func -> scope = temp_func -> scope;
+            new_func -> line = temp_func -> line;
+            for(i = 0;i < arg_index;i++)
+            new_func -> arguments[i] = strdup(temp_func -> arguments[i]);
+
+            new_entry -> isActive = 1;
+            new_entry -> varVal = NULL;
+            new_entry -> funcVal = new_func;
+            new_entry -> type = USERFUNC;
+
+            insertEntry(new_entry);
+        }
+
+    } block    {
+        printf("function id(idlist)block -> funcdef\n", yytext);
+        int i = 0;
+        temp_func -> name = "";
+        temp_func -> scope = 0;
+        temp_func -> line = 0;
+        for(i = 0;i < arg_index;i++)
+            temp_func -> arguments[i] = "";   
     }
+    |FUNCTION{
+        sprintf(temp_func -> name, "_anon_func_%d", anonFuncCounter);
+        anonFuncCounter++;
+        temp_func -> scope = scope + 1;
+        temp_func -> line = yylineno;
 
-}   LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block    {printf("function id(idlist)block -> funcdef\n", yytext);}
-    |FUNCTION LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS block    {printf("function (idlist)block -> funcdef\n");}
+    } LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS {
+        SymbolTableEntry *temp;
+        SymbolTableEntry *new_entry;
+        Function *new_func;
+        int i;
+
+        temp = lookupEverything(temp_func -> name);
+
+        if(temp == NULL){
+            new_entry = (SymbolTableEntry *)malloc(sizeof(SymbolTableEntry));
+            new_func =  (Function *)malloc(sizeof(Function));
+            new_func -> arguments = (char**)malloc(10*sizeof(char *));
+
+            new_func -> name = strdup(temp_func -> name);
+            new_func -> scope = temp_func -> scope;
+            new_func -> line = temp_func -> line;
+            for(i = 0;i < arg_index;i++)
+                new_func -> arguments[i] = strdup(temp_func -> arguments[i]);
+
+            new_entry -> isActive = 1;
+            new_entry -> varVal = NULL;
+            new_entry -> funcVal = new_func;
+            new_entry -> type = USERFUNC;
+
+            insertEntry(new_entry);
+        }
+        else{
+            if(temp -> type == LIBFUNC){
+                printf("ERROR: FUNCTION NAME REDEFINITION! %s IS A LIBRARY FUNCTION\n", temp_func -> name);
+                return;
+            }
+
+            if(temp -> type == USERFUNC){
+                printf("ERROR: FUNCTION NAME REDEFINITION %s IS ALREADY IN USE\n", temp_func -> name);
+                return;
+            }
+
+            new_entry = (SymbolTableEntry *)malloc(sizeof(SymbolTableEntry));
+            new_func =  (Function *)malloc(sizeof(Function));
+            new_func -> arguments = (char**)malloc(10*sizeof(char *));
+
+            new_func -> name = strdup(temp_func -> name);
+            new_func -> scope = temp_func -> scope;
+            new_func -> line = temp_func -> line;
+            for(i = 0;i < arg_index;i++)
+            new_func -> arguments[i] = strdup(temp_func -> arguments[i]);
+
+            new_entry -> isActive = 1;
+            new_entry -> varVal = NULL;
+            new_entry -> funcVal = new_func;
+            new_entry -> type = USERFUNC;
+
+            insertEntry(new_entry);
+        }
+
+    } block    {
+        printf("function (idlist)block -> funcdef\n");
+        int i = 0;
+        temp_func -> name = "";
+        temp_func -> scope = 0;
+        temp_func -> line = 0;
+        for(i = 0;i < arg_index;i++)
+            temp_func -> arguments[i] = "";  
+    }
     ;
 
 const: REAL
@@ -308,6 +440,9 @@ idlist: ID {
         if(temp == NULL){
             new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
             new_var = (Variable*)malloc(sizeof(Variable));
+
+            temp_func -> arguments[arg_index] = yylval.strVal;
+            arg_index++;
 
             new_var -> name = yylval.strVal;
             new_var -> scope = scope + 1;
@@ -334,6 +469,9 @@ idlist: ID {
             new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
             new_var = (Variable*)malloc(sizeof(Variable));
 
+            temp_func -> arguments[arg_index] = yylval.strVal;
+            arg_index++;
+
             new_var -> name = yylval.strVal;
             new_var -> scope = scope + 1;
             new_var -> line = yylineno;
@@ -357,6 +495,9 @@ idlist: ID {
             if(temp == NULL){
                 new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
                 new_var = (Variable*)malloc(sizeof(Variable));
+
+                temp_func -> arguments[arg_index] = yylval.strVal;
+                arg_index++;
 
                 new_var -> name = yylval.strVal;
                 new_var -> scope = scope + 1;
@@ -382,6 +523,9 @@ idlist: ID {
 
                 new_entry = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
                 new_var = (Variable*)malloc(sizeof(Variable));
+
+                temp_func -> arguments[arg_index] = yylval.strVal;
+                arg_index++;
 
                 new_var -> name = yylval.strVal;
                 new_var -> scope = scope + 1;
@@ -421,6 +565,11 @@ int yyerror(char *message){
 }
 
 int main(int argc, char* argv[]){
+
+    temp_func = (Function *)malloc(sizeof(Function));
+    temp_func -> arguments =(char**)malloc(10*sizeof(char*));
+
+
     initTable();
 
     yyparse();
