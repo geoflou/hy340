@@ -124,47 +124,97 @@ primary: lvalue {printf("lvalue -> primary\n");}
     |const  {printf("const -> primary\n");}
     ;
 
-lvalue: ID  {printf("ID -> lvalue\n");}
-    |LOCAL_KEYWORD ID   {
-        printf("local ID -> lvalue\n");
-        if(lookupScope(yylval.strVal,scope)){
+lvalue: ID  {
+    printf("ID -> lvalue\n");
+    SymbolTableEntry *dummy = lookupScope(yylval.strVal,scope);
+    Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+    SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+    newvar->name = yylval.strVal;
+    newvar->scope = scope;
+    newvar->line = yylineno;
+    
+    if(scope==0){
+        newnode->type = GLOBAL;
+    }else{
+        newnode->type = LOCAL;
+    }
+        newnode->varVal = newvar;
+        newnode->isActive = 1;
+        
+        if(dummy!=NULL){
             comparelibfunc(yylval.strVal);
-                            
-        }else{
-            Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
-            SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-            newvar->name = yylval.strVal;
-            newvar->scope = scope;
-            newvar->line = yylineno;
-            
-            if(scope==0){
-                newnode->type = GLOBAL;
-            }else{
-                newnode->type = LOCAL;
+            char *ptr= getEntryType(dummy);
+                                
+            if(ptr=="USERFUNC"){
+                if(dummy->isActive==1){
+                    yyerror("A function has taken already that name!");
+                }else{
+                    insertEntry(newnode);
+                }
             }
+        }else{
+            comparelibfunc(yylval.strVal);     
+            insertEntry(newnode);
+        }
+}
 
-            newnode->varVal = newvar;
-            newnode->isActive = 1;
+    |LOCAL_KEYWORD ID   {
+    
+        printf("local ID -> lvalue\n");
+        SymbolTableEntry *dummy = lookupScope(yylval.strVal,scope);
+        Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+        SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+        
+        newvar->name = yylval.strVal;
+        newvar->scope = scope;
+        newvar->line = yylineno;
+        
+        if(scope==0){
+            newnode->type = GLOBAL;
+        }else{
+            newnode->type = LOCAL;
+        }
+
+        newnode->varVal = newvar;
+        newnode->isActive = 1;
+
+        if(dummy!=NULL){
+            char *ptr= getEntryType(dummy);
+            comparelibfunc(yylval.strVal); 
+            
+            if(ptr=="USERFUNC"){
+                if(dummy->isActive==1){
+                    yyerror("A function has taken already that name!");
+                }else{
+                    insertEntry(newnode);
+                }
+            }
+        }else{
+            comparelibfunc(yylval.strVal);    
             insertEntry(newnode);
         }
                            
     }
     |DOUBLE_COLON ID    {
         printf("::ID -> lvalue\n");
+                        
         if(scope==0){
             if(lookupScope(yylval.strVal,0)){
                 comparelibfunc(yylval.strVal);
-                }else{
-                    Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
-                    SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-                    newvar->name = yylval.strVal;
-                    newvar->scope = scope;
-                    newvar->line = yylineno;
-                    newnode->type = GLOBAL;
-                    newnode->varVal = newvar;
-                    newnode->isActive = 1;
-                    insertEntry(newnode);
-                }   
+            }else{
+                comparelibfunc(yylval.strVal); 
+                Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+                SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                
+                newvar->name = yylval.strVal;
+                newvar->scope = scope;
+                newvar->line = yylineno;
+                newnode->type = GLOBAL;
+                newnode->varVal = newvar;
+                newnode->isActive = 1;
+                
+                insertEntry(newnode);
+            }
         }else{
             if(lookupScope(yylval.strVal,0)==NULL){
                 yyerror("Global variable cannot be found");
