@@ -122,26 +122,68 @@ primary: lvalue {printf("lvalue -> primary\n");}
     |const  {printf("const -> primary\n");}
     ;
 
-lvalue: ID  {printf("ID -> lvalue\n");}
-    |LOCAL_KEYWORD ID   {printf("local ID -> lvalue\n");
-                         if(lookupScope(yylval.strVal,scope)){
-                             comparelibfunc(yylval.strVal);
-                            
-                         }
-                         else{
-                             Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
-                             SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
-                             newvar->name = yylval.strVal;
-                             newvar->scope = scope;
-                             newvar->line = yylineno;
+lvalue: ID  {printf("ID -> lvalue\n");
+SymbolTableEntry *dummy = lookupScope(yylval.strVal,scope);
+                        Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+                        SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                        newvar->name = yylval.strVal;
+                        newvar->scope = scope;
+                        newvar->line = yylineno;
                              if(scope==0){
                                  newnode->type = GLOBAL;
                              }
                              else{
                                  newnode->type = LOCAL;
                              }
-                             newnode->varVal = newvar;
-                             newnode->isActive = 1;
+                        newnode->varVal = newvar;
+                        newnode->isActive = 1;
+                         if(dummy!=NULL){
+                             comparelibfunc(yylval.strVal);
+                             char *ptr= getEntryType(dummy);
+                                
+                                 if(ptr=="USERFUNC"){
+                                    if(dummy->isActive==1){
+                                        yyerror("A function has taken already that name!");
+                                    }
+                                    else{
+                                        insertEntry(newnode);
+                                    }
+                                }
+                         }
+                         else{
+                             comparelibfunc(yylval.strVal);     
+                             insertEntry(newnode);
+                         }
+                             }
+    |LOCAL_KEYWORD ID   {printf("local ID -> lvalue\n");
+                        SymbolTableEntry *dummy = lookupScope(yylval.strVal,scope);
+                        Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
+                        SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
+                        newvar->name = yylval.strVal;
+                        newvar->scope = scope;
+                        newvar->line = yylineno;
+                             if(scope==0){
+                                 newnode->type = GLOBAL;
+                             }
+                             else{
+                                 newnode->type = LOCAL;
+                             }
+                        newnode->varVal = newvar;
+                        newnode->isActive = 1;
+                         if(dummy!=NULL){
+                             char *ptr= getEntryType(dummy);
+                                 comparelibfunc(yylval.strVal); 
+                                 if(ptr=="USERFUNC"){
+                                    if(dummy->isActive==1){
+                                        yyerror("A function has taken already that name!");
+                                    }
+                                    else{
+                                        insertEntry(newnode);
+                                    }
+                                }
+                         }
+                         else{
+                             comparelibfunc(yylval.strVal);    
                              insertEntry(newnode);
                          }
                            
@@ -152,6 +194,7 @@ lvalue: ID  {printf("ID -> lvalue\n");}
                             comparelibfunc(yylval.strVal);
                                         }
                             else{
+                                comparelibfunc(yylval.strVal); 
                                 Variable *newvar=(Variable*)malloc(sizeof(struct Variable));
                              SymbolTableEntry *newnode=(SymbolTableEntry*)malloc(sizeof(struct SymbolTableEntry));
                              newvar->name = yylval.strVal;
