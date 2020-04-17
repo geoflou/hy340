@@ -3,7 +3,7 @@
     #include <stdlib.h>
     #include <string.h>
     #include <stdio.h>
-    #include "al1.h"
+    #include "grammar.h"
     #include "SymbolTable.h"
 
     /*for double/real values we use strtod (str to double)*/
@@ -208,13 +208,13 @@ UNKNOWN_TOKEN       .
 {COLON}               {return COLON;}
 {DOUBLE_COLON}        {return DOUBLE_COLON;}
 {DOT}                 {return DOT;}
-{DOUBLE_DOT}          {return DOUBLE_COLON;}
+{DOUBLE_DOT}          {return DOUBLE_DOT;}
 {IF}                  {return IF;}
 {ELSE}                {return ELSE;}
 {WHILE}               {return WHILE;}
 {FOR}                 {return FOR;}
 {FUNCTION}            {yylval.strVal = strdup(yytext);
-                       return FUNCTION, yylineno;
+                       return FUNCTION;
                       }
 {RETURN}              {return RETURN;}
 {BREAK}               {return BREAK;}
@@ -242,9 +242,9 @@ UNKNOWN_TOKEN       .
 {OPERATOR_GRE}        {return OPERATOR_GRE;}
 {OPERATOR_LEE}        {return OPERATOR_LEE;}
 {INTEGER}             {yylval.intVal = atoi(yytext);
-                       return INTEGER, yylineno;}
+                       return INTEGER;}
 {REAL}                {yylval.doubleVal = strtod(yytext, &useless_ptr);
-                       return REAL, yylineno;}
+                       return REAL;}
 {LEFT_BRACKET}        {return LEFT_BRACKET;}
 {RIGHT_BRACKET}       {return RIGHT_BRACKET;}
 {LEFT_PARENTHESIS}    {return LEFT_PARENTHESIS;}
@@ -323,7 +323,7 @@ UNKNOWN_TOKEN       .
 
             if(closingQuoteFlag == 0){
                 yylval.strVal = strdup(fixedString);
-                return STRING, line;
+                return STRING;
             }
             else{
                 printf("In line %d ERROR: Closing '\"' expected\n", line);
@@ -333,7 +333,7 @@ UNKNOWN_TOKEN       .
 }
 
 {ID}    {yylval.strVal = strdup(yytext);
-         return ID, yylineno;}
+         return ID;}
 
 %%
 

@@ -1,9 +1,9 @@
 a.out:  
-	bison --yacc --defines --output=al1.c al.y
+	bison --yacc --defines --output=grammar.c grammar.y
 	flex --outfile=al.c al.l
-	gcc  al1.c al.c SymbolTable.c 
+	gcc  grammar.c al.c SymbolTable.c 
 
 clean:
-	rm al1.c al.c
-	rm al1.h
+	rm grammar.c al.c
+	rm grammar.h
 	rm *.out
