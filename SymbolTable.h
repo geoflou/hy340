@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define SYMBOL_TABLE_BUCKETS 1034
 #define NON_SCOPE_BUCKETS 1024
@@ -68,3 +68,5 @@ char *getEntryName(SymbolTableEntry *symbol);
 int getEntryLine(SymbolTableEntry *symbol);
 
 int getEntryScope(SymbolTableEntry *symbol);
+
+void comparelibfunc(char *name);
