@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "Translation.h"
 
@@ -43,6 +43,8 @@ typedef struct SymbolTableEntry{
 
 void initTable(void);
 
+void insertLibraryFunctions();
+
 int hashForBucket(char *symbolName);
 
 int hashForScope(int symbolScope);
@@ -68,3 +70,5 @@ char *getEntryName(SymbolTableEntry *symbol);
 int getEntryLine(SymbolTableEntry *symbol);
 
 int getEntryScope(SymbolTableEntry *symbol);
+
+void comparelibfunc(char *name);
