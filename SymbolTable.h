@@ -3,7 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "Translation.h"
 
 #define SYMBOL_TABLE_BUCKETS 1034
 #define NON_SCOPE_BUCKETS 1024
