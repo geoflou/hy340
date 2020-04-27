@@ -62,11 +62,19 @@ typedef struct expr{
     expr* next;
 } expr;
 
-struct quad{
+typedef struct quad{
     enum iopcode op;
     expr* result;
     expr* arg1;
     expr* arg2;
     unsigned int label;
     unsigned int line;
-};
+} quad;
+
+
+expr newExpr(enum expr_t type);
+
+SymbolTableEntry newTemp();
+
+//TODO -> this will need some helper functions..
+void emit(enum iopcode, expr arg1, expr arg2, expr result);
