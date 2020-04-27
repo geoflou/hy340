@@ -10,7 +10,7 @@ enum iopcode{
     add,
     sub,
     mul,
-    div
+    div,
     mod,
     uminus,
     and,
