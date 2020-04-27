@@ -52,18 +52,18 @@ enum expr_t{
     nil_e
 };
 
-struct expr{
-    expr_t type;
+typedef struct expr{
+    enum expr_t type;
     SymbolTableEntry* sym;
     expr* index;
     double numConst;
     char* strConst;
     unsigned char boolConst;
     expr* next;
-};
+} expr;
 
 struct quad{
-    iopcode op;
+    enum iopcode op;
     expr* result;
     expr* arg1;
     expr* arg2;
