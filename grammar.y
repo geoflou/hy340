@@ -14,7 +14,10 @@
     extern FILE* yyin;
 
     int scope = 0;
-
+    /*quad* quads= (quad*) = 0;
+    unsigned int total = 0;
+    unsigned int currentquad = 0; 
+    */
     Function* temp_func;
     int arg_index = 0;
 
@@ -94,29 +97,297 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     ;
 
 expr: assignexpr    {printf("assignexpr -> expr");}
-    | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");}
-    | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");}
-    | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");}
-    | expr OPERATOR_DIV expr    {printf("expr / expr -> expr\n");}
-    | expr OPERATOR_MUL expr    {printf("expr * expr -> expr\n");}
-    | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");}
-    | expr OPERATOR_GRE expr    {printf("expr >= expr -> expr\n");}
-    | expr OPERATOR_LES expr    {printf("expr < expr -> expr\n");}
-    | expr OPERATOR_LEE expr    {printf("expr <= expr -> expr\n");}
-    | expr OPERATOR_EQ expr {printf("expr == expr -> expr\n");}
-    | expr OPERATOR_NEQ expr    {printf("expr != expr -> expr\n");}
-    | expr OPERATOR_AND expr    {printf("expr && expr -> expr\n");}
-    | expr OPERATOR_OR expr {printf("expr || expr -> expr\n");}
+    | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");
+                                 /*$tmp1 = newexpr(arithexpr_e);
+                                    lookupscope($tmp1,scope);
+                                    insertEntry($tmp1);
+                                   $tmp2 = newexpr(arithexpr_e);
+                                   lookupscope($tmp2,scope);
+                                    insertEntry($tmp2);
+                                   $tmp3 = newexpr(arithexpr_e);
+                                   lookupscope($tmp3,scope);
+                                    insertEntry($tmp3); 
+                                    emit(add,$tmp1,$tmp2,$tmp3);
+                                    hide($tmp1);
+                                    hide($tmp2);
+                                    hide($tmp3); 
+                                    meta pou kanoume to emit kanoume hide 
+                                    tis metavlhtes gia na mporoume na tis xrhsimopoihsoume
+                                    */                               }
+    | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");
+                                  /*$tmp1 = newexpr(arithexpr_e);
+                                    lookupscope($tmp1,scope);
+                                    insertEntry($tmp1);
+                                   $tmp2 = newexpr(arithexpr_e);
+                                   lookupscope($tmp2,scope);
+                                    insertEntry($tmp2);
+                                   $tmp3 = newexpr(arithexpr_e);
+                                   lookupscope($tmp3,scope);
+                                    insertEntry($tmp3); 
+                                    emit(sub,$tmp1,$tmp2,$tmp3);
+                                    hide($tmp1);
+                                    hide($tmp2);
+                                    hide($tmp3);
+                                     */                              
+                                     }
+    | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");
+                                    /*$tmp1 = newexpr(arithexpr_e);
+                                    lookupscope($tmp1,scope);
+                                    insertEntry($tmp1);
+                                   $tmp2 = newexpr(arithexpr_e);
+                                   lookupscope($tmp2,scope);
+                                    insertEntry($tmp2);
+                                   $tmp3 = newexpr(arithexpr_e);
+                                   lookupscope($tmp3,scope);
+                                    insertEntry($tmp3); 
+                                    emit(mod,$tmp1,$tmp2,$tmp3);
+                                    hide($tmp1);
+                                    hide($tmp2);
+                                    hide($tmp3);
+                                    */
+                                                }
+    | expr OPERATOR_DIV expr    {printf("expr / expr -> expr\n");
+                                    /*$tmp1 = newexpr(arithexpr_e);
+                                    lookupscope($tmp1,scope);
+                                    insertEntry($tmp1);
+                                   $tmp2 = newexpr(arithexpr_e);
+                                   lookupscope($tmp2,scope);
+                                    insertEntry($tmp2);
+                                   $tmp3 = newexpr(arithexpr_e);
+                                   lookupscope($tmp3,scope);
+                                    insertEntry($tmp3); 
+                                    emit(add,$tmp1,$tmp2,$tmp3);
+                                    hide($tmp1);
+                                    hide($tmp2);
+                                    hide($tmp3);*/
+                                }
+    | expr OPERATOR_MUL expr    {printf("expr * expr -> expr\n");
+                                    /*$tmp1 = newexpr(arithexpr_e);
+                                    lookupscope($tmp1,scope);
+                                    insertEntry($tmp1);
+                                   $tmp2 = newexpr(arithexpr_e);
+                                   lookupscope($tmp2,scope);
+                                    insertEntry($tmp2);
+                                   $tmp3 = newexpr(arithexpr_e);
+                                   lookupscope($tmp3,scope);
+                                    insertEntry($tmp3); 
+                                    emit(mul,$tmp1,$tmp2,$tmp3);
+                                    hide($tmp1);
+                                    hide($tmp2);
+                                    hide($tmp3);
+                                    */
+                                    }
+    | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_greater, $tmp1, $tmp2, label);
+                                          emit(jump , label+2);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                        }
+    | expr OPERATOR_GRE expr    {printf("expr >= expr -> expr\n");
+                                     /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_greatereq, $tmp1, $tmp2, label);
+                                          emit(jump , label+2);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                                    }
+    | expr OPERATOR_LES expr    {printf("expr < expr -> expr\n");
+                                         /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_less, $tmp1, $tmp2, label);
+                                          emit(jump , label+2);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                                    }
+    | expr OPERATOR_LEE expr    {printf("expr <= expr -> expr\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_lesseq, $tmp1, $tmp2, label);
+                                          emit(jump , label+2);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                          }
+    | expr OPERATOR_EQ expr {printf("expr == expr -> expr\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_eq, $tmp1, $tmp2, label);
+                                          emit(jump , label+2);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                          }
+    | expr OPERATOR_NEQ expr    {printf("expr != expr -> expr\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_greater, $tmp1, $tmp2, label);
+                                          emit(jump , label+2);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                          }
+    | expr OPERATOR_AND expr    {printf("expr && expr -> expr\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_eq, $tmp1, true, label+2);
+                                          emit(jump , label+5);
+                                          emit(if_eq, $tmp2, true, label+2);
+                                          emit(jump , label+3);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                          }
+    | expr OPERATOR_OR expr {printf("expr || expr -> expr\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          $tmp2 = newexpr(arithexpr_e);
+                                          $tmp3 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          lookupscope(tmp2,scope);
+                                          insertEntry(tmp2);
+                                          lookupscope(tmp3,scope);
+                                          insertEntry(tmp3);
+                                          emit(if_eq, $tmp1, true, label+4);
+                                          emit(jump , label+1);
+                                          emit(if_eq, $tmp2, true, label+2);
+                                          emit(jump , label+3);
+                                          emit(assign, $tmp3 ,true);
+                                          emit(jump, label+1);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);
+                                          hide($tmp2);
+                                          hide($tmp3);*/
+                                          
+                                          }
     |term   {printf("term -> expr\n");}  
     ;
 
 term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
-    |OPERATOR_MINUS expr    {printf("- expr -> term\n");}
-    |OPERATOR_NOT expr  {printf("not expr -> term\n");}
-    |OPERATOR_PP lvalue {printf("++lvalue -> term\n");}
-    |lvalue OPERATOR_PP {printf("lvalue++ -> term\n");}
-    |OPERATOR_MM lvalue {printf("--lvalue -> term\n");}
-    |lvalue OPERATOR_MM {printf("lvalue-- -> term\n");}
+    |OPERATOR_MINUS expr    {printf("- expr -> term\n");
+                            /*$tmp1= newexpr(arithexpr_e); 
+                              lookupscope($tmp1,scope);
+                              insertEntry($tmp1);
+                              emit(uminus, $tmp1 , lvalue);
+                              hide($tmp1);*/
+                                    }
+    |OPERATOR_NOT expr  {printf("not expr -> term\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          emit(if_noteq, $tmp1, lvalue, label+2);
+                                          emit(jump , label+3);
+                                          emit(assign, $tmp1 ,true);
+                                          emit(jump, label+2);
+                                          emit(assign, $tmp3, false);
+                                          hide($tmp1);*/
+                                          }
+    |OPERATOR_PP lvalue {printf("++lvalue -> term\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          emit(add,$tmp1,$tmp1,1);
+                                          emit(assign,$tmp1,lvalue);
+                                          hide($tmp1);*/
+                                }
+    |lvalue OPERATOR_PP {printf("lvalue++ -> term\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          emit(assign,$tmp1,lvalue);
+                                          emit(add,$tmp1,$tmp1,1);
+                                          hide($tmp1);*/
+                                                    }
+    |OPERATOR_MM lvalue {printf("--lvalue -> term\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          emit(add,$tmp1,$tmp1,1);
+                                          emit(assign,$tmp1,lvalue);
+                                          hide($tmp1);*/
+                                          }
+    |lvalue OPERATOR_MM {printf("lvalue-- -> term\n");
+                                        /*$tmp1 = newexpr(arithexpr_e);
+                                          lookupscope(tmp1,scope);
+                                          insertEntry(tmp1);
+                                          emit(assign,$tmp1,lvalue);
+                                          emit(add,$tmp1,$tmp1,1);
+                                          hide($tmp1);*/
+                                          }
     |primary    {printf("primary -> term\n");}
     ;
 
