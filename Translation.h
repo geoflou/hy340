@@ -75,6 +75,8 @@ typedef struct quad{
 expr newExpr(enum expr_t type);
 
 SymbolTableEntry newTemp();
+/*estw oti auti i sunartisi ftiaxnei mia kainourgia metabliti gia na tin balei ston symboltable
+prwta elegxei an uparxei idi (lookupscope) kai meta tin kanei insert i guess...*/
 
 //TODO -> this will need some helper functions..
 void emit(enum iopcode, expr arg1, expr arg2, expr result);
