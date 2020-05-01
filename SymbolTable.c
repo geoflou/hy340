@@ -1,4 +1,5 @@
 #include "SymbolTable.h"
+
 int i;
 
 SymbolTableEntry *SymbolTable[1034];
@@ -470,77 +471,104 @@ void insertLibraryFunctions(void){
 }
 
 void comparelibfunc(char *name){
-char *print = malloc(sizeof(char*)*10);
-char *input = malloc(sizeof(char*)*10);
-char *objectmemberkeys = malloc(sizeof(char*)*10);
-char *objecttotalmembers = malloc(sizeof(char*)*10);
-char *objectcopy = malloc(sizeof(char*)*10);
-char *totalarguments = malloc(sizeof(char*)*10);
-char *argument = malloc(sizeof(char*)*10);
-char *typeof1 = malloc(sizeof(char*)*10);
-char *strtonum = malloc(sizeof(char*)*10);
-char *sqrt = malloc(sizeof(char*)*10);
-char *cos = malloc(sizeof(char*)*10);
-char *sin = malloc(sizeof(char*)*10);
+        
+    char *print = malloc(sizeof(char*)*10);
+    char *input = malloc(sizeof(char*)*10);
+    char *objectmemberkeys = malloc(sizeof(char*)*10);
+    char *objecttotalmembers = malloc(sizeof(char*)*10);
+    char *objectcopy = malloc(sizeof(char*)*10);
+    char *totalarguments = malloc(sizeof(char*)*10);
+    char *argument = malloc(sizeof(char*)*10);
+    char *typeof1 = malloc(sizeof(char*)*10);
+    char *strtonum = malloc(sizeof(char*)*10);
+    char *sqrt = malloc(sizeof(char*)*10);
+    char *cos = malloc(sizeof(char*)*10);
+    char *sin = malloc(sizeof(char*)*10);
 
- print = "print";
- input = "input";
- objectmemberkeys = "objectmemberkeys";
- objecttotalmembers = "objecttotalmembers";
- objectcopy = "objectcopy";
- totalarguments = "totalarguments";
- argument = "argument";
- typeof1 = "typeof";
- strtonum = "strtonum";
- sqrt = "sqrt";
- cos = "cos";
- sin = "sin";
-	i=strcmp(name,print);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,input);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,objectmemberkeys);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,objecttotalmembers);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,objectcopy);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,totalarguments);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,argument);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,typeof1);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,strtonum);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,sqrt);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,cos);
-	 if(i==0){
-          printf("Error, cannot use library function as name variable\n");
-                 }
-	i=strcmp(name,sin);
-	 if(i==0){
-	  printf("Error, cannot use library function as name variable\n");
-		 }
+    print = "print";
+    input = "input";
+    objectmemberkeys = "objectmemberkeys";
+    objecttotalmembers = "objecttotalmembers";
+    objectcopy = "objectcopy";
+    totalarguments = "totalarguments";
+    argument = "argument";
+    typeof1 = "typeof";
+    strtonum = "strtonum";
+    sqrt = "sqrt";
+    cos = "cos";
+    sin = "sin";
+
+        i=strcmp(name,print);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,input);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+        
+        i=strcmp(name,objectmemberkeys);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,objecttotalmembers);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,objectcopy);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,totalarguments);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,argument);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,typeof1);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,strtonum);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,sqrt);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,cos);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+        i=strcmp(name,sin);
+        if(i==0){
+            printf("Error, cannot use library function as name variable\n");
+            return;
+        }
+
+    return;
 }

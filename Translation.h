@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include "SymbolTable.h"
+
+enum iopcode{
+    assign,
+    add,
+    sub,
+    mul,
+    div,
+    mod,
+    uminus,
+    and,
+    or,
+    not,
+    if_eq,
+    if_noteq,
+    if_lesseq,
+    if_greatereq,
+    if_less,
+    if_greater,
+    call,
+    param,
+    ret,
+    getretval,
+    funcstart,
+    funcend,
+    tablecreate,
+    tablegetelem,
+    tablesetelem
+};
+
+enum expr_t{
+    var_e,
+    tableitem_e,
+
+    programfunc_e,
+    libraryfunc_e,
+
+    arithexpr_e,
+    boolexpr_e,
+    assignexpr_e,
+    newtable_e,
+
+    constnum_e,
+    constbool_e,
+    conststring_e,
+
+    nil_e
+};
+
+typedef struct expr{
+    enum expr_t type;
+    SymbolTableEntry* sym;
+    expr* index;
+    double numConst;
+    char* strConst;
+    unsigned char boolConst;
+    expr* next;
+} expr;
+
+typedef struct quad{
+    enum iopcode op;
+    expr* result;
+    expr* arg1;
+    expr* arg2;
+    unsigned int label;
+    unsigned int line;
+} quad;
+
+
+expr newExpr(enum expr_t type);
+
+SymbolTableEntry newTemp();
+
+//TODO -> this will need some helper functions..
+void emit(enum iopcode, expr arg1, expr arg2, expr result);
