@@ -694,7 +694,18 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");}
     |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}
     ;
 
-call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");}
+/*den teleiwsa me ta calls*/
+call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {   printf("call(elist) -> call\n");
+                                                        /*
+                                                        emit(call, null, null, $1);
+                                                        quadcounter++;
+                                                        $tmp = newexpr(var_e);
+                                                        $tmp->sym = newtemp();
+                                                        emit(getretval, null, null, $tmp);
+                                                        quadcounter++;
+                                                        hide($tmp);
+                                                        */
+                                                    }
     |lvalue callsuffix  {printf("lvalue() -> call\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
         {printf("(funcdef)(elist) -> call\n");}
@@ -911,12 +922,40 @@ funcdef: FUNCTION ID {
     }
     ;
 
-const: REAL
-    |INTEGER
-    |STRING 
-    |NIL
-    |TRUE
-    |FALSE
+const: REAL {   /*//8a dimiourgei ena entry ston symbol table: expr* me type constnum_e
+                //kai numConst = yylval.dbVal;
+                $tmp = newexpr(constnum_e);
+                $tmp->numConst = yylval.dbVal;
+                */                  
+            }
+    |INTEGER{   /*//8a dimiourgei ena entry ston symbol table: expr* me type constnum_e
+                //kai numConst = yylval.intVal; to numConst einai double, den 3erw an 8a exei 8ema
+                $tmp = newexpr(constnum_e);
+                $tmp->numConst = yylval.intVal;
+                */                  
+            }
+    |STRING {   /*//8a dimiourgei ena entry ston symbol table: expr* me type conststring_e
+                //kai strConst = yylval.strVal;
+                $tmp = newexpr(conststring_e);
+                $tmp->strConst = yylval.strVal;
+                */                  
+            }
+    |NIL    {   /*//8a dimiourgei ena entry ston symbol table: expr* me type nill_e
+                $tmp = newexpr(nill_e);
+                */                  
+            }
+    |TRUE   {   /*//8a dimiourgei ena entry ston symbol table: expr* me type constbool_e
+                //kai boolConst = 1;
+                $tmp = newexpr(boolexpr_e);
+                $tmp->boolConst = '1';
+                */                  
+            }
+    |FALSE  {  /*//8a dimiourgei ena entry ston symbol table: expr* me type constbool_e
+                //kai boolConst = 0;
+                $tmp = newexpr(boolexpr_e);
+                $tmp->boolConst = '0';
+                */                  
+            }
     ;
 
 idlist: ID {
@@ -1045,8 +1084,29 @@ idlist: ID {
     |
     ;
 
-ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> ifstmt\n");}
-    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");}
+ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS {/*$tmp = newexpr(boolexpr_e);
+                                                    $tmp->sym = newtemp();
+                                                    emit(if_eq, $3, true, quadcounter+1); //mporei na min 8elei to expr alla tin krufi metabliti stin opoia balame to apotelesma
+                                                    quadcounter++;
+                                                    emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                                                    quadcounter++;
+                                                    hide($tmp);
+                                                    */
+                                                    }
+        stmt   {printf("if(expr) -> ifstmt\n");}
+    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS {/*$tmp = newexpr(boolexpr_e);
+                                                    $tmp->sym = newtemp();
+                                                    emit(if_eq, $3, true, quadcounter+1); //mporei na min 8elei to expr alla tin krufi metabliti stin opoia balame to apotelesma
+                                                    quadcounter++;
+                                                    emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                                                    quadcounter++;
+                                                    hide($tmp);
+                                                    */
+                                                }
+    stmt ELSE   {/*emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                quadcounter++;
+                */}
+    stmt    {printf("if(expr) else -> ifstmt\n");}
     ;
 
 whilestmt: WHILE LEFT_PARENTHESIS {/*int quadforwhile = quadcount;*/} 
