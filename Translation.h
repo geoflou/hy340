@@ -79,4 +79,8 @@ SymbolTableEntry newTemp();
 prwta elegxei an uparxei idi (lookupscope) kai meta tin kanei insert i guess...*/
 
 //TODO -> this will need some helper functions..
+//kanonika einai iopcode, result, expr 1, expr 2 stin emit... dior8ose to
 void emit(enum iopcode, expr arg1, expr arg2, expr result);
+
+//slide 25 front4, exei kwdika gia ta tablelements pros8ese ton pliz
+//episis pros8ese ena quadcounter++ kai ena hide($tmp);
