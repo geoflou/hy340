@@ -570,11 +570,19 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
                                             /*
-                                            $tmp = newexpr(assignexpr_e);
-                                            $tmp->sym = newtemp();
-                                            emit(assign, $1, null, $tmp);
-                                            quadcounter++;
-                                            hide($tmp);
+                                            if(member_item($1, $1.strVal) == null){ 
+                                                $tmp = newexpr(assignexpr_e);
+                                                $tmp->sym = newtemp();
+                                                emit(assign, $1, null, $tmp);
+                                                quadcounter++;
+                                                hide($tmp);
+                                            }else{
+                                                $tmp = newexpr(tableitem_e);
+                                                $tmp->sym = newtemp();
+                                                emit(tablesetelem, $1.yylVal, null, $tmp);//8elw to periexomeno tou lvalue na alla3ei
+                                                quadcounter++;
+                                                hide($tmp);
+                                            }
                                             */
                                         }
     ;
@@ -688,24 +696,55 @@ lvalue: ID  {
     |member {printf("member -> lvalue\n");}
     ;
 
-member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");}
-    |lvalue LEFT_BRACE expr RIGHT_BRACE {printf("lvalue[expr] -> member\n");}
-    |call DOT ID    {printf("call.id -> member\n");}
-    |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}
+member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
+                            /*
+                            $$ = member_item($1, $3.strVal);//id.name 8eloume
+                            */
+
+                        }
+    |lvalue LEFT_BRACE expr RIGHT_BRACE {printf("lvalue[expr] -> member\n");
+                                            /*
+                                            $$ = member_item($1, $3.yylVal);//id.periexomeno 8eloume
+                                            */
+                                        }
+    |call DOT ID    {printf("call.id -> member\n");
+                        /*
+                        $$ = member_item($1, $3.yylVal);//id.periexomeno 8eloume
+                        */
+                    }
+    |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");
+                                             /*
+                                            $$ = member_item($1, $3.yylVal);//id.periexomeno 8eloume
+                                            */
+                                        }
     ;
 
 /*den teleiwsa me ta calls*/
-call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {   printf("call(elist) -> call\n");
-                                                        /*
-                                                        emit(call, null, null, $1);
-                                                        quadcounter++;
-                                                        $tmp = newexpr(var_e);
-                                                        $tmp->sym = newtemp();
-                                                        emit(getretval, null, null, $tmp);
-                                                        quadcounter++;
-                                                        hide($tmp);
-                                                        */
-                                                    }
+call: call {/*
+            emit(call, null, null, $1.strVal);
+            quadcounter++;
+            $tmp = newexpr(var_e);
+            $tmp->sym = newtemp();
+            emit(getretval, null, null, $tmp);
+            quadcounter++;
+            hide($tmp);
+            */}
+LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {   printf("call(elist) -> call\n");
+                                            /*
+                                            sprintf(temp_func -> name, "_anon_func_%d", anonFuncCounter);
+                                            anonFuncCounter++;
+                                            temp_func -> scope = scope + 1;
+                                            temp_func -> line = yylineno;
+        
+                                            emit(call, null, null, temp_func -> name);
+                                            quadcounter++;
+                                            $tmp = newexpr(var_e);
+                                            $tmp->sym = newtemp();
+                                            emit(getretval, null, null, $tmp);
+                                            quadcounter++;
+                                            hide($tmp);
+                                            */
+                                        }
     |lvalue callsuffix  {printf("lvalue() -> call\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
         {printf("(funcdef)(elist) -> call\n");}
@@ -721,8 +760,24 @@ normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
 methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");}
     ;
 
-elist: expr
-    |expr COMMA elist
+elist: expr {
+            /*
+            $tmp = newexpr(var_e);
+            $tmp->sym = newtemp();
+            emit(param, $1, null, $tmp);
+            quadcounter++;
+            hide($tmp);
+            */
+            }
+    |expr COMMA elist   {
+                        /*
+                        $tmp = newexpr(var_e);
+                        $tmp->sym = newtemp();
+                        emit(param, $1, null, $tmp);
+                        quadcounter++;
+                        hide($tmp);
+                        */
+                        }
     |
     ;
 
