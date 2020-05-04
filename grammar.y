@@ -96,7 +96,15 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     |SEMICOLON  {printf("; -> stmt\n");}
     ;
 
-expr: assignexpr    {printf("assignexpr -> expr");}
+expr: assignexpr    {printf("assignexpr -> expr");
+                        /*
+                        $tmp = newexpr(arithexpr_e);
+                        $tmp->sym = newtemp();
+                        emit(assign, $1, null, $tmp);
+                        quadcounter++;
+                        hide($tmp);
+                        */
+                    }
     | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");
                                  /*$tmp1 = newexpr(arithexpr_e);
                                     lookupscope($tmp1,scope);
@@ -113,7 +121,16 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                     hide($tmp3); 
                                     meta pou kanoume to emit kanoume hide 
                                     tis metavlhtes gia na mporoume na tis xrhsimopoihsoume
-                                    */                               }
+                                    */
+                                    
+                                    /*
+                                    $tmp = newexpr(arithexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(add, $1, $3, $tmp);
+                                    quadcount++; //den 3erw an uparxei auto
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");
                                   /*$tmp1 = newexpr(arithexpr_e);
                                     lookupscope($tmp1,scope);
@@ -128,8 +145,16 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                     hide($tmp1);
                                     hide($tmp2);
                                     hide($tmp3);
-                                     */                              
-                                     }
+                                     */ 
+
+                                    /*
+                                    $tmp = newexpr(arithexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(sub, $1, $3, $tmp);
+                                    quadcount++;
+                                    hide($tmp);
+                                    */                             
+                                }
     | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");
                                     /*$tmp1 = newexpr(arithexpr_e);
                                     lookupscope($tmp1,scope);
@@ -145,7 +170,15 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                     hide($tmp2);
                                     hide($tmp3);
                                     */
-                                                }
+
+                                    /*
+                                    $tmp = newexpr(arithexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(mod, $1, $3, $tmp);
+                                    quadcount++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_DIV expr    {printf("expr / expr -> expr\n");
                                     /*$tmp1 = newexpr(arithexpr_e);
                                     lookupscope($tmp1,scope);
@@ -160,6 +193,14 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                     hide($tmp1);
                                     hide($tmp2);
                                     hide($tmp3);*/
+
+                                    /*
+                                    $tmp = newexpr(arithexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(div, $1, $3, $tmp);
+                                    quadcount++;
+                                    hide($tmp);
+                                    */
                                 }
     | expr OPERATOR_MUL expr    {printf("expr * expr -> expr\n");
                                     /*$tmp1 = newexpr(arithexpr_e);
@@ -176,7 +217,15 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                     hide($tmp2);
                                     hide($tmp3);
                                     */
-                                    }
+                                
+                                    /*
+                                    $tmp = newexpr(arithexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(mul, $1, $3, $tmp);
+                                    quadcount++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -195,7 +244,26 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                        }
+                                    
+                                    /*  p.x. gia y > z 8a exoume
+                                        1: if_greater y z 4 (4 = quadcounter+3)
+                                        2: assign $tmp 'false'
+                                        3: jump 5 (5 = quadcounter+2)
+                                        4: assign $tmp 'true'
+                                       
+                                    $tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_greater, $1, $3, quadcounter+3);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, false);
+                                    quadcounter++;
+                                    emit(jump, null,null,quadcounter+2);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, true);
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_GRE expr    {printf("expr >= expr -> expr\n");
                                      /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -214,7 +282,21 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                                    }
+                                    
+                                    /*
+                                    $tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_greatereq, $1, $3, quadcounter+3);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, false);
+                                    quadcounter++;
+                                    emit(jump, null,null,quadcounter+2);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, true);
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_LES expr    {printf("expr < expr -> expr\n");
                                          /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -233,7 +315,21 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                                    }
+                                
+                                    /*
+                                    $tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_less, $1, $3, quadcounter+3);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, false);
+                                    quadcounter++;
+                                    emit(jump, null,null,quadcounter+2);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, true);
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_LEE expr    {printf("expr <= expr -> expr\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -252,7 +348,21 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                          }
+                                
+                                    /*
+                                    $tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_lesseq, $1, $3, quadcounter+3);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, false);
+                                    quadcounter++;
+                                    emit(jump, null,null,quadcounter+2);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, true);
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_EQ expr {printf("expr == expr -> expr\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -271,7 +381,21 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                          }
+                            
+                                /*
+                                $tmp = newexpr(boolexpr_e);
+                                $tmp->sym = newtemp();
+                                emit(if_eq, $1, $3, quadcounter+3);
+                                quadcounter++;
+                                emit(assign, $tmp, null, false);
+                                quadcounter++;
+                                emit(jump, null,null,quadcounter+2);
+                                quadcounter++;
+                                emit(assign, $tmp, null, true);
+                                quadcounter++;
+                                hide($tmp);
+                                */
+                            }
     | expr OPERATOR_NEQ expr    {printf("expr != expr -> expr\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -290,7 +414,21 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                          }
+                                
+                                    /*
+                                    $tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_noteq, $1, $3, quadcounter+3);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, false);
+                                    quadcounter++;
+                                    emit(jump, null,null,quadcounter+2);
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, true);
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_AND expr    {printf("expr && expr -> expr\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -311,7 +449,27 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                          }
+                                
+                                    /*
+                                    $tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_eq, $1, true, quadcounter+2); //estw quad 1
+                                    quadcounter++;
+                                    emint(jump, null, null, quadcounter+5); //quad 2 (to 1 apo ta 2 meli tou and einai false ara jump sto assign false)
+                                    quadcounter++;
+                                    emit(if_eq, $3, true, quadcounter+2); //quad 3
+                                    quadcounter++;
+                                    emint(jump, null, null, quadcounter+3); //quad 4 (to 1 apo ta 2 meli tou and einai false ara jump sto assign false)
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, true); //quad 5 (kai ta duo einai true)
+                                    quadcounter++;
+                                    emint(jump, null, null, quadcounter+2); //quad 6 (skip tou assign false)
+                                    quadcounter++;
+                                    emit(assign, $tmp, null, false); //quad 7 (assign false)
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */
+                                }
     | expr OPERATOR_OR expr {printf("expr || expr -> expr\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           $tmp2 = newexpr(arithexpr_e);
@@ -332,8 +490,27 @@ expr: assignexpr    {printf("assignexpr -> expr");}
                                           hide($tmp1);
                                           hide($tmp2);
                                           hide($tmp3);*/
-                                          
-                                          }
+
+                            /*
+                            $tmp = newexpr(boolexpr_e);
+                            $tmp->sym = newtemp();
+                            emit(if_eq, $1, true, quadcounter+4); //quad 1
+                            quadcounter++;
+                            emint(jump, null, null, quadcounter+1); //quad 2 (to 1 apo ta 2 meli tou and einai false ara jump sto if_eq)
+                            quadcounter++;
+                            emit(if_eq, $3, true, quadcounter+2); //quad 3
+                            quadcounter++;
+                            emint(jump, null, null, quadcounter+3); //quad 4 (to 1 apo ta 2 meli tou and einai false ara jump sto assign false)
+                            quadcounter++;
+                            emit(assign, $tmp, null, true); //quad 5
+                            quadcounter++;
+                            emint(jump, null, null, quadcounter+2); //quad 6 (skip tou assign false)
+                            quadcounter++;
+                            emit(assign, $tmp, null, false); //quad 7 (assign false)
+                            quadcounter++;
+                            hide($tmp);
+                            */
+                            }
     |term   {printf("term -> expr\n");}  
     ;
 
@@ -391,7 +568,15 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
     |primary    {printf("primary -> term\n");}
     ;
 
-assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");}
+assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
+                                            /*
+                                            $tmp = newexpr(assignexpr_e);
+                                            $tmp->sym = newtemp();
+                                            emit(assign, $1, null, $tmp);
+                                            quadcounter++;
+                                            hide($tmp);
+                                            */
+                                        }
     ;
 
 primary: lvalue {printf("lvalue -> primary\n");}
@@ -509,7 +694,18 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");}
     |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}
     ;
 
-call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");}
+/*den teleiwsa me ta calls*/
+call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {   printf("call(elist) -> call\n");
+                                                        /*
+                                                        emit(call, null, null, $1);
+                                                        quadcounter++;
+                                                        $tmp = newexpr(var_e);
+                                                        $tmp->sym = newtemp();
+                                                        emit(getretval, null, null, $tmp);
+                                                        quadcounter++;
+                                                        hide($tmp);
+                                                        */
+                                                    }
     |lvalue callsuffix  {printf("lvalue() -> call\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
         {printf("(funcdef)(elist) -> call\n");}
@@ -558,6 +754,14 @@ funcdef: FUNCTION ID {
         temp_func -> name = yylval.strVal;
         temp_func -> scope = scope + 1;
         temp_func -> line = yylineno;
+
+        /*
+        $tmp = newexpr(programfunc_e);
+        $tmp->sym = newtemp();
+        emit(funcstart, $2, null, $tmp);
+        quadcounter++;
+        hide($tmp);
+        */
 
     }   LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS {
         SymbolTableEntry *temp;
@@ -621,13 +825,28 @@ funcdef: FUNCTION ID {
         temp_func -> scope = 0;
         temp_func -> line = 0;
         for(i = 0;i < arg_index;i++)
-            temp_func -> arguments[i] = "";   
+        temp_func -> arguments[i] = "";   
+    
+        /*
+        $tmp = newexpr(programfunc_e);
+        $tmp->sym = newtemp();
+        emit(funcend, $2, null, $tmp);
+        quadcounter++;
+        hide($tmp);
+        */
     }
     |FUNCTION{
         sprintf(temp_func -> name, "_anon_func_%d", anonFuncCounter);
         anonFuncCounter++;
         temp_func -> scope = scope + 1;
         temp_func -> line = yylineno;
+        /*
+        $tmp = newexpr(programfunc_e);
+        $tmp->sym = newtemp();
+        emit(funcstart, temp_func -> name, null, $tmp);
+        quadcounter++;
+        hide($tmp);
+        */
 
     } LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS {
         SymbolTableEntry *temp;
@@ -692,15 +911,51 @@ funcdef: FUNCTION ID {
         temp_func -> line = 0;
         for(i = 0;i < arg_index;i++)
             temp_func -> arguments[i] = "";  
+    
+        /*
+        $tmp = newexpr(programfunc_e);
+        $tmp->sym = newtemp();
+        emit(funcend, temp_func -> name, null, $tmp);
+        quadcounter++;
+        hide($tmp);
+        */
     }
     ;
 
-const: REAL
-    |INTEGER
-    |STRING 
-    |NIL
-    |TRUE
-    |FALSE
+const: REAL {   /*//8a dimiourgei ena entry ston symbol table: expr* me type constnum_e
+                //kai numConst = yylval.dbVal;
+                $tmp = newexpr(constnum_e);
+                $tmp->numConst = yylval.dbVal;
+                */                  
+            }
+    |INTEGER{   /*//8a dimiourgei ena entry ston symbol table: expr* me type constnum_e
+                //kai numConst = yylval.intVal; to numConst einai double, den 3erw an 8a exei 8ema
+                $tmp = newexpr(constnum_e);
+                $tmp->numConst = yylval.intVal;
+                */                  
+            }
+    |STRING {   /*//8a dimiourgei ena entry ston symbol table: expr* me type conststring_e
+                //kai strConst = yylval.strVal;
+                $tmp = newexpr(conststring_e);
+                $tmp->strConst = yylval.strVal;
+                */                  
+            }
+    |NIL    {   /*//8a dimiourgei ena entry ston symbol table: expr* me type nill_e
+                $tmp = newexpr(nill_e);
+                */                  
+            }
+    |TRUE   {   /*//8a dimiourgei ena entry ston symbol table: expr* me type constbool_e
+                //kai boolConst = 1;
+                $tmp = newexpr(boolexpr_e);
+                $tmp->boolConst = '1';
+                */                  
+            }
+    |FALSE  {  /*//8a dimiourgei ena entry ston symbol table: expr* me type constbool_e
+                //kai boolConst = 0;
+                $tmp = newexpr(boolexpr_e);
+                $tmp->boolConst = '0';
+                */                  
+            }
     ;
 
 idlist: ID {
@@ -756,7 +1011,13 @@ idlist: ID {
 
             insertEntry(new_entry);
         }
-
+        /*
+        $tmp = newexpr(var_e);
+        $tmp->sym = newtemp();
+        emit(param, $1, null, $tmp);
+        quadcounter++;
+        hide($tmp);
+        */
     }
     |ID {
             SymbolTableEntry *temp;
@@ -812,23 +1073,95 @@ idlist: ID {
                 insertEntry(new_entry);
             } 
 
+        /*
+        $tmp = newexpr(var_e);
+        $tmp->sym = newtemp();
+        emit(param, $1, null, $tmp);
+        quadcounter++;
+        hide($tmp);
+        */
         } COMMA idlist
     |
     ;
 
-ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> ifstmt\n");}
-    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");}
+ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS {/*$tmp = newexpr(boolexpr_e);
+                                                    $tmp->sym = newtemp();
+                                                    emit(if_eq, $3, true, quadcounter+1); //mporei na min 8elei to expr alla tin krufi metabliti stin opoia balame to apotelesma
+                                                    quadcounter++;
+                                                    emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                                                    quadcounter++;
+                                                    hide($tmp);
+                                                    */
+                                                    }
+        stmt   {printf("if(expr) -> ifstmt\n");}
+    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS {/*$tmp = newexpr(boolexpr_e);
+                                                    $tmp->sym = newtemp();
+                                                    emit(if_eq, $3, true, quadcounter+1); //mporei na min 8elei to expr alla tin krufi metabliti stin opoia balame to apotelesma
+                                                    quadcounter++;
+                                                    emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                                                    quadcounter++;
+                                                    hide($tmp);
+                                                    */
+                                                }
+    stmt ELSE   {/*emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                quadcounter++;
+                */}
+    stmt    {printf("if(expr) else -> ifstmt\n");}
     ;
 
-whilestmt: WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("while(expr) -> whilestmt\n");}
+whilestmt: WHILE LEFT_PARENTHESIS {/*int quadforwhile = quadcount;*/} 
+            expr RIGHT_PARENTHESIS {/*$tmp = newexpr(boolexpr_e);
+                                    $tmp->sym = newtemp();
+                                    emit(if_eq, $4, true, quadcounter+1); //mporei na min 8elei to expr alla tin krufi metabliti stin opoia balame to apotelesma
+                                    quadcounter++;
+                                    emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label
+                                    quadcounter++;
+                                    hide($tmp);
+                                    */}
+            stmt    {printf("while(expr) -> whilestmt\n");                                                   
+                        /*emit(jump, null, null, quadforwhile);
+                        quadcounter++;
+                        int endofwhile = quadcounter; //isws etsi alla den eimai sigouri
+                        */
+                    }
     ;    
 
-forstmt: FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt
-        {printf("for(elist;expr;elist)stmt -> forstmt\n");}
+forstmt: FOR LEFT_PARENTHESIS elist SEMICOLON {/*int quadforfor = quadcount;*/} 
+            expr SEMICOLON {/*$tmp = newexpr(boolexpr_e);
+                            $tmp->sym = newtemp();
+                            emit(if_eq, $6, true, quadcounter+1); //mporei na min 8elei to expr alla tin krufi metabliti stin opoia balame to apotelesma
+                            quadcounter++;
+                            emit(jump, null, null, ??); //den exw tin paramikri idea pws briskoume auto to label alla paei sto stmtquad
+                            quadcounter++;
+                            hide($tmp);
+                            int quadforelist = quadcounter;*/}
+            elist RIGHT_PARENTHESIS {/*emit(jump, null, null, quadforfor); //den exw tin paramikri idea pws briskoume auto to label
+                                      quadcounter++;
+                                      int stmtquad = curentquad;
+                                      */}
+            stmt {printf("for(elist;expr;elist)stmt -> forstmt\n");
+                 /*
+                emit(jump, null, null, quadforelist); 
+                quadcounter++;
+                 */
+                 }
     ;
 
-returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");} 
-    |RETURN SEMICOLON    {printf("return ; -> returnstmt\n");}
+returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");
+                                        /*
+                                        $tmp = newexpr(var_e);
+                                        $tmp->sym = newtemp();
+                                        emit(return, $2, null, $tmp);
+                                        quadcounter++;
+                                        hide($tmp);
+                                        */
+                                    } 
+    |RETURN SEMICOLON    {printf("return ; -> returnstmt\n");
+                            /*
+                            emit(return, null, null, null);
+                            quadcounter++;
+                            */
+                         }
     ;
 %%
 
