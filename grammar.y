@@ -28,6 +28,9 @@
     int intVal;
     char *strVal;
     double doubleVal;
+    //Call* callsuffix;
+    //Call* normcall;
+    //Call* methodcall;
 }
 
 
@@ -719,45 +722,60 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
                                         }
     ;
 
-/*den teleiwsa me ta calls*/
-call: call {/*
-            emit(call, null, null, $1.strVal);
-            quadcounter++;
-            $tmp = newexpr(var_e);
-            $tmp->sym = newtemp();
-            emit(getretval, null, null, $tmp);
-            quadcounter++;
-            hide($tmp);
-            */}
-LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {   printf("call(elist) -> call\n");
-                                            /*
-                                            sprintf(temp_func -> name, "_anon_func_%d", anonFuncCounter);
-                                            anonFuncCounter++;
-                                            temp_func -> scope = scope + 1;
-                                            temp_func -> line = yylineno;
-        
-                                            emit(call, null, null, temp_func -> name);
-                                            quadcounter++;
-                                            $tmp = newexpr(var_e);
-                                            $tmp->sym = newtemp();
-                                            emit(getretval, null, null, $tmp);
-                                            quadcounter++;
-                                            hide($tmp);
-                                            */
-                                        }
-    |lvalue callsuffix  {printf("lvalue() -> call\n");}
+call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");
+                                                        //$$ = make_call($1, $3);
+                                                    }
+    |lvalue callsuffix  {printf("lvalue() -> call\n");
+                            /*
+                            $1 = emit_iftableitem($1);
+
+                            if($3.callsuffix.method){
+                                expr* func = $1;
+                                $1 = emit_iftableitem(member_item(func, $2.callsuffix.name));
+                                $1.callsuffix.elist->next = func;
+                            }
+
+                            $$ = make_call($1, $2.callsuffix.elist);
+                            */
+                        }
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-        {printf("(funcdef)(elist) -> call\n");}
+        {printf("(funcdef)(elist) -> call\n");
+        /*
+            expr* $tmp = newexpr(programfunc_e);
+            $tmp->sym = $2;
+            $$ = make_call($tmp, $5);
+        */
+        }
     ;
 
-callsuffix: methodcall {printf("methodcall -> callsuffix\n");}
-    |normcall   {printf("normcall -> callsuffix\n");}
+callsuffix: methodcall  {printf("methodcall -> callsuffix\n");
+                            /*
+                            $$ = $1
+                            */
+                        }
+    |normcall   {printf("normcall -> callsuffix\n");
+                    /*
+                    $$ = $1;
+                    */
+                }
     ;
 
-normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS  {
+                                                        /*
+                                                        $$.normalcall.elist = $2;
+                                                        $$.normalcall.method = 0;
+                                                        $$.normalcall.name = NULL;
+                                                        */
+                                                    }
     ;
 
-methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");}
+methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");
+                                        /*
+                                        $$.methodcall.elist = $3; //prepei na mpei to head tis listas elist
+                                        $$.methodcall.method = 1;
+                                        $$.methodcall.name = $2.strVal;
+                                        */
+                                    }
     ;
 
 elist: expr {
@@ -811,6 +829,9 @@ funcdef: FUNCTION ID {
         temp_func -> line = yylineno;
 
         /*
+        emit(jump, null, null, quadcounter+3);
+        quadcounter++;
+
         $tmp = newexpr(programfunc_e);
         $tmp->sym = newtemp();
         emit(funcstart, $2, null, $tmp);
@@ -896,6 +917,9 @@ funcdef: FUNCTION ID {
         temp_func -> scope = scope + 1;
         temp_func -> line = yylineno;
         /*
+        emit(jump, null, null, quadcounter+3);
+        quadcounter++;
+        
         $tmp = newexpr(programfunc_e);
         $tmp->sym = newtemp();
         emit(funcstart, temp_func -> name, null, $tmp);
