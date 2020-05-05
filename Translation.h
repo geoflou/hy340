@@ -71,6 +71,12 @@ typedef struct quad{
     unsigned int line;
 } quad;
 
+typedef struct Call{
+    expr* elist;
+    unsigned char method;
+    char* name;
+} Call;
+
 
 expr newExpr(enum expr_t type);
 
