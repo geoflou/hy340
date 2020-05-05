@@ -31,6 +31,7 @@
     //Call* callsuffix;
     //Call* normcall;
     //Call* methodcall;
+    //expr* expr;
 }
 
 
@@ -710,7 +711,11 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
                                             /*
                                             $1= emit_iftableitem($1);
                                             $$ = newexpr(tableitem_e);
-                                            
+                                            $$.sym = $1.expr.sym;
+                                            $$.index = $3;
+
+
+
                                             $$ = member_item($1, $3.yylVal);//id.periexomeno 8eloume
                                             */
                                         }
@@ -803,8 +808,30 @@ elist: expr {
     |
     ;
 
-objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");}
-    |LEFT_BRACE indexed RIGHT_BRACE {printf("[indexed] -> objectdef\n]");}
+objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");
+                    /*expr* $tmp = newexpr(tableitem_e);
+                    $tmp.sym = newtemp);
+                    emit(tablecreate, $tmp, NULL, NULL);
+                    while($2!= NULL){
+                        int i=0;
+                        emit(tablesetelem, $tmp, newexpr_constnum(i++), $2);
+                        $$ = $tmp;
+                        $2 = $2-> next;
+                        }
+                        hide($tmp->sym);
+                        */
+                                    }
+    |LEFT_BRACE indexed RIGHT_BRACE {printf("[indexed] -> objectdef\n]");
+                                /*expr* $tmp = newexpr(tableitem_e);
+                                  $tmp->sym = newtemp();
+                                  emit(tablecreate, $tmp , NULL, NULL);
+                                  while($2!= NULL){
+                                      emit(tablesetelem,$tmp, index, index-> value);
+                                      $$ = t;
+                                      $2=$2-> next;
+                                      }
+                                      */
+                                }
     ;
 
 indexed: indexedelem
@@ -1859,7 +1886,9 @@ assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n")
                                         }
     ;
 
-primary: lvalue {printf("lvalue -> primary\n");}
+primary: lvalue {printf("lvalue -> primary\n");
+                            /*$$=emit_iftableitem($1);*/
+                            }
     |call   {printf("call -> primary\n");}
     |objectdef  {printf("objectdef -> primary\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {printf("(funcdef) -> primary\n");}
