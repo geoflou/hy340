@@ -82,6 +82,8 @@ typedef struct quad{
 } Quad;
 
 
+int tempVarCounter = 0;
+
 Quad* quads = (Quad *) 0;
 unsigned total = 0;
 unsigned int currQuad = 0;
@@ -93,11 +95,10 @@ unsigned int currQuad = 0;
 
 void expand(void);
 
-void emit(
-        enum iopcode op,
-        Expr* arg1,
-        Expr* arg2,
-        Expr* result,
-        unsigned label,
-        unsigned line
-        );
+void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
+                                        unsigned label, unsigned line);
+
+
+char* newTempName(int counter);
+
+SymbolTableEntry newTemp(enum expr_t type);

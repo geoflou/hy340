@@ -13,14 +13,8 @@ void expand(void){
 }
 
 
-void emit(
-        enum iopcode op,
-        Expr* arg1,
-        Expr* arg2,
-        Expr* result,
-        unsigned label,
-        unsigned line
-        ){
+void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
+                                        unsigned label, unsigned line) {
 
     if(currQuad == total)
         expand();
@@ -31,5 +25,40 @@ void emit(
     p -> arg2 = arg2;
     p -> result = result;
     p -> label = label;
-    p -> line = line;            
+    p -> line = line;
+
+}
+
+char* newTempName(int counter){
+    return sprintf("_temp_%d", counter);
+}
+
+SymbolTableEntry newTemp(enum expr_t type, int scope, int line){
+    SymbolTableEntry *sym;
+    Variable* var =(Variable *) malloc(sizeof(Variable));
+    char* name = newTempName(tempVarCounter);
+
+    tempVarCounter++;
+    sym = lookupScope(name, scope);
+    if(sym != NULL)
+        return *sym;
+
+    sym = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
+
+    var -> name = name;
+    var -> line = line;
+    var -> scope = scope;
+
+    sym -> isActive = 1;
+    sym -> varVal = var;
+    sym -> funcVal = NULL;
+    if(scope > 0){
+        sym -> type = LOCAL;
+    } else {
+        sym -> type = GLOBAL;
+    }
+
+    insertEntry(sym);
+
+    return *sym;
 }
