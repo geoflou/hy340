@@ -98,7 +98,6 @@ void expand(void);
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
                                         unsigned label, unsigned line);
 
-
 char* newTempName(int counter);
 
-SymbolTableEntry newTemp(enum expr_t type);
+SymbolTableEntry newTemp(int scope, int line);

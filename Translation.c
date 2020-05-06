@@ -33,7 +33,7 @@ char* newTempName(int counter){
     return sprintf("_temp_%d", counter);
 }
 
-SymbolTableEntry newTemp(enum expr_t type, int scope, int line){
+SymbolTableEntry newTemp(int scope, int line){
     SymbolTableEntry *sym;
     Variable* var =(Variable *) malloc(sizeof(Variable));
     char* name = newTempName(tempVarCounter);
