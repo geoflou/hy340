@@ -518,14 +518,25 @@ expr: assignexpr    {printf("assignexpr -> expr");
     |term   {printf("term -> expr\n");}  
     ;
 
-term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
+term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");
+                                                    /*
+                                                    $$ = $2;
+                                                    */
+                                                }
     |OPERATOR_MINUS expr    {printf("- expr -> term\n");
                             /*$tmp1= newexpr(arithexpr_e); 
                               lookupscope($tmp1,scope);
                               insertEntry($tmp1);
                               emit(uminus, $tmp1 , lvalue);
                               hide($tmp1);*/
-                                    }
+                            
+                                /*
+                                $$ = newexpr(arithexpr_e); 
+                                $$->sym = newtemp();
+                                emit(uminus, $$, NULL, $2);
+                                quadcounter++;
+                                */
+                            }
     |OPERATOR_NOT expr  {printf("not expr -> term\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           lookupscope(tmp1,scope);
@@ -536,7 +547,15 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
                                           emit(jump, label+2);
                                           emit(assign, $tmp3, false);
                                           hide($tmp1);*/
-                                          }
+                        
+                            /* //auto einai me oliki apotimisi
+                            $tmp = newexpr(arithexpr_e); 
+                            $tmp->sym = newtemp();
+                            emit(uminus, $tmp, NULL, $2);
+                            quadcounter++;
+                            hide($tmp);
+                            */
+                        }
     |OPERATOR_PP lvalue {printf("++lvalue -> term\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           lookupscope(tmp1,scope);
@@ -544,7 +563,25 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
                                           emit(add,$tmp1,$tmp1,1);
                                           emit(assign,$tmp1,lvalue);
                                           hide($tmp1);*/
-                                }
+                        
+                            /*
+                            if($2->type == tableintem_e){
+                                $$ = emit_iftableitem($2);
+                                emit(add , $$ , newexpr_constnum (1), $$);    //i newexpr_constnum(int num) bazei ston symboltable ton ari8mo auto
+                                quadcounter++;
+                                emit(tablesetelem , $$ , $2->index, $2);
+                                quadcounter++;
+                            } else {
+                                emit(add, $2, newexpr_constnum(1), $2);
+                                quadcounter++;
+                                $tmp = newexpr(arithexpr_e); 
+                                $tmp->sym = newtemp();
+                                emit(assign, $tmp, NULL, $2);
+                                quadcounter++;
+                                hide($tmp);
+                            }
+                            */
+                        }
     |lvalue OPERATOR_PP {printf("lvalue++ -> term\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           lookupscope(tmp1,scope);
@@ -552,7 +589,27 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
                                           emit(assign,$tmp1,lvalue);
                                           emit(add,$tmp1,$tmp1,1);
                                           hide($tmp1);*/
-                                                    }
+
+                            /*
+                            $tmp = newexpr(var_e); 
+                            $tmp->sym = newtemp();
+                            if($1->type == tableintem_e){
+                                expr* val = emit_iftableitem ($1);
+                                emit(assign , $tmp , NULL, val);
+                                quadcounter++;
+                                emit(add , val , newexpr_constnum (1), val);    //i newexpr_constnum(int num) bazei ston symboltable ton ari8mo auto
+                                quadcounter++;
+                                emit(tablesetelem , val , $1->index, $1);
+                                quadcounter++;
+                            } else {
+                                emit(assign, $tmp, NULL, $1);
+                                quadcounter++;
+                                emit(add, $1, newexpr_constnum(1), $1);
+                                quadcounter++;
+                            }
+                            hide($tmp);
+                            */                       
+                        }
     |OPERATOR_MM lvalue {printf("--lvalue -> term\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           lookupscope(tmp1,scope);
@@ -560,7 +617,25 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
                                           emit(add,$tmp1,$tmp1,1);
                                           emit(assign,$tmp1,lvalue);
                                           hide($tmp1);*/
-                                          }
+                        
+                            /*
+                            if($2->type == tableintem_e){
+                                $$ = emit_iftableitem($2);
+                                emit(sub , $$ , newexpr_constnum (1), $$);    //i newexpr_constnum(int num) bazei ston symboltable ton ari8mo auto
+                                quadcounter++;
+                                emit(tablesetelem , $$ , $2->index, $2);
+                                quadcounter++;
+                            } else {
+                                emit(sub, $2, newexpr_constnum(1), $2);
+                                quadcounter++;
+                                $tmp = newexpr(arithexpr_e); 
+                                $tmp->sym = newtemp();
+                                emit(assign, $tmp, NULL, $2);
+                                quadcounter++;
+                                hide($tmp);
+                            }
+                            */
+                        }
     |lvalue OPERATOR_MM {printf("lvalue-- -> term\n");
                                         /*$tmp1 = newexpr(arithexpr_e);
                                           lookupscope(tmp1,scope);
@@ -568,8 +643,32 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
                                           emit(assign,$tmp1,lvalue);
                                           emit(add,$tmp1,$tmp1,1);
                                           hide($tmp1);*/
-                                          }
-    |primary    {printf("primary -> term\n");}
+                        
+                            /*
+                            $tmp = newexpr(var_e); 
+                            $tmp->sym = newtemp();
+                            if($1->type == tableintem_e){
+                                expr* val = emit_iftableitem ($1);
+                                emit(assign , $tmp , NULL, val);
+                                quadcounter++;
+                                emit(sub , val , newexpr_constnum (1), val);    //i newexpr_constnum(int num) bazei ston symboltable ton ari8mo auto
+                                quadcounter++;
+                                emit(tablesetelem , val , $1->index, $1);
+                                quadcounter++;
+                            } else {
+                                emit(assign, $tmp, NULL, $1);
+                                quadcounter++;
+                                emit(sub, $1, newexpr_constnum(1), $1);
+                                quadcounter++;
+                            }
+                            hide($tmp);
+                            */
+                        }
+    |primary    {printf("primary -> term\n");
+                    /*
+                    $$ = $1;
+                    */
+                }
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
@@ -591,7 +690,9 @@ assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n")
                                         }
     ;
 
-primary: lvalue {printf("lvalue -> primary\n");}
+primary: lvalue {printf("lvalue -> primary\n");
+                    /*$$=emit_iftableitem($1);*/
+                }
     |call   {printf("call -> primary\n");}
     |objectdef  {printf("objectdef -> primary\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {printf("(funcdef) -> primary\n");}
@@ -812,9 +913,11 @@ objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");
                     /*expr* $tmp = newexpr(tableitem_e);
                     $tmp.sym = newtemp);
                     emit(tablecreate, $tmp, NULL, NULL);
+                    quadcounter++;
                     while($2!= NULL){
                         int i=0;
                         emit(tablesetelem, $tmp, newexpr_constnum(i++), $2);
+                        quadcounter++;
                         $$ = $tmp;
                         $2 = $2-> next;
                         }
@@ -825,8 +928,10 @@ objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");
                                 /*expr* $tmp = newexpr(tableitem_e);
                                   $tmp->sym = newtemp();
                                   emit(tablecreate, $tmp , NULL, NULL);
+                                  quadcounter++;
                                   while($2!= NULL){
                                       emit(tablesetelem,$tmp, index, index-> value);
+                                      quadcounter++;
                                       $$ = t;
                                       $2=$2-> next;
                                       }
@@ -1259,11 +1364,8 @@ forstmt: FOR LEFT_PARENTHESIS elist SEMICOLON {/*int quadforfor = quadcount;*/}
 
 returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");
                                         /*
-                                        $tmp = newexpr(var_e);
-                                        $tmp->sym = newtemp();
-                                        emit(return, $2, null, $tmp);
+                                        emit(return, nul, null, $2);
                                         quadcounter++;
-                                        hide($tmp);
                                         */
                                     } 
     |RETURN SEMICOLON    {printf("return ; -> returnstmt\n");
@@ -1891,7 +1993,12 @@ primary: lvalue {printf("lvalue -> primary\n");
                             }
     |call   {printf("call -> primary\n");}
     |objectdef  {printf("objectdef -> primary\n");}
-    |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {printf("(funcdef) -> primary\n");}
+    |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {printf("(funcdef) -> primary\n");
+                                                    /*
+                                                    $$ = newexpr(programfunc_e);
+                                                    $$->sym = $2; //i think
+                                                    */
+                                                }
     |const  {printf("const -> primary\n");}
     ;
 
@@ -2097,8 +2204,34 @@ elist: expr {
     |
     ;
 
-objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");}
-    |LEFT_BRACE indexed RIGHT_BRACE {printf("[indexed] -> objectdef\n]");}
+objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");
+                                            /*expr* $tmp = newexpr(tableitem_e);
+                                            $tmp.sym = newtemp);
+                                            emit(tablecreate, $tmp, NULL, NULL);
+                                            quadcounter++;
+                                            while($2!= NULL){
+                                                int i=0;
+                                                emit(tablesetelem, $tmp, newexpr_constnum(i++), $2);
+                                                quadcounter++;
+                                                $$ = $tmp;
+                                                $2 = $2-> next;
+                                            }
+                                            hide($tmp->sym);
+                                            */
+                                        }
+    |LEFT_BRACE indexed RIGHT_BRACE {printf("[indexed] -> objectdef\n]");
+                                        /*expr* $tmp = newexpr(tableitem_e);
+                                        $tmp->sym = newtemp();
+                                        emit(tablecreate, $tmp , NULL, NULL);
+                                        quadcounter++;
+                                        while($2!= NULL){
+                                            emit(tablesetelem,$tmp, index, index-> value);
+                                            quadcounter++;
+                                            $$ = t;
+                                            $2=$2-> next;
+                                        }
+                                        */
+                                    }
     ;
 
 indexed: indexedelem
