@@ -97,7 +97,15 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     ;
 
 expr: assignexpr    {printf("assignexpr -> expr");
-                   }
+                                            
+                                            
+                                            Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                            tmp = newExpr(assignexpr_e);
+                                            
+                                            emit(assign, $<exp>1, NULL,NULL,NULL,yylineno);                                                
+                                            hideEntries(scope);    
+                    
+                        }
     | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");}
     | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");}
     | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");}
@@ -125,6 +133,19 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
+                                               SymbolTableEntry symbol;
+                                            symbol = newTemp(scope,yylineno);
+                                            SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                            symptr = &symbol;
+                                            Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                            tmp = newExpr(assignexpr_e);
+                                            tmp->sym = symptr;
+                                            emit(assign,tmp , NULL, $<exp>1,NULL,yylineno);                                                
+                                            hideEntries(scope);    
+                                                
+                                                
+                                                //hideEntries(scope); 
+                                               
                                 }
     ;
 
