@@ -10,7 +10,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "SymbolTable.c"
+#include "SymbolTable.h"
 
 
 enum iopcode{
