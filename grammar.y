@@ -109,7 +109,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                         tmp = newExpr(4);
                         tmp -> sym = symptr; 
                         emit(assign, $<exp>1, NULL, tmp, NULL, yylineno);
-                        printf("%d: assign, tmp name: %s\n", numquads, tmp->sym->varVal->name);
+                        printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                         numquads++; //gia na me boi8aei sta jumps
                         //hideEntries(scope);
                     }
@@ -123,7 +123,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
                                     emit(add, $<exp>1, $<exp>3, tmp, NULL, yylineno);
-                                    printf("%d: add, tmp name: %s\n", numquads, tmp->sym->varVal->name);
+                                    printf("%d: add, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
                                 }
@@ -137,7 +137,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
                                     emit(sub, $<exp>1, $<exp>3, tmp, NULL, yylineno);
-                                    printf("%d: sub, tmp name: %s\n", numquads, tmp->sym->varVal->name);
+                                    printf("%d: sub, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
     | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");
@@ -150,7 +150,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
                                     emit(mod, $<exp>1, $<exp>3, tmp, NULL, yylineno);
-                                    printf("%d: mod, tmp name: %s\n", numquads, tmp->sym->varVal->name);
+                                    printf("%d: mod, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
     | expr OPERATOR_DIV expr    {printf("expr / expr -> expr\n");
@@ -163,7 +163,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
                                     emit(divide, $<exp>1, $<exp>3, tmp, NULL, yylineno);
-                                    printf("%d: divide, tmp name: %s\n", numquads, tmp->sym->varVal->name);
+                                    printf("%d: divide, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
     | expr OPERATOR_MUL expr    {printf("expr * expr -> expr\n");
@@ -176,10 +176,12 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
                                     emit(mul, $<exp>1, $<exp>3, tmp, NULL, yylineno);
-                                    printf("%d: mul, tmp name: %s\n", numquads, tmp->sym->varVal->name);
+                                    printf("%d: mul, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
     | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");
+                                    //please ignore!!
+
                                     /*SymbolTableEntry symbol = newTemp(scope,yylineno); 
                        
                                     SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
@@ -216,18 +218,104 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
     ;
 
 term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
-    |OPERATOR_MINUS expr    {printf("- expr -> term\n");}
-    |OPERATOR_NOT expr  {printf("not expr -> term\n");}
-    |OPERATOR_PP lvalue {printf("++lvalue -> term\n");}
-    |lvalue OPERATOR_PP {printf("lvalue++ -> term\n");}
-    |OPERATOR_MM lvalue {printf("--lvalue -> term\n");}
-    |lvalue OPERATOR_MM {printf("lvalue-- -> term\n");}
+    |OPERATOR_MINUS expr    {printf("- expr -> term\n");
+                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                symptr = &symbol;
+
+                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                tmp = newExpr(arithexpr_e);
+                                tmp -> sym = symptr;
+
+                                emit(uminus, $<exp>2, NULL, tmp, NULL, yylineno);
+                                printf("%d: uminus, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                numquads++;
+                            }
+    |OPERATOR_NOT expr      {printf("not expr -> term\n");}
+    |OPERATOR_PP lvalue     {printf("++lvalue -> term\n");
+                                //8elei ena if else gia ta table items
+                                /*
+                                emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
+                                printf("%d: add [line: %d]\n", numquads, yylineno);
+                                numquads++;
+                                
+                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                symptr = &symbol;
+                                
+                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                tmp = newExpr(arithexpr_e);
+                                tmp -> sym = symptr;
+
+                                emit(assign, $<exp>2, NULL, tmp, NULL, yylineno);
+                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                numquads++;*/
+                            }
+    |lvalue OPERATOR_PP     {printf("lvalue++ -> term\n");
+                                //8elei if else gia ta tables
+
+                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                symptr = &symbol;
+                                
+                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                tmp = newExpr(arithexpr_e);
+                                tmp -> sym = symptr;
+
+                                emit(assign, $<exp>1, NULL, tmp, NULL, yylineno);
+                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                numquads++;
+
+                                emit(add, $<exp>1, newExpr_constnum(1), $<exp>1, NULL, yylineno);
+                                printf("%d: add [line: %d]\n", numquads, yylineno);
+                                numquads++;
+                                
+                            }
+    |OPERATOR_MM lvalue     {printf("--lvalue -> term\n");
+                                //8elei ena if else gia ta table items
+                                /*
+                                emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
+                                printf("%d: sub [line: %d]\n", numquads, yylineno);
+                                numquads++;
+                                
+                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                symptr = &symbol;
+                                
+                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                tmp = newExpr(arithexpr_e);
+                                tmp -> sym = symptr;
+
+                                emit(assign, $<exp>2, NULL, tmp, NULL, yylineno);
+                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                numquads++;*/
+                            }
+    |lvalue OPERATOR_MM     {printf("lvalue-- -> term\n");
+                                //8elei if else gia ta tables
+
+                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                symptr = &symbol;
+                                
+                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                tmp = newExpr(arithexpr_e);
+                                tmp -> sym = symptr;
+
+                                emit(assign, $<exp>1, NULL, tmp, NULL, yylineno);
+                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                numquads++;
+
+                                emit(sub, $<exp>1, newExpr_constnum(1), $<exp>1, NULL, yylineno);
+                                printf("%d: sub [line: %d]\n", numquads, yylineno);
+                                numquads++;
+                                
+                            }
     |primary    {printf("primary -> term\n");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
                                             emit(assign, $<exp>3, NULL,$<exp>1 ,NULL,yylineno);
-                                            printf("%d: assign\n", numquads);
+                                            printf("%d: assign [line: %d]\n", numquads, yylineno);
                                             numquads++;   
                                         }
     ;
