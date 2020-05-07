@@ -2210,7 +2210,7 @@ funcdef: FUNCTION ID {
         */
     }
     |FUNCTION{
-        sprintf(temp_func -> name, "_anon_func_%d", anonFuncCounter);
+       temp_func -> name = newTempFuncName(anonFuncCounter);
         anonFuncCounter++;
         temp_func -> scope = scope + 1;
         temp_func -> line = yylineno;
