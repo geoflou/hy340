@@ -63,7 +63,7 @@ enum expr_t{
 
 typedef struct expr{
     enum expr_t type;
-    SymbolTableEntry sym;
+    SymbolTableEntry* sym;
     struct expr* index;
     double numConst;
     char* strConst;
@@ -82,11 +82,9 @@ typedef struct quad{
 } Quad;
 
 
- int tempVarCounter = 0;
+ 
 
-Quad* quads = (Quad *) 0;
-unsigned total = 0;
-unsigned int currQuad = 0;
+
 
 
 #define EXPAND_SIZE 1024
@@ -116,10 +114,7 @@ enum symbol_t {
     libraryfunc_s
 };
 
-unsigned programVarOffset = 0;
-unsigned functionLocalOffset = 0;
-unsigned formalArgOffset = 0;
-unsigned scopeSpaceCounter = 1;
+
 
 enum scopespace_t currscopespace(void);
 

@@ -97,13 +97,14 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     ;
 
 expr: assignexpr    {printf("assignexpr -> expr");
-                   struct expr*  tmp;
-                    tmp=(struct expr*)malloc(sizeof(struct expr*));
-                    tmp = newExpr(4);
-                    tmp -> sym = newTemp(scope, yylineno);
-                    emit(0, $<exp>1,NULL,tmp,NULL, yylineno);
-                    hideEntries(scope);
-                    quadcounter++;
+                                            
+                                            
+                                            Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                            tmp = newExpr(assignexpr_e);
+                                            
+                                            emit(assign, $<exp>1, NULL,NULL,NULL,yylineno);                                                
+                                            hideEntries(scope);    
+                    
                         }
     | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");}
     | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");}
@@ -132,13 +133,19 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
-                                                struct expr* tmp;
-                                                tmp=(struct expr*)malloc(sizeof(struct expr*));
-                                                tmp = newExpr(assignexpr_e);
-                                                tmp->sym = newTemp(scope,yylineno);
-                                                emit(assign, $<exp>1, NULL, tmp,NULL,yylineno);
-                                                quadcounter++;
-                                                hideEntries(scope);
+                                               SymbolTableEntry symbol;
+                                            symbol = newTemp(scope,yylineno);
+                                            SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                            symptr = &symbol;
+                                            Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                            tmp = newExpr(assignexpr_e);
+                                            tmp->sym = symptr;
+                                            emit(assign,tmp , NULL, $<exp>1,NULL,yylineno);                                                
+                                            hideEntries(scope);    
+                                                
+                                                
+                                                //hideEntries(scope); 
+                                               
                                 }
     ;
 

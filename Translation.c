@@ -1,5 +1,14 @@
 #include "Translation.h"
  
+ unsigned programVarOffset = 0;
+unsigned functionLocalOffset = 0;
+unsigned formalArgOffset = 0;
+unsigned scopeSpaceCounter = 1;
+Quad* quads = (Quad *) 0;
+unsigned total = 0;
+unsigned int currQuad = 0;
+int tempVarCounter = 0;
+
 void expand(void){
     assert(total == currQuad);
     Quad* p = (Quad *) malloc(NEW_SIZE);
@@ -183,8 +192,12 @@ Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
+    SymbolTableEntry symbol;
     Expr* result = newExpr(var_e);
-    result -> sym = newTemp(scope, line);
+    SymbolTableEntry *symptr = (SymbolTableEntry*) malloc (sizeof(SymbolTableEntry));
+    symptr = &symbol;
+    symbol=newTemp(scope,line);
+    result -> sym = symptr;
     emit(tablegetelem, e, e -> index, result, label, line);
 
     return result;
