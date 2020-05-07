@@ -1,4 +1,15 @@
 #include "Translation.h"
+ 
+unsigned programVarOffset = 0;
+unsigned functionLocalOffset = 0;
+unsigned formalArgOffset = 0;
+unsigned scopeSpaceCounter = 1;
+
+Quad* quads = (Quad *) 0;
+unsigned total = 0;
+unsigned int currQuad = 0;
+
+int tempVarCounter = 0;
 
 void expand(void){
     assert(total == currQuad);
@@ -177,18 +188,22 @@ Expr* newExpr_constnum(double n){
     return e;
 }
 
-//TODO-> RETURN HERE TO CHECK WHAT TO DO
 
-/*Expr* emit_iftableitem(Expr* e){
+
+Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
+    SymbolTableEntry symbol;
     Expr* result = newExpr(var_e);
-    result -> sym = newTemp();
-    emit(tablegetelem, e, e -> index, result);
+    SymbolTableEntry *symptr = (SymbolTableEntry*) malloc (sizeof(SymbolTableEntry));
+    symptr = &symbol;
+    symbol=newTemp(scope,line);
+    result -> sym = symptr;
+    emit(tablegetelem, e, e -> index, result, label, line);
 
     return result;
-}*/
+}
 
 void printQuads(){
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");

@@ -82,12 +82,14 @@ typedef struct quad{
 } Quad;
 
 
-int tempVarCounter = 0;
+ 
 
-Quad* quads = (Quad *) 0;
-unsigned total = 0;
-unsigned int currQuad = 0;
 
+
+unsigned programVarOffset = 0;
+unsigned functionLocalOffset = 0;
+unsigned formalArgOffset = 0;
+unsigned scopeSpaceCounter = 1;
 
 #define EXPAND_SIZE 1024
 #define CURR_SIZE (total*sizeof(Quad))
@@ -116,10 +118,7 @@ enum symbol_t {
     libraryfunc_s
 };
 
-unsigned programVarOffset = 0;
-unsigned functionLocalOffset = 0;
-unsigned formalArgOffset = 0;
-unsigned scopeSpaceCounter = 1;
+
 
 enum scopespace_t currscopespace(void);
 
@@ -149,6 +148,6 @@ Expr* newExpr_constbool(unsigned char b);
 
 Expr* newExpr_constnum(double n);
 
-Expr* emit_iftableitem(Expr* e);
+Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
 
 void printQuads();
