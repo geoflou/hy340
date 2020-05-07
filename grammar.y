@@ -4,10 +4,6 @@
     #include "grammar.h"
     #include "Translation.h"
     
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/Anna
     int yyerror(char* message);
     int yylex(void);
 
