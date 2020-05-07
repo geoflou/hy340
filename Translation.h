@@ -100,4 +100,45 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
 
 char* newTempName(int counter);
 
+char* newTempFuncName(int counter);
+
 SymbolTableEntry newTemp(int scope, int line);
+
+enum scopespace_t {
+    programvar,
+    functionlocal,
+    formalarg
+};
+
+enum symbol_t {
+    var_s,
+    programfunc_s,
+    libraryfunc_s
+};
+
+unsigned programVarOffset = 0;
+unsigned functionLocalOffset = 0;
+unsigned formalArgOffset = 0;
+unsigned scopeSpaceCounter = 1;
+
+enum scopespace_t currscopespace(void);
+
+unsigned currscopeoffset(void);
+
+void inccurrscopeoffset (void);
+
+void enterscopespace(void);
+
+void exitscopespace(void);
+
+void resetformalargsoffset(void);
+
+void resetformalargsoffset(void);
+
+void restorecurrscopespace(unsigned n);
+
+unsigned nextquadlabel (void);
+
+void patchlabel(unsigned quadNo, unsigned label);
+
+void printQuads();

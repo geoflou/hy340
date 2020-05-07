@@ -29,8 +29,19 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
 
 }
 
+
+
 char* newTempName(int counter){
-    return sprintf("_temp_%d", counter);
+    char* tempName; 
+    sprintf(tempName, "_temp_%d", counter);
+    return tempName;
+}
+
+
+char* newTempFuncName(int counter){
+    char* name;
+    sprintf(name, "_temp_func_%d", counter);
+    return name;
 }
 
 SymbolTableEntry newTemp(int scope, int line){
@@ -61,4 +72,89 @@ SymbolTableEntry newTemp(int scope, int line){
     insertEntry(sym);
 
     return *sym;
+}
+
+
+
+enum scopespace_t currscopespace(void){
+    if(scopeSpaceCounter == 1){
+        return programvar;
+    }
+    else if(scopeSpaceCounter % 2 == 0){
+        return formalarg;
+    }
+    else
+        return functionlocal;
+        
+}
+
+
+
+unsigned currscopeoffset(void){
+    switch (currscopespace()){
+        case programvar : return programVarOffset;
+        case functionlocal : return functionLocalOffset;
+        case formalarg : return formalArgOffset;
+        default : assert(0);
+    }
+    return;
+}
+
+void inccurrscopeoffset (void) {
+    switch(currscopespace()){
+        case programvar : ++programVarOffset; break;
+        case functionlocal : ++functionLocalOffset; break;
+        case formalarg : ++formalArgOffset; break;
+        default : assert(0);
+    }
+    return;
+}
+
+
+void enterscopespace(void){
+    ++scopeSpaceCounter;
+    return;
+}
+
+void exitscopespace(void){
+    assert(scopeSpaceCounter > 1);
+    --scopeSpaceCounter;
+    return;
+}
+
+void resetformalargsoffset(void){
+    formalArgOffset = 0;
+    return;
+}
+
+void resetformalargsoffset(void){
+    functionLocalOffset = 0;
+    return;
+}
+
+void restorecurrscopespace(unsigned n){
+    switch(currscopespace()){
+        case programvar : programVarOffset = n; break;
+        case functionlocal : functionLocalOffset = n; break;
+        case formalarg : formalArgOffset = n; break;
+        default: assert(0);
+    }
+    return;
+}
+
+unsigned nextquadlabel (void){
+    return currQuad;
+}
+
+void patchlabel(unsigned quadNo, unsigned label){
+    assert(quadNo < currQuad);
+    quads[quadNo].label = label;
+    return;
+}
+
+void printQuads(){
+    printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
+    printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
+    //To be implemented
+    printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
 }
