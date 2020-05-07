@@ -63,7 +63,7 @@ enum expr_t{
 
 typedef struct expr{
     enum expr_t type;
-    SymbolTableEntry* sym;
+    SymbolTableEntry sym;
     struct expr* index;
     double numConst;
     char* strConst;
@@ -81,13 +81,8 @@ typedef struct quad{
     unsigned line;
 } Quad;
 
-typedef struct Call{
-    expr* elist;
-    unsigned char method;
-    char* name;
-} Call;
 
-expr newExpr(enum expr_t type);
+ int tempVarCounter = 0;
 
 Quad* quads = (Quad *) 0;
 unsigned total = 0;
@@ -138,7 +133,7 @@ void exitscopespace(void);
 
 void resetformalargsoffset(void);
 
-void resetformalargsoffset(void);
+void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 
@@ -154,6 +149,6 @@ Expr* newExpr_constbool(unsigned char b);
 
 Expr* newExpr_constnum(double n);
 
-Expr* emit_iftableitem(Expr* e);
+Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
 
 void printQuads();

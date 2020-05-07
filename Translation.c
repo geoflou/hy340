@@ -1,5 +1,5 @@
 #include "Translation.h"
-
+ 
 void expand(void){
     assert(total == currQuad);
     Quad* p = (Quad *) malloc(NEW_SIZE);
@@ -127,7 +127,7 @@ void resetformalargsoffset(void){
     return;
 }
 
-void resetformalargsoffset(void){
+void resetfunclocalsoffset(void){
     functionLocalOffset = 0;
     return;
 }
@@ -179,16 +179,16 @@ Expr* newExpr_constnum(double n){
 
 //TODO-> RETURN HERE TO CHECK WHAT TO DO
 
-/*Expr* emit_iftableitem(Expr* e){
+Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
     Expr* result = newExpr(var_e);
-    result -> sym = newTemp();
-    emit(tablegetelem, e, e -> index, result);
+    result -> sym = newTemp(scope, line);
+    emit(tablegetelem, e, e -> index, result, label, line);
 
     return result;
-}*/
+}
 
 void printQuads(){
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
