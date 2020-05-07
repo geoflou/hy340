@@ -133,7 +133,7 @@ void exitscopespace(void);
 
 void resetformalargsoffset(void);
 
-void resetformalargsoffset(void);
+void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 

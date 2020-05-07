@@ -127,7 +127,7 @@ void resetformalargsoffset(void){
     return;
 }
 
-void resetformalargsoffset(void){
+void resetfunclocalsoffset(void){
     functionLocalOffset = 0;
     return;
 }
