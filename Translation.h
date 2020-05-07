@@ -132,10 +132,6 @@ Expr* newExpr_constbool(unsigned char b);
 
 Expr* newExpr_constnum(double n);
 
-<<<<<<< HEAD
 Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
-=======
-Expr* emit_iftableitem(Expr* e);
->>>>>>> origin/Anna
 
 void printQuads();
