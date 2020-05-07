@@ -25,6 +25,7 @@ void expand(void){
 
     quads = p;
     total +=EXPAND_SIZE;
+    return;
 }
 
 
@@ -42,12 +43,13 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     p -> label = label;
     p -> line = line;
 
+    return;
 }
 
 
 
 char* newTempName(int counter){
-    char* tempName; 
+    char* tempName =(char*) malloc(sizeof(char*)); 
     sprintf(tempName, "_temp_%d", counter);
     return tempName;
 }
@@ -112,7 +114,6 @@ unsigned currscopeoffset(void){
         case formalarg : return formalArgOffset;
         default : assert(0);
     }
-    return;
 }
 
 void inccurrscopeoffset (void) {
