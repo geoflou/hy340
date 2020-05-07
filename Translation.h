@@ -141,4 +141,14 @@ unsigned nextquadlabel (void);
 
 void patchlabel(unsigned quadNo, unsigned label);
 
+Expr* newExpr(enum expr_t t);
+
+Expr* newExpr_conststring(char *s);
+
+Expr* newExpr_constbool(unsigned char b);
+
+Expr* newExpr_constnum(double n);
+
+Expr* emit_iftableitem(Expr* e);
+
 void printQuads();

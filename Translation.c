@@ -152,6 +152,44 @@ void patchlabel(unsigned quadNo, unsigned label){
     return;
 }
 
+Expr* newExpr(enum expr_t t){
+    Expr* e = (Expr*) malloc(sizeof(Expr));
+    memset(e, 0, sizeof(Expr));
+    e -> type = t;
+    return e;
+}
+
+Expr* newExpr_conststring(char* s){
+    Expr* e = newExpr(conststring_e);
+    e-> strConst = strdup(s);
+    return e;
+}
+
+Expr* newExpr_constbool(unsigned char b){
+    Expr* e = newExpr(constbool_e);
+    e->boolConst = b;
+    return e;
+}
+
+Expr* newExpr_constnum(double n){
+    Expr* e = newExpr(constnum_e);
+    e -> numConst = n;
+    return e;
+}
+
+//TODO-> RETURN HERE TO CHECK WHAT TO DO
+
+/*Expr* emit_iftableitem(Expr* e){
+    if(e->type != tableitem_e){
+        return e;
+    }
+    Expr* result = newExpr(var_e);
+    result -> sym = newTemp();
+    emit(tablegetelem, e, e -> index, result);
+
+    return result;
+}*/
+
 void printQuads(){
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
