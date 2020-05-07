@@ -97,14 +97,7 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     ;
 
 expr: assignexpr    {printf("assignexpr -> expr");
-                   struct expr*  tmp;
-                    tmp=(struct expr*)malloc(sizeof(struct expr*));
-                    tmp = newExpr(4);
-                    tmp -> sym = newTemp(scope, yylineno);
-                    emit(0, $<exp>1,NULL,tmp,NULL, yylineno);
-                    hideEntries(scope);
-                    quadcounter++;
-                        }
+                   }
     | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");}
     | expr OPERATOR_MINUS expr  {printf("expr - expr -> expr\n");}
     | expr OPERATOR_MOD expr    {printf("expr % expr -> expr\n");}
@@ -132,13 +125,6 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
-                                                struct expr* tmp;
-                                                tmp=(struct expr*)malloc(sizeof(struct expr*));
-                                                tmp = newExpr(assignexpr_e);
-                                                tmp->sym = newTemp(scope,yylineno);
-                                                emit(assign, $<exp>1, NULL, tmp,NULL,yylineno);
-                                                quadcounter++;
-                                                hideEntries(scope);
                                 }
     ;
 
