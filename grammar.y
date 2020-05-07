@@ -57,15 +57,10 @@
 %token FALSE
 %token NIL
 %token WHITESPACE
-<<<<<<< HEAD
-%type <exp> expr
-%type <exp> lvalue
-=======
 
 %type <exp> expr
 %type <exp> lvalue
 
->>>>>>> origin/Anna
 %left SEMICOLON COLON COMMA DOUBLE_COLON
 %left LEFT_BRACKET RIGHT_BRACKET
 %left LEFT_BRACE RIGHT_BRACE
