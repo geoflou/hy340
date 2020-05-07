@@ -81,20 +81,6 @@ typedef struct quad{
     unsigned line;
 } Quad;
 
-
- 
-
-
-
-unsigned programVarOffset = 0;
-unsigned functionLocalOffset = 0;
-unsigned formalArgOffset = 0;
-unsigned scopeSpaceCounter = 1;
-
-#define EXPAND_SIZE 1024
-#define CURR_SIZE (total*sizeof(Quad))
-#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
-
 void expand(void);
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,

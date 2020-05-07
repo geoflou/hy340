@@ -9,6 +9,10 @@ Quad* quads = (Quad *) 0;
 unsigned total = 0;
 unsigned int currQuad = 0;
 
+#define EXPAND_SIZE 1024
+#define CURR_SIZE (total*sizeof(Quad))
+#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
+
 int tempVarCounter = 0;
 
 void expand(void){
