@@ -54,7 +54,6 @@ char* newTempName(int counter){
     return tempName;
 }
 
-
 char* newTempFuncName(int counter){
     char* name;
     sprintf(name, "_temp_func_%d", counter);
@@ -125,7 +124,6 @@ void inccurrscopeoffset (void) {
     }
     return;
 }
-
 
 void enterscopespace(void){
     ++scopeSpaceCounter;

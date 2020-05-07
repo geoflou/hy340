@@ -71,7 +71,6 @@ typedef struct expr{
     struct expr* next;
 } Expr;
 
-
 typedef struct quad{
     enum iopcode op;
     Expr* result;
@@ -105,7 +104,6 @@ enum symbol_t {
 };
 
 
-
 enum scopespace_t currscopespace(void);
 
 unsigned currscopeoffset(void);
@@ -134,6 +132,10 @@ Expr* newExpr_constbool(unsigned char b);
 
 Expr* newExpr_constnum(double n);
 
+<<<<<<< HEAD
 Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
+=======
+Expr* emit_iftableitem(Expr* e);
+>>>>>>> origin/Anna
 
 void printQuads();
