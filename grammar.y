@@ -14,18 +14,8 @@
     int label=0;
     int scope = 0;
 
-   extern int quadcounter=1;
-    
-
     Function* temp_func;
     int arg_index = 0;
-
-    extern int varoffsetcounter = 0;
-    /*general variable counter*/
-    extern int formalargscounter = 0;
-    /*function argument counter*/
-   extern int functionlocalvarcounter = 0;
-    /*function local variables counter*/
 
     int anonFuncCounter = 1;
 %}
