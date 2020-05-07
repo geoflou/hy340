@@ -1,7 +1,14 @@
+/**
+ * Header file.
+ * Includes all the needed functions and structs
+ * in order to create intermediate code
+ * 
+*/
+
 #include <stdio.h>
-#include <assert.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 #include "SymbolTable.h"
 
@@ -10,13 +17,13 @@ enum iopcode{
     add,
     sub,
     mul,
-    div,
+    divide,    
     mod,
-    uminus,
-    and,
+    uminus,     
+    and,    
     or,
-    not,
-    if_eq,
+    not,        
+    if_eq,  
     if_noteq,
     if_lesseq,
     if_greatereq,
@@ -55,38 +62,79 @@ enum expr_t{
 typedef struct expr{
     enum expr_t type;
     SymbolTableEntry* sym;
-    expr* index;
+    struct expr* index;
     double numConst;
     char* strConst;
     unsigned char boolConst;
-    expr* next;
-} expr;
+    struct expr* next;
+} Expr;
 
 typedef struct quad{
     enum iopcode op;
-    expr* result;
-    expr* arg1;
-    expr* arg2;
-    unsigned int label;
-    unsigned int line;
-} quad;
-
-typedef struct Call{
-    expr* elist;
-    unsigned char method;
-    char* name;
-} Call;
+    Expr* result;
+    Expr* arg1;
+    Expr* arg2;
+    unsigned label;
+    unsigned line;
+} Quad;
 
 
-expr newExpr(enum expr_t type);
+#define EXPAND_SIZE 1024
+#define CURR_SIZE (total*sizeof(Quad))
+#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
 
-SymbolTableEntry newTemp();
-/*estw oti auti i sunartisi ftiaxnei mia kainourgia metabliti gia na tin balei ston symboltable
-prwta elegxei an uparxei idi (lookupscope) kai meta tin kanei insert i guess...*/
+void expand(void);
 
-//TODO -> this will need some helper functions..
-//kanonika einai iopcode, result, expr 1, expr 2 stin emit... dior8ose to
-void emit(enum iopcode, expr arg1, expr arg2, expr result);
+void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
+                                        unsigned label, unsigned line);
 
-//slide 25 front4, exei kwdika gia ta tablelements pros8ese ton pliz
-//episis pros8ese ena quadcounter++ kai ena hide($tmp);
+char* newTempName(int counter);
+
+char* newTempFuncName(int counter);
+
+SymbolTableEntry newTemp(int scope, int line);
+
+enum scopespace_t {
+    programvar,
+    functionlocal,
+    formalarg
+};
+
+enum symbol_t {
+    var_s,
+    programfunc_s,
+    libraryfunc_s
+};
+
+
+enum scopespace_t currscopespace(void);
+
+unsigned currscopeoffset(void);
+
+void inccurrscopeoffset (void);
+
+void enterscopespace(void);
+
+void exitscopespace(void);
+
+void resetformalargsoffset(void);
+
+void resetfunclocalsoffset(void);
+
+void restorecurrscopespace(unsigned n);
+
+unsigned nextquadlabel (void);
+
+void patchlabel(unsigned quadNo, unsigned label);
+
+Expr* newExpr(enum expr_t t);
+
+Expr* newExpr_conststring(char *s);
+
+Expr* newExpr_constbool(unsigned char b);
+
+Expr* newExpr_constnum(double n);
+
+Expr* emit_iftableitem(Expr* e);
+
+void printQuads();
