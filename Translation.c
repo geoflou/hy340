@@ -30,7 +30,7 @@ void expand(void){
 
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
-                                        unsigned label, unsigned line) {
+                                        unsigned label, int line) {
 
     if(currQuad == total)
         expand();
@@ -42,7 +42,7 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     p -> result = result;
     p -> label = label;
     p -> line = line;
-
+    
     return;
 }
 

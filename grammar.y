@@ -182,7 +182,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
     | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");
                                     //please ignore!!
 
-                                    /*SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                /*    SymbolTableEntry symbol = newTemp(scope,yylineno); 
                        
                                     SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
                                     symptr = &symbol; 
@@ -234,9 +234,9 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     |OPERATOR_NOT expr      {printf("not expr -> term\n");}
     |OPERATOR_PP lvalue     {printf("++lvalue -> term\n");
                                 //8elei ena if else gia ta table items
-                                /*
+                                
                                 emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
-                                printf("%d: add [line: %d]\n", numquads, yylineno);
+                                printf("%d: add %s [line: %d]\n", currQuad,arg1->strConst, line);
                                 numquads++;
                                 
                                 SymbolTableEntry symbol = newTemp(scope,yylineno); 
@@ -249,7 +249,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
 
                                 emit(assign, $<exp>2, NULL, tmp, NULL, yylineno);
                                 printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                numquads++;*/
+                                numquads++;
                             }
     |lvalue OPERATOR_PP     {printf("lvalue++ -> term\n");
                                 //8elei if else gia ta tables
@@ -273,7 +273,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                             }
     |OPERATOR_MM lvalue     {printf("--lvalue -> term\n");
                                 //8elei ena if else gia ta table items
-                                /*
+                                
                                 emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
                                 printf("%d: sub [line: %d]\n", numquads, yylineno);
                                 numquads++;
@@ -288,7 +288,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
 
                                 emit(assign, $<exp>2, NULL, tmp, NULL, yylineno);
                                 printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                numquads++;*/
+                                numquads++;
                             }
     |lvalue OPERATOR_MM     {printf("lvalue-- -> term\n");
                                 //8elei if else gia ta tables

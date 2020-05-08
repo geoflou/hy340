@@ -83,7 +83,7 @@ typedef struct quad{
 void expand(void);
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
-                                        unsigned label, unsigned line);
+                                        unsigned label, int line);
 
 char* newTempName(int counter);
 
