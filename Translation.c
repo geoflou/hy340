@@ -22,6 +22,7 @@ void expand(void){
 
     quads = p;
     total +=EXPAND_SIZE;
+    return;
 }
 
 
@@ -39,10 +40,11 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     p -> label = label;
     p -> line = line;
 
+    return;
 }
 
 char* newTempName(int counter){
-    char* tempName; 
+    char* tempName = (char*) malloc(sizeof(char*)); 
     sprintf(tempName, "_temp_%d", counter);
     return tempName;
 }
@@ -103,7 +105,6 @@ unsigned currscopeoffset(void){
         case formalarg : return formalArgOffset;
         default : assert(0);
     }
-    return;
 }
 
 void inccurrscopeoffset (void) {
@@ -184,16 +185,31 @@ Expr* newExpr_constnum(double n){
 
 //TODO-> RETURN HERE TO CHECK WHAT TO DO
 
-/*Expr* emit_iftableitem(Expr* e){
+Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
+    SymbolTableEntry symbol;
     Expr* result = newExpr(var_e);
-    result -> sym = newTemp();
-    emit(tablegetelem, e, e -> index, result);
+    SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+    symptr = &symbol;
+    symbol = newTemp(scope, line);
+    result->sym = symptr;
+    emit(tablegetelem, e, e -> index, result, label, line);
 
     return result;
-}*/
+}
+
+Expr* member_item(Expr* e, char* name, int scope, int line, int label){
+    e = emit_iftableitem(e, scope, line, label);
+
+    Expr* tableitem = newExpr(tableitem_e);
+    tableitem -> sym = e -> sym;
+    tableitem -> index = newExpr_conststring(name);
+
+    return tableitem;
+}
+
 
 void printQuads(){
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
