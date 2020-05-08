@@ -273,7 +273,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                             }
     |OPERATOR_MM lvalue     {printf("--lvalue -> term\n");
                                 //8elei ena if else gia ta table items
-                                /*
+                                
                                 emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
                                 printf("%d: sub [line: %d]\n", numquads, yylineno);
                                 numquads++;
@@ -430,9 +430,30 @@ lvalue: ID  {
     ;
 
 member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
-                            
+                            SymbolTableEntry symbol = newTemp(scope,yylineno);
+                            $<exp>$ = member_item($<exp>1, "name", scope, yylineno, (int)NULL); 
+                            /*den 3eroume pws na paroume to name*/
+                            printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                            numquads++;
+
+                            if($<exp>3 != NULL){
+                                char* idkifthisworks =(char*) $<exp>3->strConst;   
+                                printf("name of $3: %s\n", idkifthisworks);
+                            }
+                            $<exp>$ = $<exp>1;
                         }
-    |lvalue LEFT_BRACE expr RIGHT_BRACE {printf("lvalue[expr] -> member\n");}
+    |lvalue LEFT_BRACE expr RIGHT_BRACE {printf("lvalue[expr] -> member\n");
+                                            SymbolTableEntry symbol = newTemp(scope,yylineno);
+                                            $<exp>1 = emit_iftableitem($<exp>1, scope, yylineno, (int)NULL);
+                                            $<exp>$ = newExpr(tableitem_e);
+                                            $<exp>$->sym = $<exp>1->sym;
+                                            $<exp>$->index = $<exp>3;
+
+                                            $<exp>$ = member_item($<exp>1, "name", scope, yylineno, (int)NULL);
+                                            /*pali den 3eroume to $3.yylVal pws na o kanoume access*/
+                                            printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                                            numquads++;
+                                        }
     |call DOT ID    {printf("call.id -> member\n");}
     |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}
     ;
@@ -777,6 +798,6 @@ int main(int argc, char* argv[]){
     yyparse();
 
     printEntries();
-
+    
     return 0;
 }

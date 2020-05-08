@@ -192,14 +192,16 @@ Expr* newExpr_constnum(double n){
 }
 
 
-/*Expr* emit_iftableitem(Expr* e){
+Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
-    SymbolTableEntry symbol;
-    Expr* result = newExpr(var_e);
-    result -> sym = newTemp();
-    emit(tablegetelem, e, e -> index, result);
+    SymbolTableEntry symbol = newTemp(scope, line);
+     SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+    Expr* result = newExpr(tableitem_e);
+    symptr = &symbol; 
+    result->sym = symptr;
+    emit(tablegetelem, e, e -> index, result,(unsigned) label, (unsigned)line);
 
     return result;
 }
@@ -213,6 +215,7 @@ Expr* member_item(Expr* e, char* name, int scope, int line, int label){
 
     return tableitem;
 }
+
 
 
 void printQuads(){
