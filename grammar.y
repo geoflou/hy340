@@ -233,23 +233,52 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                             }
     |OPERATOR_NOT expr      {printf("not expr -> term\n");}
     |OPERATOR_PP lvalue     {printf("++lvalue -> term\n");
-                                //8elei ena if else gia ta table items
+                           
+                              
+                               if($<exp>2 -> type == tableitem_e){
+                                   
+                                    emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: add [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                    
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
                                 
-                                emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: add [line: %d]\n", numquads, yylineno);
-                                numquads++;
-                                
-                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
-                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
-                                symptr = &symbol;
-                                
-                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                                tmp = newExpr(arithexpr_e);
-                                tmp -> sym = symptr;
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
 
-                                emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                numquads++;
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    
+                                    emit(tablesetelem, $<exp>$, $<exp>2 -> index, $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: tablesetelem [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                   
+                                    $<exp>$ = emit_iftableitem($<exp>2, scope, yylineno, (int)NULL);
+                                    printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                                    numquads++;
+                                
+                                }else{
+                                    
+                                    emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: add [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
+                                
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
+
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
                             }
     |lvalue OPERATOR_PP     {printf("lvalue++ -> term\n");
                                 //8elei if else gia ta tables
@@ -454,8 +483,22 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
                                             printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
                                             numquads++;
                                         }
-    |call DOT ID    {printf("call.id -> member\n");}
-    |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}
+    |call DOT ID    {printf("call.id -> member\n");
+                        SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                        $<exp>$ = member_item($<exp>1, "name", scope, yylineno, (int)NULL); 
+                        /*den 3eroume pws na paroume to name*/
+                        printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                        numquads++;
+                    
+    }
+    |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");
+                        SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                        $<exp>$ = member_item($<exp>1, "name", scope, yylineno, (int)NULL); 
+                        /*den 3eroume pws na paroume to name*/
+                        printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                        numquads++;
+                    
+    }
     ;
 
 call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");}
