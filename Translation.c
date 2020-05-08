@@ -257,13 +257,13 @@ char* getQuadOpcode(Quad q){
 }
 
 char* getQuadResult(Quad q){
-    return "result";
+    return q.result->sym->varVal->name;
 }
 
 char* getQuadArg1(Quad q){
-    return "arg1";
+    return q.arg1->sym->varVal->name;
 }  
 
 char* getQuadArg2(Quad q){
-    return "arg2";
+    return q.arg2->sym->varVal->name;
 }
