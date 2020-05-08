@@ -71,7 +71,6 @@ typedef struct expr{
     struct expr* next;
 } Expr;
 
-
 typedef struct quad{
     enum iopcode op;
     Expr* result;
@@ -80,16 +79,6 @@ typedef struct quad{
     unsigned label;
     unsigned line;
 } Quad;
-
-
- 
-
-
-
-
-#define EXPAND_SIZE 1024
-#define CURR_SIZE (total*sizeof(Quad))
-#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
 
 void expand(void);
 
@@ -113,7 +102,6 @@ enum symbol_t {
     programfunc_s,
     libraryfunc_s
 };
-
 
 
 enum scopespace_t currscopespace(void);

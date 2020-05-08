@@ -1,12 +1,18 @@
 #include "Translation.h"
  
- unsigned programVarOffset = 0;
+unsigned programVarOffset = 0;
 unsigned functionLocalOffset = 0;
 unsigned formalArgOffset = 0;
 unsigned scopeSpaceCounter = 1;
+
 Quad* quads = (Quad *) 0;
 unsigned total = 0;
 unsigned int currQuad = 0;
+
+#define EXPAND_SIZE 1024
+#define CURR_SIZE (total*sizeof(Quad))
+#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
+
 int tempVarCounter = 0;
 
 void expand(void){
@@ -19,6 +25,7 @@ void expand(void){
 
     quads = p;
     total +=EXPAND_SIZE;
+    return;
 }
 
 
@@ -36,16 +43,16 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     p -> label = label;
     p -> line = line;
 
+    return;
 }
 
 
 
 char* newTempName(int counter){
-    char* tempName; 
+    char* tempName =(char*) malloc(sizeof(char*)); 
     sprintf(tempName, "_temp_%d", counter);
     return tempName;
 }
-
 
 char* newTempFuncName(int counter){
     char* name;
@@ -106,7 +113,6 @@ unsigned currscopeoffset(void){
         case formalarg : return formalArgOffset;
         default : assert(0);
     }
-    return;
 }
 
 void inccurrscopeoffset (void) {
@@ -118,7 +124,6 @@ void inccurrscopeoffset (void) {
     }
     return;
 }
-
 
 void enterscopespace(void){
     ++scopeSpaceCounter;
@@ -186,7 +191,7 @@ Expr* newExpr_constnum(double n){
     return e;
 }
 
-//TODO-> RETURN HERE TO CHECK WHAT TO DO
+
 
 Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
