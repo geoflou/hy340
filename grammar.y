@@ -234,8 +234,9 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     |OPERATOR_NOT expr      {printf("not expr -> term\n");}
     |OPERATOR_PP lvalue     {printf("++lvalue -> term\n");
                            
-                              
-                               if($<exp>2 -> type == tableitem_e){
+                             
+                                    if($<exp>2 -> type == tableitem_e){
+                                        printf("mphka\n");
                                    
                                     emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add [line: %d]\n", numquads, yylineno);
@@ -281,63 +282,143 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                 }
                             }
     |lvalue OPERATOR_PP     {printf("lvalue++ -> term\n");
-                                //8elei if else gia ta tables
-
-                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
-                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
-                                symptr = &symbol;
+                                if($<exp>2 -> type == tableitem_e){
+                                 
+                                    
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
                                 
-                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                                tmp = newExpr(arithexpr_e);
-                                tmp -> sym = symptr;
-
-                                emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                numquads++;
-
-                                emit(add, $<exp>1, newExpr_constnum(1), $<exp>1, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: add [line: %d]\n", numquads, yylineno);
-                                numquads++;
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
+                                   emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    
+                                     emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: add [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                    
+                                    emit(tablesetelem, $<exp>$, $<exp>2 -> index, $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: tablesetelem [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                   
+                                    $<exp>$ = emit_iftableitem($<exp>2, scope, yylineno, (int)NULL);
+                                    printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                                    numquads++;
                                 
+                                }else{
+                                     
+                                   
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
+                                
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
+                                    
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                   
+                                     emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: add [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                }
                             }
     |OPERATOR_MM lvalue     {printf("--lvalue -> term\n");
-                                //8elei ena if else gia ta table items
+                                if($<exp>2 -> type == tableitem_e){
+                                       
+                                   
+                                    emit(sub, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: sub [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                    
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
                                 
-                                emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
-                                printf("%d: sub [line: %d]\n", numquads, yylineno);
-                                numquads++;
-                                
-                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
-                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
-                                symptr = &symbol;
-                                
-                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                                tmp = newExpr(arithexpr_e);
-                                tmp -> sym = symptr;
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
 
-                                emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                numquads++;
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    
+                                    emit(tablesetelem, $<exp>$, $<exp>2 -> index, $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: tablesetelem [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                   
+                                    $<exp>$ = emit_iftableitem($<exp>2, scope, yylineno, (int)NULL);
+                                    printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                                    numquads++;
+                                
+                                }else{
+                                    
+                                    emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: sub [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
+                                
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
+
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
                             }
     |lvalue OPERATOR_MM     {printf("lvalue-- -> term\n");
-                                //8elei if else gia ta tables
-
-                                SymbolTableEntry symbol = newTemp(scope,yylineno); 
-                                SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
-                                symptr = &symbol;
+                                 if($<exp>2 -> type == tableitem_e){
+                                   
+                                    
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
                                 
-                                Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                                tmp = newExpr(arithexpr_e);
-                                tmp -> sym = symptr;
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
 
-                                emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                numquads++;
-
-                                emit(sub, $<exp>1, newExpr_constnum(1), $<exp>1, (unsigned int)NULL, (unsigned int)yylineno);
-                                printf("%d: sub [line: %d]\n", numquads, yylineno);
-                                numquads++;
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    
+                                     emit(sub, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: sub [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                    
+                                    emit(tablesetelem, $<exp>$, $<exp>2 -> index, $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: tablesetelem [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                   
+                                    $<exp>$ = emit_iftableitem($<exp>2, scope, yylineno, (int)NULL);
+                                    printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                                    numquads++;
                                 
+                                }else{               
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol;
+                    
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(arithexpr_e);
+                                    tmp -> sym = symptr;
+
+                                     emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                     emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    printf("%d: sub [line: %d]\n", numquads, yylineno);
+                                    numquads++;
+                                }
                             }
     |primary    {printf("primary -> term\n");}
     ;
@@ -455,7 +536,10 @@ lvalue: ID  {
         }
                             
     }
-    |member {printf("member -> lvalue\n");}
+    |member {printf("member -> lvalue\n");
+        Expr* e= newExpr(tableitem_e);
+        $<exp>$-> type= e-> type;
+    }
     ;
 
 member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
