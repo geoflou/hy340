@@ -1,16 +1,19 @@
 #include "Translation.h"
-
-int tempVarCounter = 0;
-
-Quad* quads = (Quad *) 0;
-unsigned total = 0;
-unsigned int currQuad = 0;
-
+ 
 unsigned programVarOffset = 0;
 unsigned functionLocalOffset = 0;
 unsigned formalArgOffset = 0;
 unsigned scopeSpaceCounter = 1;
 
+Quad* quads = (Quad *) 0;
+unsigned total = 0;
+unsigned int currQuad = 0;
+
+#define EXPAND_SIZE 1024
+#define CURR_SIZE (total*sizeof(Quad))
+#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
+
+int tempVarCounter = 0;
 
 void expand(void){
     assert(total == currQuad);
@@ -27,7 +30,7 @@ void expand(void){
 
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
-                                        unsigned label, unsigned line) {
+                                        unsigned label, int line) {
 
     if(currQuad == total)
         expand();
@@ -43,6 +46,8 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     return;
 }
 
+
+
 char* newTempName(int counter){
     char* tempName = (char*) malloc(sizeof(char*)); 
     sprintf(tempName, "_temp_%d", counter);
@@ -56,18 +61,18 @@ char* newTempFuncName(int counter){
 }
 
 SymbolTableEntry newTemp(int scope, int line){
-   
     SymbolTableEntry *sym;
     Variable* var =(Variable *) malloc(sizeof(Variable));
     char* name = newTempName(tempVarCounter);
-    
-    //kapou edw exei segfault
-    //sym = lookupScope(name, scope);
-    //if(sym != NULL)
-    //    return *sym;
+
+    tempVarCounter++;
+    sym = lookupScope(name, scope);
+    if(sym != NULL)
+        return *sym;
+
     sym = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
-    
-    var -> name = name;
+
+    var -> name = strdup(name);
     var -> line = line;
     var -> scope = scope;
 
@@ -81,10 +86,11 @@ SymbolTableEntry newTemp(int scope, int line){
     }
 
     insertEntry(sym);
-    tempVarCounter++;
 
     return *sym;
 }
+
+
 
 enum scopespace_t currscopespace(void){
     if(scopeSpaceCounter == 1){
@@ -97,6 +103,8 @@ enum scopespace_t currscopespace(void){
         return functionlocal;
         
 }
+
+
 
 unsigned currscopeoffset(void){
     switch (currscopespace()){
@@ -183,19 +191,17 @@ Expr* newExpr_constnum(double n){
     return e;
 }
 
-//TODO-> RETURN HERE TO CHECK WHAT TO DO
 
 Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
-    SymbolTableEntry symbol;
-    Expr* result = newExpr(var_e);
-    SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
-    symptr = &symbol;
-    symbol = newTemp(scope, line);
+    SymbolTableEntry symbol = newTemp(scope, line);
+     SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+    Expr* result = newExpr(tableitem_e);
+    symptr = &symbol; 
     result->sym = symptr;
-    emit(tablegetelem, e, e -> index, result, label, line);
+    emit(tablegetelem, e, e -> index, result,(unsigned) label, (unsigned)line);
 
     return result;
 }
@@ -211,9 +217,63 @@ Expr* member_item(Expr* e, char* name, int scope, int line, int label){
 }
 
 
+
 void printQuads(){
+    int i;
+    char* opcode, *result, *arg1, *arg2;
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
-    //To be implemented
+    for(i = 0;i < currQuad; i++){
+        opcode =  getQuadOpcode(quads[i]);
+        result = getQuadResult(quads[i]);
+        arg1 = getQuadArg1(quads[i]);
+        arg2 = getQuadArg2(quads[i]);
+        printf("#%d \t \t %s \t \t \t %s \t \t \t %s \t \t \t %s \t \t \t %d\n", i, opcode, result, arg1, arg2, quads[i].label);
+    }
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
+    return;
+}
+
+
+char* getQuadOpcode(Quad q){
+    switch(q.op){
+        case assign : return "assign";
+        case add : return "add";
+        case sub : return "sub";
+        case mul : return "mul";
+        case divide : return "divide";
+        case mod : return "mod";
+        case uminus : return "uminus";
+        case and : return "and";
+        case or : return "or";
+        case not : return "not";
+        case if_eq : return "if_eq";
+        case if_noteq : return "if_noteq";
+        case if_lesseq : return "if_lesseq";
+        case if_greatereq : return "if_greatereq";
+        case if_less : return "if_less";
+        case if_greater : return "if_greater";
+        case call : return "call";
+        case param : return "param";
+        case ret : return "ret";
+        case getretval : return "getretval";
+        case funcstart : return "funcstart";
+        case funcend : return "funcend";
+        case tablecreate : return "tablecreate";
+        case tablegetelem : return "tablegetelem";
+        case tablesetelem : return "tablesetelem";
+        default: assert(0);
+    }
+}
+
+char* getQuadResult(Quad q){
+    return q.result->sym->varVal->name;
+}
+
+char* getQuadArg1(Quad q){
+    return q.arg1->sym->varVal->name;
+}  
+
+char* getQuadArg2(Quad q){
+    return q.arg2->sym->varVal->name;
 }

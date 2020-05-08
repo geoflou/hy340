@@ -12,6 +12,7 @@
 
 #include "SymbolTable.h"
 
+
 enum iopcode{
     assign,
     add,
@@ -59,6 +60,7 @@ enum expr_t{
     nil_e
 };
 
+
 typedef struct expr{
     enum expr_t type;
     SymbolTableEntry* sym;
@@ -78,15 +80,10 @@ typedef struct quad{
     unsigned line;
 } Quad;
 
-
-#define EXPAND_SIZE 1024
-#define CURR_SIZE (total*sizeof(Quad))
-#define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
-
 void expand(void);
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
-                                        unsigned label, unsigned line);
+                                        unsigned label, int line);
 
 char* newTempName(int counter);
 
@@ -135,6 +132,14 @@ Expr* newExpr_constbool(unsigned char b);
 
 Expr* newExpr_constnum(double n);
 
-Expr* emit_iftableitem(Expr* e);
+Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
 
 void printQuads();
+
+char* getQuadOpcode(Quad q);
+
+char* getQuadResult(Quad q);
+
+char* getQuadArg1(Quad q);
+
+char* getQuadArg2(Quad q);
