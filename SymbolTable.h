@@ -21,6 +21,7 @@ typedef struct Variable{
     char *name;
     unsigned int scope;
     unsigned int line;
+    int offset;
 } Variable;
 
 
@@ -29,6 +30,8 @@ typedef struct Function{
     char ** arguments;
     unsigned int scope;
     unsigned int line;
+    int argcount;
+    int space;
 } Function;
 
 
