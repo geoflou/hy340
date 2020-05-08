@@ -135,3 +135,11 @@ Expr* newExpr_constnum(double n);
 Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
 
 void printQuads();
+
+char* getQuadOpcode(Quad q);
+
+char* getQuadResult(Quad q);
+
+char* getQuadArg1(Quad q);
+
+char* getQuadArg2(Quad q);
