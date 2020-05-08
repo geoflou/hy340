@@ -108,7 +108,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                         Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                         tmp = newExpr(4);
                         tmp -> sym = symptr; 
-                        emit(assign, $<exp>1, NULL, tmp, NULL, yylineno);
+                        emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                         printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                         numquads++; //gia na me boi8aei sta jumps
                         //hideEntries(scope);
@@ -122,7 +122,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(add, $<exp>1, $<exp>3, tmp, NULL, yylineno);
+                                    emit(add, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
@@ -136,7 +136,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(sub, $<exp>1, $<exp>3, tmp, NULL, yylineno);
+                                    emit(sub, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: sub, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -149,7 +149,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(mod, $<exp>1, $<exp>3, tmp, NULL, yylineno);
+                                    emit(mod, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: mod, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -162,7 +162,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(divide, $<exp>1, $<exp>3, tmp, NULL, yylineno);
+                                    emit(divide, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: divide, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -175,7 +175,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(mul, $<exp>1, $<exp>3, tmp, NULL, yylineno);
+                                    emit(mul, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: mul, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -227,7 +227,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                 tmp = newExpr(arithexpr_e);
                                 tmp -> sym = symptr;
 
-                                emit(uminus, $<exp>2, NULL, tmp, NULL, yylineno);
+                                emit(uminus, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: uminus, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                 numquads++;
                             }
@@ -235,8 +235,8 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     |OPERATOR_PP lvalue     {printf("++lvalue -> term\n");
                                 //8elei ena if else gia ta table items
                                 
-                                emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
-                                printf("%d: add %s [line: %d]\n", currQuad,arg1->strConst, line);
+                                emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                printf("%d: add [line: %d]\n", numquads, yylineno);
                                 numquads++;
                                 
                                 SymbolTableEntry symbol = newTemp(scope,yylineno); 
@@ -247,7 +247,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                 tmp = newExpr(arithexpr_e);
                                 tmp -> sym = symptr;
 
-                                emit(assign, $<exp>2, NULL, tmp, NULL, yylineno);
+                                emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                 numquads++;
                             }
@@ -262,18 +262,18 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                 tmp = newExpr(arithexpr_e);
                                 tmp -> sym = symptr;
 
-                                emit(assign, $<exp>1, NULL, tmp, NULL, yylineno);
+                                emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                 numquads++;
 
-                                emit(add, $<exp>1, newExpr_constnum(1), $<exp>1, NULL, yylineno);
+                                emit(add, $<exp>1, newExpr_constnum(1), $<exp>1, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: add [line: %d]\n", numquads, yylineno);
                                 numquads++;
                                 
                             }
     |OPERATOR_MM lvalue     {printf("--lvalue -> term\n");
                                 //8elei ena if else gia ta table items
-                                
+                                /*
                                 emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, NULL, yylineno);
                                 printf("%d: sub [line: %d]\n", numquads, yylineno);
                                 numquads++;
@@ -286,7 +286,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                 tmp = newExpr(arithexpr_e);
                                 tmp -> sym = symptr;
 
-                                emit(assign, $<exp>2, NULL, tmp, NULL, yylineno);
+                                emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                 numquads++;
                             }
@@ -301,11 +301,11 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                 tmp = newExpr(arithexpr_e);
                                 tmp -> sym = symptr;
 
-                                emit(assign, $<exp>1, NULL, tmp, NULL, yylineno);
+                                emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                 numquads++;
 
-                                emit(sub, $<exp>1, newExpr_constnum(1), $<exp>1, NULL, yylineno);
+                                emit(sub, $<exp>1, newExpr_constnum(1), $<exp>1, (unsigned int)NULL, (unsigned int)yylineno);
                                 printf("%d: sub [line: %d]\n", numquads, yylineno);
                                 numquads++;
                                 
@@ -314,7 +314,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
-                                            emit(assign, $<exp>3, NULL,$<exp>1 ,NULL,yylineno);
+                                            emit(assign, $<exp>3, NULL,$<exp>1 ,(unsigned int)NULL,(unsigned int)yylineno);
                                             printf("%d: assign [line: %d]\n", numquads, yylineno);
                                             numquads++;   
                                         }
@@ -429,7 +429,9 @@ lvalue: ID  {
     |member {printf("member -> lvalue\n");}
     ;
 
-member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");}
+member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
+                            
+                        }
     |lvalue LEFT_BRACE expr RIGHT_BRACE {printf("lvalue[expr] -> member\n");}
     |call DOT ID    {printf("call.id -> member\n");}
     |call LEFT_BRACE expr RIGHT_BRACE   {printf("call[expr] -> member\n");}

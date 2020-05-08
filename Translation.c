@@ -42,14 +42,14 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     p -> result = result;
     p -> label = label;
     p -> line = line;
-    
+
     return;
 }
 
 
 
 char* newTempName(int counter){
-    char* tempName =(char*) malloc(sizeof(char*)); 
+    char* tempName = (char*) malloc(sizeof(char*)); 
     sprintf(tempName, "_temp_%d", counter);
     return tempName;
 }
@@ -192,21 +192,28 @@ Expr* newExpr_constnum(double n){
 }
 
 
-
-Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
+/*Expr* emit_iftableitem(Expr* e){
     if(e->type != tableitem_e){
         return e;
     }
     SymbolTableEntry symbol;
     Expr* result = newExpr(var_e);
-    SymbolTableEntry *symptr = (SymbolTableEntry*) malloc (sizeof(SymbolTableEntry));
-    symptr = &symbol;
-    symbol=newTemp(scope,line);
-    result -> sym = symptr;
-    emit(tablegetelem, e, e -> index, result, label, line);
+    result -> sym = newTemp();
+    emit(tablegetelem, e, e -> index, result);
 
     return result;
 }
+
+Expr* member_item(Expr* e, char* name, int scope, int line, int label){
+    e = emit_iftableitem(e, scope, line, label);
+
+    Expr* tableitem = newExpr(tableitem_e);
+    tableitem -> sym = e -> sym;
+    tableitem -> index = newExpr_conststring(name);
+
+    return tableitem;
+}
+
 
 void printQuads(){
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
