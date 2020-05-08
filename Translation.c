@@ -72,7 +72,7 @@ SymbolTableEntry newTemp(int scope, int line){
 
     sym = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
 
-    var -> name = name;
+    var -> name = strdup(name);
     var -> line = line;
     var -> scope = scope;
 
@@ -209,8 +209,61 @@ Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
 }
 
 void printQuads(){
+    int i;
+    char* opcode, *result, *arg1, *arg2;
     printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
-    //To be implemented
+    for(i = 0;i < currQuad; i++){
+        opcode =  getQuadOpcode(quads[i]);
+        result = getQuadResult(quads[i]);
+        arg1 = getQuadArg1(quads[i]);
+        arg2 = getQuadArg2(quads[i]);
+        printf("#%d \t \t %s \t \t \t %s \t \t \t %s \t \t \t %s \t \t \t %d\n", i, opcode, result, arg1, arg2, quads[i].label);
+    }
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
+    return;
+}
+
+
+char* getQuadOpcode(Quad q){
+    switch(q.op){
+        case assign : return "assign";
+        case add : return "add";
+        case sub : return "sub";
+        case mul : return "mul";
+        case divide : return "divide";
+        case mod : return "mod";
+        case uminus : return "uminus";
+        case and : return "and";
+        case or : return "or";
+        case not : return "not";
+        case if_eq : return "if_eq";
+        case if_noteq : return "if_noteq";
+        case if_lesseq : return "if_lesseq";
+        case if_greatereq : return "if_greatereq";
+        case if_less : return "if_less";
+        case if_greater : return "if_greater";
+        case call : return "call";
+        case param : return "param";
+        case ret : return "ret";
+        case getretval : return "getretval";
+        case funcstart : return "funcstart";
+        case funcend : return "funcend";
+        case tablecreate : return "tablecreate";
+        case tablegetelem : return "tablegetelem";
+        case tablesetelem : return "tablesetelem";
+        default: assert(0);
+    }
+}
+
+char* getQuadResult(Quad q){
+    return "result";
+}
+
+char* getQuadArg1(Quad q){
+    return "arg1";
+}  
+
+char* getQuadArg2(Quad q){
+    return "arg2";
 }
