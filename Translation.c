@@ -14,7 +14,6 @@ unsigned int currQuad = 0;
 #define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
 
 int tempVarCounter = 0;
-int tempFuncCounter = 0;
 
 void expand(void){
     assert(total == currQuad);
@@ -28,6 +27,7 @@ void expand(void){
     total +=EXPAND_SIZE;
     return;
 }
+
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
                                         unsigned label, int line) {
@@ -45,6 +45,8 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
 
     return;
 }
+
+
 
 char* newTempName(int counter){
     char* tempName = (char*) malloc(sizeof(char*)); 
@@ -88,31 +90,7 @@ SymbolTableEntry newTemp(int scope, int line){
     return *sym;
 }
 
-SymbolTableEntry newTempFunc(int scope, int line){
-    SymbolTableEntry *sym;
-    Function* func =(Function *) malloc(sizeof(Function));
-    char* name = newTempFuncName(tempFuncCounter);
 
-    tempFuncCounter++;
-    sym = lookupScope(name, scope);
-    if(sym != NULL)
-        return *sym;
-
-    sym = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
-
-    func -> name = strdup(name);
-    func -> line = line;
-    func -> scope = scope;
-
-    sym -> isActive = 1;
-    sym -> funcVal = func;
-    sym -> varVal = NULL;
-    sym-> type = USERFUNC;
-
-    insertEntry(sym);
-
-    return *sym;
-}
 
 enum scopespace_t currscopespace(void){
     if(scopeSpaceCounter == 1){
@@ -125,6 +103,8 @@ enum scopespace_t currscopespace(void){
         return functionlocal;
         
 }
+
+
 
 unsigned currscopeoffset(void){
     switch (currscopespace()){
@@ -176,9 +156,9 @@ void restorecurrscopespace(unsigned n){
     return;
 }
 
-void restorelocaloffset(int localoffset) {
-        localoffset = 0;
-}
+//void restorecurrscopeoffset(unsigned n){
+
+//}
 
 unsigned nextquadlabel (void){
     return currQuad;
@@ -214,6 +194,7 @@ Expr* newExpr_constnum(double n){
     e -> numConst = n;
     return e;
 }
+
 
 Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
@@ -268,6 +249,7 @@ void printQuads(){
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
     return;
 }
+
 
 char* getQuadOpcode(Quad q){
     switch(q.op){

@@ -125,6 +125,8 @@ void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 
+//void restorecurrscopeoffset(unsigned n);
+
 unsigned nextquadlabel (void);
 
 void patchlabel(unsigned quadNo, unsigned label);
@@ -150,7 +152,3 @@ char* getQuadResult(Quad q);
 char* getQuadArg1(Quad q);
 
 char* getQuadArg2(Quad q);
-
-Expr* make_call(Expr* lvalue,Expr* elist, int scope, int line,int label);
-
-void restorelocaloffset(int localoffset);
