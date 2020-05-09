@@ -114,6 +114,8 @@ void enterscopespace(void);
 
 void exitscopespace(void);
 
+void restorelocaloffset(void);
+
 void resetformalargsoffset(void);
 
 void resetfunclocalsoffset(void);
