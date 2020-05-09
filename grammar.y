@@ -1,7 +1,7 @@
 %{
     #include <stdlib.h>
     #include <stdio.h>
-    #include "SymbolTable.h"
+    #include "Translation.h"
     #include "grammar.h"
 
     int yyerror(char* message);
