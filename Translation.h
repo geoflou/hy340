@@ -80,6 +80,11 @@ typedef struct quad{
     unsigned line;
 } Quad;
 
+typedef struct e_list{
+    char* e_list_name;
+    struct e_list* next;
+} E_list;
+
 void expand(void);
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
@@ -133,6 +138,8 @@ Expr* newExpr_constbool(unsigned char b);
 Expr* newExpr_constnum(double n);
 
 Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
+
+Expr* make_call(Expr* lvalue, int scope, int line,int label);
 
 void printQuads();
 
