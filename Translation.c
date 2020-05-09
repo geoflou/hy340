@@ -55,7 +55,7 @@ char* newTempName(int counter){
 }
 
 char* newTempFuncName(int counter){
-    char* name = (char*) malloc(sizeof(char*));
+    char* name;
     sprintf(name, "_temp_func_%d", counter);
     return name;
 }
@@ -155,10 +155,6 @@ void restorecurrscopespace(unsigned n){
     }
     return;
 }
-
-//void restorecurrscopeoffset(unsigned n){
-
-//}
 
 unsigned nextquadlabel (void){
     return currQuad;

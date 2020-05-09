@@ -120,8 +120,6 @@ void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 
-//void restorecurrscopeoffset(unsigned n);
-
 unsigned nextquadlabel (void);
 
 void patchlabel(unsigned quadNo, unsigned label);
