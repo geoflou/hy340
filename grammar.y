@@ -12,6 +12,7 @@
     extern FILE* yyin;
     int label=0;
     int scope = 0;
+    int old_offset = 0;
 
     Function* temp_func;
     int arg_index = 0;
@@ -19,6 +20,8 @@
     int anonFuncCounter = 1;
 
     int numquads = 1;
+
+    E_list* paramListHead;
 %}
 
 %union{
@@ -236,31 +239,31 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                            
                              
                                     if($<exp>2 -> type == tableitem_e){
-                                        printf("mphka\n");
+                                        //printf("mphka\n");
                                    
-                                    emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
-                                    printf("%d: add [line: %d]\n", numquads, yylineno);
-                                    numquads++;
+                                        emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                        printf("%d: add [line: %d]\n", numquads, yylineno);
+                                        numquads++;
                                     
-                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
-                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
-                                    symptr = &symbol;
+                                        SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                                        SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                        symptr = &symbol;
                                 
-                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                                    tmp = newExpr(arithexpr_e);
-                                    tmp -> sym = symptr;
+                                        Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                        tmp = newExpr(arithexpr_e);
+                                        tmp -> sym = symptr;
 
-                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
-                                    printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
-                                    numquads++;
+                                        emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                        printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                        numquads++;
                                     
-                                    emit(tablesetelem, $<exp>$, $<exp>2 -> index, $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
-                                    printf("%d: tablesetelem [line: %d]\n", numquads, yylineno);
-                                    numquads++;
+                                        emit(tablesetelem, $<exp>$, $<exp>2 -> index, $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                        printf("%d: tablesetelem [line: %d]\n", numquads, yylineno);
+                                        numquads++;
                                    
-                                    $<exp>$ = emit_iftableitem($<exp>2, scope, yylineno, (int)NULL);
-                                    printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
-                                    numquads++;
+                                        $<exp>$ = emit_iftableitem($<exp>2, scope, yylineno, (int)NULL);
+                                        printf("%d: tablegetelem, [line: %d]\n",numquads, yylineno);
+                                        numquads++;
                                 
                                 }else{
                                     
@@ -292,11 +295,11 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr;
-                                   emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
-                                     emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(add, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add [line: %d]\n", numquads, yylineno);
                                     numquads++;
                                     
@@ -323,7 +326,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                    
-                                     emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(add, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add [line: %d]\n", numquads, yylineno);
                                     numquads++;
                                 }
@@ -391,7 +394,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
-                                     emit(sub, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(sub, $<exp>$, newExpr_constnum(1), $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: sub [line: %d]\n", numquads, yylineno);
                                     numquads++;
                                     
@@ -412,10 +415,10 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr;
 
-                                     emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
-                                     emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: sub [line: %d]\n", numquads, yylineno);
                                     numquads++;
                                 }
@@ -451,24 +454,24 @@ lvalue: ID  {
     }else{
         newnode->type = LOCAL;
     }
-        newnode->varVal = newvar;
-        newnode->isActive = 1;
+    newnode->varVal = newvar;
+    newnode->isActive = 1;
         
-        if(dummy!=NULL){
-            comparelibfunc(yylval.strVal);
-            char *ptr= getEntryType(dummy);
+    if(dummy!=NULL){
+        comparelibfunc(yylval.strVal);
+        char *ptr= getEntryType(dummy);
                                 
-            if(ptr=="USERFUNC"){
-                if(dummy->isActive==1){
-                    yyerror("A function has taken already that name!");
-                }else{
-                    insertEntry(newnode);
-                }
+        if(ptr=="USERFUNC"){
+            if(dummy->isActive==1){
+                yyerror("A function has taken already that name!");
+            }else{
+                insertEntry(newnode);
             }
-        }else{
-            comparelibfunc(yylval.strVal);     
-            insertEntry(newnode);
         }
+    }else{
+        comparelibfunc(yylval.strVal);     
+        insertEntry(newnode);
+    }
 }
 
     |LOCAL_KEYWORD ID   {
@@ -539,6 +542,7 @@ lvalue: ID  {
     |member {printf("member -> lvalue\n");
         Expr* e= newExpr(tableitem_e);
         $<exp>$-> type= e-> type;
+
     }
     ;
 
@@ -586,48 +590,100 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
     ;
 
 call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");
-                                                        $<exp>$ = make_call($<exp>1,$<exp>3, scope, yylineno, (int)NULL);
+                                                        E_list* tmpnode = paramListHead;
+                                                        while(tmpnode){
+                                                            emit(param, (Expr*)tmpnode->e_list_name, NULL, NULL, (int)NULL, yylineno);
+                                                            printf("%d: param %s [line: %d]\n",numquads, tmpnode->e_list_name, yylineno);
+                                                            tmpnode = tmpnode->next;
+                                                            numquads++;
+                                                        }
+
+                                                        $<exp>$ = make_call($<exp>3, scope, yylineno, (int)NULL);
                                                         printf("%d: call [line: %d]\n", numquads, yylineno);
                                                         numquads++;
                                                         printf("%d: getretval [line: %d]\n",numquads, yylineno);
                                                         numquads++;
-                                    }
-    |lvalue callsuffix  {printf("lvalue() -> call\n");
-                            $<exp>$ = make_call($<exp>1,$<exp>2, scope, yylineno, (int)NULL);
+                                                    }
+    |lvalue callsuffix  {   printf("lvalue() -> call\n");
+                            $<exp>$ = make_call($<exp>1, scope, yylineno, (int)NULL);
                             printf("%d: call [line: %d]\n", numquads, yylineno);
                             numquads++;
                             printf("%d: getretval [line: %d]\n",numquads, yylineno);
                             numquads++;
-                            }
+                        }
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-        {printf("(funcdef)(elist) -> call\n");
+        {   printf("(funcdef)(elist) -> call\n");
+            
+            E_list* tmpnode = paramListHead;
+            while(tmpnode){
+                emit(param, (Expr*)tmpnode->e_list_name, NULL, NULL, (int)NULL, yylineno);
+                printf("%d: param %s [line: %d]\n",numquads, tmpnode->e_list_name, yylineno);
+                tmpnode = tmpnode->next;
+                numquads++;
+            }
+
             Expr* func = newExpr(programfunc_e);
             func->sym = $<exp>2;
-            $<exp>$ = make_call($<exp>2,$<exp>5, scope, yylineno, (int)NULL);
+            $<exp>$ = make_call($<exp>5, scope, yylineno, (int)NULL);
             printf("%d: call [line: %d]\n", numquads, yylineno);
             numquads++;
             printf("%d: getretval [line: %d]\n",numquads, yylineno);
             numquads++;
-            }
+        }
     ;
 
-callsuffix: methodcall {printf("methodcall -> callsuffix\n");
-
-                            }
-    |normcall   {printf("normcall -> callsuffix\n");
-                $<exp>$ = $<exp>1;
-                
-                                }
+callsuffix: methodcall {    printf("methodcall -> callsuffix\n");
+                            /*kapou mpainei twra auto gia ta table items alla den 3erw...
+                            printf("%d: tablegetelem %s [line: %d]\n",numquads, (char*)$<exp>1, yylineno);
+                            numquads++;
+                            emit(param, $<exp>1, NULL, NULL, (int)NULL, yylineno);
+                            printf("%d: param %s [line: %d]\n",numquads, (char*)$<exp>1, yylineno);
+                            numquads++;*/
+                        }
+    |normcall   {
+                    printf("normcall -> callsuffix\n");
+                    $<exp>$ = $<exp>1;
+                }
     ;
 
-normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
+normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS  {
+                                                        E_list* tmpnode = paramListHead;
+                                                        while(tmpnode){
+                                                            emit(param, (Expr*)tmpnode->e_list_name, NULL, NULL, (int)NULL, yylineno);
+                                                            printf("%d: param %s [line: %d]\n",numquads, tmpnode->e_list_name, yylineno);
+                                                            tmpnode = tmpnode->next;
+                                                            numquads++;
+                                                        }
+                                                    }
     ;
 
 methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");}
     ;
 
-elist: expr
-    |expr COMMA elist
+elist: expr {
+                E_list* dummy = (E_list*)malloc(sizeof(E_list*));
+                dummy->e_list_name = (char*)$<exp>1;
+
+                if(paramListHead == NULL){
+                    dummy->next = NULL;
+                    paramListHead = dummy;
+                }else{
+                    dummy->next = paramListHead;
+                    paramListHead = dummy;
+                }
+            }
+    |expr COMMA elist   {
+                            E_list* dummy = (E_list*)malloc(sizeof(E_list*));
+                            dummy->e_list_name = (char*)$<exp>1;
+                            
+                            if(paramListHead == NULL){
+                                dummy->next = NULL;
+                                paramListHead = dummy;
+                            }else{
+                                dummy->next = paramListHead;
+                                paramListHead = dummy;
+                            }
+                        }
     |
     ;
 
@@ -643,7 +699,7 @@ indexedelem: LEFT_BRACKET expr COLON expr RIGHT_BRACKET {printf("{expr : expr} -
     ;
 
 block: LEFT_BRACKET {scope++;} set RIGHT_BRACKET {
-        printf("block with stmts -> block");
+        printf("block with stmts -> block\n");
         hideEntries(scope);
         scope--;
     } 
@@ -663,7 +719,7 @@ funcdef: FUNCTION ID {
         emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
         printf("%d: funcstart, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
         numquads++;
-        /*old_offset = currscopeoffset();*/
+        old_offset = currscopeoffset();
         enterscopespace();
         resetformalargsoffset();
 
@@ -742,7 +798,7 @@ funcdef: FUNCTION ID {
         temp_func -> scope = 0;
         temp_func -> line = 0;
         for(i = 0;i < arg_index;i++)
-        temp_func -> arguments[i] = "";
+            temp_func -> arguments[i] = "";
 
 
     }
@@ -755,7 +811,7 @@ funcdef: FUNCTION ID {
         emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
         printf("%d: funcstart, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
         numquads++;
-        /*old_offset = currscopeoffset();*/
+        old_offset = currscopeoffset();
         enterscopespace();
         resetformalargsoffset();
 
@@ -834,7 +890,7 @@ funcdef: FUNCTION ID {
         temp_func -> scope = 0;
         temp_func -> line = 0;
         for(i = 0;i < arg_index;i++)
-        temp_func -> arguments[i] = "";  
+            temp_func -> arguments[i] = "";  
     }
     ;
 
