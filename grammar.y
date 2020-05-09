@@ -603,7 +603,7 @@ call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call
         {printf("(funcdef)(elist) -> call\n");
             Expr* func = newExpr(programfunc_e);
             func->sym = $<exp>2;
-            $<exp>$ = make_call($<exp>2,$<exp>5, scope, yylineno, (int)NULL);
+            $<exp>$ = make_call($<exp>2,$<exp>5, scope-1, yylineno, (int)NULL);
             printf("%d: call [line: %d]\n", numquads, yylineno);
             numquads++;
             printf("%d: getretval [line: %d]\n",numquads, yylineno);
@@ -657,7 +657,7 @@ block: LEFT_BRACKET {scope++;} set RIGHT_BRACKET {
 funcdef: FUNCTION ID {
 
         temp_func -> name = yylval.strVal;
-        temp_func -> scope = scope + 1;
+        temp_func -> scope = scope;
         temp_func -> line = yylineno;
 
         emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
