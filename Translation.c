@@ -14,6 +14,7 @@ unsigned int currQuad = 0;
 #define NEW_SIZE (EXPAND_SIZE*sizeof(Quad) + CURR_SIZE)
 
 int tempVarCounter = 0;
+int tempFuncCounter = 0;
 
 void expand(void){
     assert(total == currQuad);
@@ -27,7 +28,6 @@ void expand(void){
     total +=EXPAND_SIZE;
     return;
 }
-
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
                                         unsigned label, int line) {
@@ -46,8 +46,6 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
     return;
 }
 
-
-
 char* newTempName(int counter){
     char* tempName = (char*) malloc(sizeof(char*)); 
     sprintf(tempName, "_temp_%d", counter);
@@ -55,7 +53,7 @@ char* newTempName(int counter){
 }
 
 char* newTempFuncName(int counter){
-    char* name;
+    char* name = (char*) malloc(sizeof(char*));
     sprintf(name, "_temp_func_%d", counter);
     return name;
 }
@@ -90,7 +88,31 @@ SymbolTableEntry newTemp(int scope, int line){
     return *sym;
 }
 
+SymbolTableEntry newTempFunc(int scope, int line){
+    SymbolTableEntry *sym;
+    Function* func =(Function *) malloc(sizeof(Function));
+    char* name = newTempFuncName(tempFuncCounter);
 
+    tempFuncCounter++;
+    sym = lookupScope(name, scope);
+    if(sym != NULL)
+        return *sym;
+
+    sym = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
+
+    func -> name = strdup(name);
+    func -> line = line;
+    func -> scope = scope;
+
+    sym -> isActive = 1;
+    sym -> funcVal = func;
+    sym -> varVal = NULL;
+    sym-> type = USERFUNC;
+
+    insertEntry(sym);
+
+    return *sym;
+}
 
 enum scopespace_t currscopespace(void){
     if(scopeSpaceCounter == 1){
@@ -103,8 +125,6 @@ enum scopespace_t currscopespace(void){
         return functionlocal;
         
 }
-
-
 
 unsigned currscopeoffset(void){
     switch (currscopespace()){
@@ -156,6 +176,10 @@ void restorecurrscopespace(unsigned n){
     return;
 }
 
+//void restorecurrscopeoffset(unsigned n){
+
+//}
+
 unsigned nextquadlabel (void){
     return currQuad;
 }
@@ -191,13 +215,12 @@ Expr* newExpr_constnum(double n){
     return e;
 }
 
-
 Expr* emit_iftableitem(Expr* e, int scope, int line, int label){
     if(e->type != tableitem_e){
         return e;
     }
     SymbolTableEntry symbol = newTemp(scope, line);
-     SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+    SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
     Expr* result = newExpr(tableitem_e);
     symptr = &symbol; 
     result->sym = symptr;
@@ -216,7 +239,21 @@ Expr* member_item(Expr* e, char* name, int scope, int line, int label){
     return tableitem;
 }
 
+Expr* make_call(Expr* lvalue, Expr* elist, int scope, int line,int label){
+     Expr* func = emit_iftableitem(lvalue, scope, line, label);
+     /*edw prepei na mpei mia loop pou na kanei traverse ena array/list to opoio na kanei emit tis parametrous*/
+     emit(call,func,NULL,NULL,label,line);
+     printf("%d: call, [line: %d]\n",tempFuncCounter, line);
+     SymbolTableEntry symbol = newTemp(scope, line);
+     SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
+     Expr* result = newExpr(programfunc_e);
+     symptr = &symbol; 
+     result->sym = symptr;
+     emit(getretval,NULL,NULL,result,label,line);
+     printf("%d: getretval, result: %s [line: %d]\n",tempFuncCounter,result->sym->varVal->name, line);
+     return result;
 
+ }
 
 void printQuads(){
     int i;
@@ -233,7 +270,6 @@ void printQuads(){
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
     return;
 }
-
 
 char* getQuadOpcode(Quad q){
     switch(q.op){

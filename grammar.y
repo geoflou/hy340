@@ -585,14 +585,39 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
     }
     ;
 
-call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");}
-    |lvalue callsuffix  {printf("lvalue() -> call\n");}
+call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");
+                                                        $<exp>$ = make_call($<exp>1,$<exp>3, scope, yylineno, (int)NULL);
+                                                        printf("%d: call [line: %d]\n", numquads, yylineno);
+                                                        numquads++;
+                                                        printf("%d: getretval [line: %d]\n",numquads, yylineno);
+                                                        numquads++;
+                                    }
+    |lvalue callsuffix  {printf("lvalue() -> call\n");
+                            $<exp>$ = make_call($<exp>1,$<exp>2, scope, yylineno, (int)NULL);
+                            printf("%d: call [line: %d]\n", numquads, yylineno);
+                            numquads++;
+                            printf("%d: getretval [line: %d]\n",numquads, yylineno);
+                            numquads++;
+                            }
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
-        {printf("(funcdef)(elist) -> call\n");}
+        {printf("(funcdef)(elist) -> call\n");
+            Expr* func = newExpr(programfunc_e);
+            func->sym = $<exp>2;
+            $<exp>$ = make_call($<exp>2,$<exp>5, scope, yylineno, (int)NULL);
+            printf("%d: call [line: %d]\n", numquads, yylineno);
+            numquads++;
+            printf("%d: getretval [line: %d]\n",numquads, yylineno);
+            numquads++;
+            }
     ;
 
-callsuffix: methodcall {printf("methodcall -> callsuffix\n");}
-    |normcall   {printf("normcall -> callsuffix\n");}
+callsuffix: methodcall {printf("methodcall -> callsuffix\n");
+
+                            }
+    |normcall   {printf("normcall -> callsuffix\n");
+                $<exp>$ = $<exp>1;
+                
+                                }
     ;
 
 normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS
@@ -635,7 +660,18 @@ funcdef: FUNCTION ID {
         temp_func -> scope = scope + 1;
         temp_func -> line = yylineno;
 
+        emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
+        printf("%d: funcstart, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
+        numquads++;
+        /*old_offset = currscopeoffset();*/
+        enterscopespace();
+        resetformalargsoffset();
+
     }   LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS {
+
+        enterscopespace();
+        resetfunclocalsoffset();
+
         SymbolTableEntry *temp;
         SymbolTableEntry *new_entry;
         Function *new_func;
@@ -692,20 +728,42 @@ funcdef: FUNCTION ID {
 
     } block    {
         printf("function id(idlist)block -> funcdef\n", yytext);
+
+        exitscopespace();//exiting function locals space
+        exitscopespace();//exiting function definition space
+        
+        //restorecurrscopeoffset(old_offset);
+        emit(funcend, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, yylineno);
+        printf("%d: funcend, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
+        numquads++;
+
         int i = 0;
         temp_func -> name = "";
         temp_func -> scope = 0;
         temp_func -> line = 0;
         for(i = 0;i < arg_index;i++)
-            temp_func -> arguments[i] = "";   
+        temp_func -> arguments[i] = "";
+
+
     }
     |FUNCTION{
-       temp_func -> name = newTempFuncName(anonFuncCounter);
+        temp_func -> name = newTempFuncName(anonFuncCounter);
         anonFuncCounter++;
         temp_func -> scope = scope + 1;
         temp_func -> line = yylineno;
 
+        emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
+        printf("%d: funcstart, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
+        numquads++;
+        /*old_offset = currscopeoffset();*/
+        enterscopespace();
+        resetformalargsoffset();
+
     } LEFT_PARENTHESIS idlist RIGHT_PARENTHESIS {
+
+        enterscopespace();
+        resetfunclocalsoffset();
+
         SymbolTableEntry *temp;
         SymbolTableEntry *new_entry;
         Function *new_func;
@@ -762,12 +820,21 @@ funcdef: FUNCTION ID {
 
     } block    {
         printf("function (idlist)block -> funcdef\n");
+
+        exitscopespace();//exiting function locals space
+        exitscopespace();//exiting function definition space
+        
+        //restorecurrscopeoffset(old_offset);
+        emit(funcend, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, yylineno);
+        printf("%d: funcend, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
+        numquads++;
+
         int i = 0;
         temp_func -> name = "";
         temp_func -> scope = 0;
         temp_func -> line = 0;
         for(i = 0;i < arg_index;i++)
-            temp_func -> arguments[i] = "";  
+        temp_func -> arguments[i] = "";  
     }
     ;
 
