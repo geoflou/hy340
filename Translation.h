@@ -59,7 +59,7 @@ typedef struct expr{
     double numConst;
     char* strConst;
     unsigned char boolConst;
-    expr* next;
+    struct expr* next;
 } Expr;
 
 typedef struct quad{
