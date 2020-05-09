@@ -60,7 +60,6 @@ enum expr_t{
     nil_e
 };
 
-
 typedef struct expr{
     enum expr_t type;
     SymbolTableEntry* sym;
@@ -160,3 +159,7 @@ char* getQuadResult(Quad q);
 char* getQuadArg1(Quad q);
 
 char* getQuadArg2(Quad q);
+
+Expr* make_call(Expr* lvalue,Expr* elist, int scope, int line,int label);
+
+Expr* lvalue_expr(SymbolTableEntry* sym);
