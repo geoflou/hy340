@@ -60,7 +60,6 @@ enum expr_t{
     nil_e
 };
 
-
 typedef struct expr{
     enum expr_t type;
     SymbolTableEntry* sym;
