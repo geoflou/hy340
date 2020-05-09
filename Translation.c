@@ -191,6 +191,25 @@ void patchlabel(unsigned quadNo, unsigned label){
     return;
 }
 
+Expr* lvalue_expr(SymbolTableEntry* sym) {
+    assert(sym != NULL);
+    Expr* e = (Expr* ) malloc(sizeof(Expr));
+    memset(e, 0 , sizeof(Expr));
+
+    e -> next = NULL;
+    e -> sym = sym;
+
+    switch(sym -> type) {
+        case GLOBAL : e -> type = var_e; break;
+        case LOCAL : e -> type = var_e; break;
+        case USERFUNC: e -> type = programfunc_e; break;
+        case LIBFUNC: e -> type = libraryfunc_e; break;
+        default: assert(0);
+    }
+
+    return e;
+}
+
 Expr* newExpr(enum expr_t t){
     Expr* e = (Expr*) malloc(sizeof(Expr));
     memset(e, 0, sizeof(Expr));
