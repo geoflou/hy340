@@ -176,9 +176,9 @@ void restorecurrscopespace(unsigned n){
     return;
 }
 
-//void restorecurrscopeoffset(unsigned n){
-
-//}
+void restorelocaloffset(int localoffset) {
+        localoffset = 0;
+}
 
 unsigned nextquadlabel (void){
     return currQuad;

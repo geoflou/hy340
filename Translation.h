@@ -145,3 +145,5 @@ char* getQuadArg1(Quad q);
 char* getQuadArg2(Quad q);
 
 Expr* make_call(Expr* lvalue,Expr* elist, int scope, int line,int label);
+
+void restorelocaloffset(int localoffset);
