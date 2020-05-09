@@ -30,7 +30,7 @@
     double doubleVal;
     //Call* callsuffix;
     //Call* normcall;
-    //Call* methodcall;
+    struct call* call;
    struct expr* exp;
 }
 
@@ -605,6 +605,7 @@ call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call
                                                         numquads++;
                                                     }
     |lvalue callsuffix  {   printf("lvalue() -> call\n");
+                            $<exp>1 = emit_iftableitem($<exp>1,scope,yylineno,label);
                             $<exp>$ = make_call($<exp>1, scope, yylineno, (int)NULL);
                             printf("%d: call [line: %d]\n", numquads, yylineno);
                             numquads++;
@@ -633,6 +634,7 @@ call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call
     ;
 
 callsuffix: methodcall {    printf("methodcall -> callsuffix\n");
+                            $<exp>$ = $<exp>1;
                             /*kapou mpainei twra auto gia ta table items alla den 3erw...
                             printf("%d: tablegetelem %s [line: %d]\n",numquads, (char*)$<exp>1, yylineno);
                             numquads++;
@@ -657,7 +659,11 @@ normcall: LEFT_PARENTHESIS elist RIGHT_PARENTHESIS  {
                                                     }
     ;
 
-methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");}
+methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");
+                    $<call>$ -> elist = $<exp>2;
+                    $<call>$ -> boolmethod = 1;
+                    $<call>$ -> name = (char*) $<exp>1;
+                                    }
     ;
 
 elist: expr {

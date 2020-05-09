@@ -108,25 +108,12 @@ enum symbol_t {
     libraryfunc_s
 };
 
-typedef struct symbol{
-    enum symbol_t type;
-    char* name;
-    enum scopespace_t space;
-    unsigned offset;
-    unsigned scope;
-    unsigned line;
-} Symbol;
+    typedef struct call{
+        Expr* elist;
+        int boolmethod;
+        char* name;
+    }Call;
 
-void expand(void);
-
-void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
-                                        unsigned label, int line);
-
-char* newTempName(int counter);
-
-char* newTempFuncName(int counter);
-
-SymbolTableEntry newTemp(int scope, int line);
 
 enum scopespace_t currscopespace(void);
 
@@ -146,7 +133,7 @@ void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 
-//void restorecurrscopeoffset(unsigned n);
+void restorecurrscopeoffset(unsigned n);
 
 unsigned nextquadlabel (void);
 
