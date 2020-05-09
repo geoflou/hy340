@@ -80,3 +80,5 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
 char* newTempName(void);
 
 SymbolTableEntry newTemp(int scope, int line);
+
+Expr* lvalue_expr(SymbolTableEntry* sym);
