@@ -657,14 +657,19 @@ lvalue: ID  {
                 $<exp>$=lvalue_expr(newnode);
             }
         }else{
-            comparelibfunc(yylval.strVal);     
-            insertEntry(newnode);
-            $<exp>$ = lvalue_expr(newnode);
+            if(lookupScope(yylval.strVal, 0)==NULL)
+            {
+                comparelibfunc(yylval.strVal);     
+                $<exp>$ = lvalue_expr(newnode);
+            }
         }
     }else{
+        if(lookupScope(yylval.strVal, 0)==NULL)
+            {
         comparelibfunc(yylval.strVal);     
         insertEntry(newnode);
         $<exp>$=lvalue_expr(newnode);
+            }
     }
 }
 
@@ -701,10 +706,13 @@ lvalue: ID  {
                 }
             }
         }else{
-            comparelibfunc(yylval.strVal);    
-            insertEntry(newnode);
-            $<exp>$=lvalue_expr(newnode);
-        }
+            if(lookupScope(yylval.strVal, 0)==NULL)
+            {
+        comparelibfunc(yylval.strVal);     
+        insertEntry(newnode);
+        $<exp>$=lvalue_expr(newnode);
+            }
+    }
                            
     }
     |DOUBLE_COLON ID    {
@@ -823,12 +831,7 @@ call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call
 
 callsuffix: methodcall {    printf("methodcall -> callsuffix\n");
                             $<exp>$ = $<exp>1;
-                            /*kapou mpainei twra auto gia ta table items alla den 3erw...
-                            printf("%d: tablegetelem %s [line: %d]\n",numquads, (char*)$<exp>1, yylineno);
-                            numquads++;
-                            emit(param, $<exp>1, NULL, NULL, (int)NULL, yylineno);
-                            printf("%d: param %s [line: %d]\n",numquads, (char*)$<exp>1, yylineno);
-                            numquads++;*/
+                            
                         }
     |normcall   {
                     printf("normcall -> callsuffix\n");
@@ -854,7 +857,7 @@ methodcall: DOUBLE_DOT ID normcall  {printf("..id(elist) -> methodcall\n");
                                     }
     ;
 
-elist: expr {
+elist: expr {   printf("lala\n");
                 E_list* dummy = (E_list*)malloc(sizeof(E_list*));
                 dummy->e_list_name = (char*)$<exp>1;
 
@@ -866,7 +869,7 @@ elist: expr {
                     paramListHead = dummy;
                 }
             }
-    |expr COMMA elist   {
+    |expr COMMA elist   {   printf("lala1\n");
                             E_list* dummy = (E_list*)malloc(sizeof(E_list*));
                             dummy->e_list_name = (char*)$<exp>1;
                             
@@ -881,7 +884,22 @@ elist: expr {
     |
     ;
 
-objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");}
+objectdef: LEFT_BRACE elist RIGHT_BRACE {printf("[elist] -> objectdef\n");
+                        int i;
+                        Expr* t = newExpr(newtable_e);
+                        SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                        SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                        symptr = &symbol;
+                        t -> sym = symptr;
+                        $<exp>$=t;
+                        printf("mphka\n");
+                        emit(tablecreate,NULL,NULL,$<exp>$,NULL,yylineno);
+                        for(i=0; $<exp>2; $<exp>2 = $<exp>2 -> next){
+                            printf("mphka sthn loop\n");
+                            emit(tablesetelem,newExpr_constnum(i++),$<exp>2,t,NULL,yylineno);
+                        }
+                        $<exp>$=t;
+                                    }
     |LEFT_BRACE indexed RIGHT_BRACE {printf("[indexed] -> objectdef\n]");}
     ;
 
@@ -894,12 +912,12 @@ indexedelem: LEFT_BRACKET expr COLON expr RIGHT_BRACKET {printf("{expr : expr} -
 
 block: LEFT_BRACKET {scope++;} set RIGHT_BRACKET {
         printf("block with stmts -> block\n");
-        hideEntries(scope);
+        //hideEntries(scope);
         scope--;
     } 
     |LEFT_BRACKET {scope++;} RIGHT_BRACKET   {
             printf("empty block -> block\n");
-            hideEntries(scope);
+            //hideEntries(scope);
             scope--;
         }
     ;
@@ -909,7 +927,12 @@ funcdef: FUNCTION ID {
         temp_func -> name = yylval.strVal;
         temp_func -> scope = scope;
         temp_func -> line = yylineno;
+         $<exp>2 -> sym = temp_func ;
+        // $<exp>2 -> sym -> funcVal -> name = temp_func -> name;
 
+        lvalue_expr($<exp>2->sym);
+        printf("%s\n",yylval.strVal);
+        
         emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
         printf("%d: funcstart, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
         numquads++;
@@ -974,6 +997,7 @@ funcdef: FUNCTION ID {
             new_entry -> type = USERFUNC;
 
             insertEntry(new_entry);
+             
         }
 
     } block    {
@@ -1038,6 +1062,7 @@ funcdef: FUNCTION ID {
             new_entry -> type = USERFUNC;
 
             insertEntry(new_entry);
+            lvalue_expr(new_entry);
         }
         else{
             if(temp -> type == LIBFUNC){
@@ -1290,8 +1315,14 @@ forstmt: FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTH
                                     }
     ;
 
-returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");} 
-    |RETURN SEMICOLON    {printf("return ; -> returnstmt\n");}
+returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");
+                        emit(jump,$<exp>2,NULL,NULL,label,yylineno);
+                        printf("%d: return %s [line:%d]\n",numquads,yylval.strVal,yylineno);
+                                        } 
+    |RETURN SEMICOLON    {printf("return ; -> returnstmt\n");
+    emit(ret,NULL,NULL,NULL,NULL,yylineno);
+    printf("%d: return  [line:%d]\n",numquads,yylineno);
+    }
     ;
 %%
 
