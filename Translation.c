@@ -238,7 +238,6 @@ Expr* member_item(Expr* e, char* name, int scope, int line, int label){
 
 Expr* make_call(Expr* lvalue, int scope, int line,int label){
      Expr* func = emit_iftableitem(lvalue, scope, line, label);
-     /*edw prepei na mpei mia loop pou na kanei traverse ena array/list to opoio na kanei emit tis parametrous*/
      emit(call,func,NULL,NULL,label,line);
      SymbolTableEntry symbol = newTemp(scope, line);
      SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
