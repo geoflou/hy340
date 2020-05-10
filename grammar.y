@@ -110,8 +110,9 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
 
                         Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                         tmp = newExpr(4);
-                        tmp -> sym = symptr; 
-                        emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                        tmp -> sym = symptr;
+                        $<exp>$ = tmp;
+                        emit(assign, $<exp>1, NULL, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                         printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                         numquads++; //gia na me boi8aei sta jumps
                         //hideEntries(scope);
@@ -124,8 +125,9 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
 
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
-                                    tmp -> sym = symptr; 
-                                    emit(add, $<exp>1, $<exp>3,tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    tmp -> sym = symptr;
+                                    $<exp>$ = tmp; 
+                                    emit(add, $<exp>1, $<exp>3,$<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
@@ -404,7 +406,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                         printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                         numquads++;
                     }
-    |term   {printf("term -> expr\n");}  
+    |term   {printf("term -> expr\n");
+    $<exp>$ = $<exp>1;}  
     ;
 
 term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
@@ -631,7 +634,8 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     numquads++;
                                 }
                             }
-    |primary    {printf("primary -> term\n");}
+    |primary    {printf("primary -> term\n");
+                    $<exp>$ = $<exp>1;}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {   printf("lvalue = expr -> assignexpr\n");
@@ -645,7 +649,8 @@ primary: lvalue {printf("lvalue -> primary\n");}
     |call   {printf("call -> primary\n");}
     |objectdef  {printf("objectdef -> primary\n");}
     |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {printf("(funcdef) -> primary\n");}
-    |const  {printf("const -> primary\n");}
+    |const  {printf("const -> primary\n");
+                $<exp>$ = $<exp>1;}
     ;
 
 lvalue: ID  {
@@ -1118,11 +1123,8 @@ const: REAL     {
                 }
     |INTEGER    {
                    
-
-                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                    tmp = newExpr(constnum_e);
-                    tmp -> numConst =(int) yylval.intVal;
-                    printf("const int: %f\n", tmp->numConst);
+                    $<exp>$ = newExpr_constnum(yylval.intVal);
+                    printf("const int: %d\n", yylval.intVal);
                 }
     |STRING     {
                     
