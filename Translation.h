@@ -67,7 +67,7 @@ typedef struct expr{
     struct expr* index;
     double numConst;
     char* strConst;
-    unsigned char boolConst;
+    int boolConst;
     struct expr* next;
 } Expr;
 
@@ -143,7 +143,7 @@ Expr* newExpr(enum expr_t t);
 
 Expr* newExpr_conststring(char *s);
 
-Expr* newExpr_constbool(unsigned char b);
+Expr* newExpr_constbool(int b);
 
 Expr* newExpr_constnum(double n);
 

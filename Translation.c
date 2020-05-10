@@ -199,7 +199,7 @@ Expr* newExpr_conststring(char* s){
     return e;
 }
 
-Expr* newExpr_constbool(unsigned char b){
+Expr* newExpr_constbool(int b){
     Expr* e = newExpr(constbool_e);
     e->boolConst = b;
     return e;
