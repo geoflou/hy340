@@ -1141,10 +1141,8 @@ funcdef: FUNCTION ID {
 const: REAL     {
                    
 
-                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                    tmp = newExpr(constnum_e);
-                    tmp -> numConst = yylval.doubleVal; 
-                    printf("const real: %f\n", tmp->numConst);
+                    $<exp>$ = newExpr_constnum(yylval.doubleVal);  
+                    printf("const real: %f\n", yylval.doubleVal);
 
                 }
     |INTEGER    {
@@ -1154,10 +1152,7 @@ const: REAL     {
                 }
     |STRING     {
                     
-
-                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                    tmp = newExpr(conststring_e);
-                    tmp -> strConst = (char*)$<exp>1; 
+                    $<exp>$ = newExpr_conststring((char*)$<exp>1)
                     printf("const str: %s\n",  (char*)$<exp>1);
                 }
     |NIL        {
