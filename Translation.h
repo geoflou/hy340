@@ -155,7 +155,7 @@ Expr* newExpr_constnum(double n);
 
 Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
 
-Expr* make_call(Expr* lvalue, int scope, int line,int label);
+Expr* make_call(Expr* lvalue, Expr* result, int scope, int line,int label);
 
 void printQuads();
 
