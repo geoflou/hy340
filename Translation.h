@@ -108,6 +108,12 @@ enum symbol_t {
     libraryfunc_s
 };
 
+    typedef struct call{
+        Expr* elist;
+        int boolmethod;
+        char* name;
+    }Call;
+
 
 enum scopespace_t currscopespace(void);
 
@@ -125,7 +131,7 @@ void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 
-//void restorecurrscopeoffset(unsigned n);
+void restorecurrscopeoffset(unsigned n);
 
 unsigned nextquadlabel (void);
 
