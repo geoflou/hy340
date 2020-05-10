@@ -1225,13 +1225,21 @@ idlist: ID {
     ;
 
 ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> ifstmt\n");
- Expr* ifexpr = newExpr(boolexpr_e);
+                                    Expr* ifexpr = newExpr(boolexpr_e);
                                     ifexpr -> boolConst = 1;
                                     emit(if_eq,ifexpr,NULL,$<exp>3,label+2, yylineno);
                                     printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
                                     emit(jump,NULL,NULL,NULL,label + 2,yylineno);
                                     printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);}
-    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");}
+    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");
+                                    Expr* ifexpr = newExpr(boolexpr_e);
+                                    ifexpr -> boolConst = 1;
+                                    emit(if_eq,ifexpr,NULL,$<exp>3,label+2, yylineno);
+                                    printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);}
     ;
 
 whilestmt: WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("while(expr) -> whilestmt\n");}

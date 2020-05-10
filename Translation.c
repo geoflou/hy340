@@ -315,6 +315,7 @@ char* getQuadArg1(Quad q){
             return "false";
         return "true";
     }
+    
 
     return getQuadName(q.arg1->sym);
 }  
