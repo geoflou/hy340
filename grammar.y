@@ -461,12 +461,18 @@ lvalue: ID  {
         comparelibfunc(yylval.strVal);
         char *ptr= getEntryType(dummy);
                                 
-        if(ptr=="USERFUNC"){
-            if(dummy->isActive==1){
-                yyerror("A function has taken already that name!");
-            }else{
-                insertEntry(newnode);
+            if(ptr=="USERFUNC"){
+                if(dummy->isActive==1){
+                    yyerror("A function has taken already that name!");
+                }else{
+                    insertEntry(newnode);
+                    $<exp>$ = lvalue_expr(newnode);                
+                }
             }
+        }else{
+            comparelibfunc(yylval.strVal);     
+            insertEntry(newnode);
+            $<exp>$ = lvalue_expr(newnode);
         }
     }else{
         comparelibfunc(yylval.strVal);     
@@ -503,11 +509,13 @@ lvalue: ID  {
                     yyerror("A function has taken already that name!");
                 }else{
                     insertEntry(newnode);
+                    $<exp>$ = lvalue_expr(newnode);
                 }
             }
         }else{
             comparelibfunc(yylval.strVal);    
             insertEntry(newnode);
+            $<exp>$ = lvalue_expr(newnode);
         }
                            
     }
@@ -530,6 +538,7 @@ lvalue: ID  {
                 newnode->isActive = 1;
                 
                 insertEntry(newnode);
+                $<exp>$ = lvalue_expr(newnode);
             }
 
         }else{
@@ -590,22 +599,13 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
     ;
 
 call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");
-                                                        E_list* tmpnode = paramListHead;
-                                                        while(tmpnode){
-                                                            emit(param, (Expr*)tmpnode->e_list_name, NULL, NULL, (int)NULL, yylineno);
-                                                            printf("%d: param %s [line: %d]\n",numquads, tmpnode->e_list_name, yylineno);
-                                                            tmpnode = tmpnode->next;
-                                                            numquads++;
-                                                        }
-
-                                                        $<exp>$ = make_call($<exp>3, scope, yylineno, (int)NULL);
+                                                        $<exp>$ = make_call($<exp>1, scope, yylineno, (int)NULL);
                                                         printf("%d: call [line: %d]\n", numquads, yylineno);
                                                         numquads++;
                                                         printf("%d: getretval [line: %d]\n",numquads, yylineno);
                                                         numquads++;
-                                                    }
-    |lvalue callsuffix  {   printf("lvalue() -> call\n");
-                            $<exp>1 = emit_iftableitem($<exp>1,scope,yylineno,label);
+                                    }
+    |lvalue callsuffix  {printf("lvalue() -> call\n");
                             $<exp>$ = make_call($<exp>1, scope, yylineno, (int)NULL);
                             printf("%d: call [line: %d]\n", numquads, yylineno);
                             numquads++;
@@ -625,7 +625,7 @@ call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call
 
             Expr* func = newExpr(programfunc_e);
             func->sym = $<exp>2;
-            $<exp>$ = make_call($<exp>5, scope, yylineno, (int)NULL);
+            $<exp>$ = make_call($<exp>2, scope, yylineno, (int)NULL);
             printf("%d: call [line: %d]\n", numquads, yylineno);
             numquads++;
             printf("%d: getretval [line: %d]\n",numquads, yylineno);

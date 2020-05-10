@@ -160,6 +160,8 @@ char* getQuadArg1(Quad q);
 
 char* getQuadArg2(Quad q);
 
-Expr* make_call(Expr* lvalue,Expr* elist, int scope, int line,int label);
+Expr* lvalue_expr(SymbolTableEntry* sym);
 
 Expr* lvalue_expr(SymbolTableEntry* sym);
+
+char* getQuadName(SymbolTableEntry* sym);
