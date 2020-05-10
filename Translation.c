@@ -236,15 +236,11 @@ Expr* member_item(Expr* e, char* name, int scope, int line, int label){
     return tableitem;
 }
 
-Expr* make_call(Expr* lvalue, int scope, int line,int label){
+Expr* make_call(Expr* lvalue, Expr* result, int scope, int line,int label){
      Expr* func = emit_iftableitem(lvalue, scope, line, label);
      emit(call,func,NULL,NULL,label,line);
-     SymbolTableEntry symbol = newTemp(scope, line);
-     SymbolTableEntry* symptr = (SymbolTableEntry*)malloc(sizeof(SymbolTableEntry));
-     Expr* result = newExpr(var_e);
-     symptr = &symbol; 
-     result->sym = symptr;
-     emit(getretval,NULL,NULL,result,label,line);
+     
+     emit(getretval,NULL, NULL, result, label, line);
      return result;
 
  }
