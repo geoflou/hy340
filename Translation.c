@@ -309,6 +309,13 @@ char* getQuadResult(Quad q){
 char* getQuadArg1(Quad q){
     if(q.arg1 == NULL)
         return " ";
+
+    if(q.arg1->type == boolexpr_e){
+        if(q.arg1->boolConst == 0)
+            return "false";
+        return "true";
+    }
+
     return getQuadName(q.arg1->sym);
 }  
 
