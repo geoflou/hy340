@@ -124,8 +124,9 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
 
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
-                                    tmp -> sym = symptr; 
-                                    emit(add, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    tmp -> sym = symptr;
+                                    $<exp>$ = tmp; 
+                                    emit(add, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
@@ -139,7 +140,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(sub, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(sub, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: sub, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -151,8 +153,9 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
 
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
-                                    tmp -> sym = symptr; 
-                                    emit(mod, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    tmp -> sym = symptr;
+                                    $<exp>$ = tmp; 
+                                    emit(mod, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: mod, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -164,8 +167,9 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
 
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
-                                    tmp -> sym = symptr; 
-                                    emit(divide, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    tmp -> sym = symptr;
+                                    $<exp>$ = tmp; 
+                                    emit(divide, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: divide, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -178,7 +182,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(mul, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(mul, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: mul, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -191,7 +196,6 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(boolexpr_e);
                                     tmp -> sym = symptr; 
-
                                     emit(if_greater, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
                                     printf("%d: if greater %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
                                     numquads++;
@@ -610,8 +614,9 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
-                                            emit(assign, $<exp>1, NULL,$<exp>3 ,(unsigned int)NULL,(unsigned int)yylineno);
-                                            printf("%d: assign [line: %d]\n", numquads, yylineno);
+
+                                            emit(assign, $<exp>3, NULL,$<exp>1 ,(unsigned int)NULL,(unsigned int)yylineno);
+                                            printf("%d: assign %s [line: %d]\n", numquads, $<exp>3->sym->varVal->name, yylineno);
                                             numquads++;   
                                         }
     ;
@@ -1252,7 +1257,7 @@ int main(int argc, char* argv[]){
     yyparse();
 
     printEntries();
-    //printQuads();
+    printQuads();
 
     return 0;
 }
