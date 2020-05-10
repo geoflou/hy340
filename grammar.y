@@ -154,7 +154,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(mod, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(mod, $<exp>1, $<exp>3,$<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: mod, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -167,7 +168,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(divide, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(divide, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: divide, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -180,7 +182,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    emit(mul, $<exp>1, $<exp>3, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(mul, $<exp>1, $<exp>3, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: mul, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
@@ -612,7 +615,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
-                                            emit(assign, $<exp>1, NULL,$<exp>3 ,(unsigned int)NULL,(unsigned int)yylineno);
+                                            emit(assign, $<exp>3, NULL,$<exp>1 ,(unsigned int)NULL,(unsigned int)yylineno);
                                             printf("%d: assign [line: %d]\n", numquads, yylineno);
                                             numquads++;   
                                         }
@@ -1085,27 +1088,49 @@ funcdef: FUNCTION ID {
     }
     ;
 
-const: REAL{
-    $<exp>$ = newExpr(constnum_e);
-    $<exp>$ -> numConst = yylval.doubleVal;
-            }
-    |INTEGER{
-        $<exp>$ = newExpr(constnum_e);
-        $<exp>$ -> numConst = (double) yylval.intVal;
-    }
-    |STRING {
-        $<exp>$ = newExpr(constnum_e);
-        $<exp>$ -> strConst = yylval.strVal;
-    }
-    |NIL
-    |TRUE{
-        $<exp>$ = newExpr(constbool_e);
-        $<exp>$ -> boolConst = 1;
-    }
-    |FALSE{
-         $<exp>$ = newExpr(constbool_e);
-        $<exp>$ -> boolConst = 0;
-    }
+const: REAL     {
+                   
+
+                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                    tmp = newExpr(constnum_e);
+                    tmp -> numConst = yylval.doubleVal; 
+                    printf("const real: %f\n", tmp->numConst);
+
+                }
+    |INTEGER    {
+                   
+
+                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                    tmp = newExpr(constnum_e);
+                    tmp -> numConst =(int) yylval.intVal;
+                    printf("const int: %f\n", tmp->numConst);
+                }
+    |STRING     {
+                    
+
+                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                    tmp = newExpr(conststring_e);
+                    tmp -> strConst = (char*)$<exp>1; 
+                    printf("const str: %s\n",  (char*)$<exp>1);
+                }
+    |NIL        {
+                   
+                    printf("nil\n");
+                }
+    |TRUE       {
+                   
+
+                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                    tmp = newExpr(boolexpr_e);
+                    tmp -> boolConst = 1; 
+                    printf("true\n");
+                }
+    |FALSE      {
+                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                    tmp = newExpr(boolexpr_e);
+                    tmp -> boolConst = 0; 
+                    printf("false\n");
+                }
     ;
 
 idlist: ID {
@@ -1228,14 +1253,41 @@ ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> i
                                     printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
                                     emit(jump,NULL,NULL,NULL,label,yylineno);
                                     printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);}
-    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");}
+    |IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt ELSE stmt    {printf("if(expr) else -> ifstmt\n");
+                                    Expr* ifexpr = newExpr(boolexpr_e);
+                                    ifexpr -> boolConst = 1;
+                                    emit(if_eq,ifexpr,NULL,$<exp>3,label+2, yylineno);
+                                    printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);
+                                                                        }
     ;
 
-whilestmt: WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("while(expr) -> whilestmt\n");}
+whilestmt: WHILE LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("while(expr) -> whilestmt\n");
+                                    Expr* ifexpr = newExpr(boolexpr_e);
+                                    ifexpr -> boolConst = 1;
+                                    emit(if_eq,ifexpr,NULL,$<exp>3,label+2, yylineno);
+                                    printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);      
+                                                }
     ;    
 
 forstmt: FOR LEFT_PARENTHESIS elist SEMICOLON expr SEMICOLON elist RIGHT_PARENTHESIS stmt
-        {printf("for(elist;expr;elist)stmt -> forstmt\n");}
+        {printf("for(elist;expr;elist)stmt -> forstmt\n");
+         Expr* ifexpr = newExpr(boolexpr_e);
+                                    ifexpr -> boolConst = 1;
+                                    emit(if_eq,ifexpr,NULL,$<exp>3,label+2, yylineno);
+                                    printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);
+                                    emit(jump,NULL,NULL,NULL,label,yylineno);
+                                    printf("%d: jump %d [line: %d]\n",numquads, label, yylineno);  
+                                    }
     ;
 
 returnstmt: RETURN expr SEMICOLON   {printf("return expr ; -> returnstmt\n");} 
@@ -1260,7 +1312,7 @@ int main(int argc, char* argv[]){
     yyparse();
 
     printEntries();
-    //printQuads();
+    printQuads();
 
     return 0;
 }
