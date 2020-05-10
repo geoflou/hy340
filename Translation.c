@@ -294,6 +294,7 @@ char* getQuadOpcode(Quad q){
         case tablecreate : return "tablecreate";
         case tablegetelem : return "tablegetelem";
         case tablesetelem : return "tablesetelem";
+        case jump: return "jump";
         default: assert(0);
     }
 }
