@@ -601,8 +601,8 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr;
-
-                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(assign, $<exp>2, NULL, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
