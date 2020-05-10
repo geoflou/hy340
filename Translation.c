@@ -299,15 +299,10 @@ char* getQuadOpcode(Quad q){
 }
 
 char* getQuadResult(Quad q){
-    if(q.result == NULL)
-        return "";
-        
     return getQuadName(q.result->sym);
 }
 
 char* getQuadArg1(Quad q){
-    if(q.arg1 == NULL)
-        return "";
     return getQuadName(q.arg1->sym);
 }  
 
