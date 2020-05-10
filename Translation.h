@@ -38,7 +38,8 @@ enum iopcode{
     funcend,
     tablecreate,
     tablegetelem,
-    tablesetelem
+    tablesetelem,
+    jump
 };
 
 enum expr_t{
@@ -159,8 +160,6 @@ char* getQuadResult(Quad q);
 char* getQuadArg1(Quad q);
 
 char* getQuadArg2(Quad q);
-
-Expr* lvalue_expr(SymbolTableEntry* sym);
 
 Expr* lvalue_expr(SymbolTableEntry* sym);
 
