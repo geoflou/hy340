@@ -85,6 +85,12 @@ typedef struct e_list{
     struct e_list* next;
 } E_list;
 
+typedef struct index_list{
+    Expr* index;
+    Expr* name;
+    struct index_list* next;
+} Index_list;
+
 void expand(void);
 
 void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
