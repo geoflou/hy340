@@ -125,8 +125,7 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr; 
-                                    $<exp>$ = tmp;
-                                    emit(add, $<exp>1, $<exp>3,$<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(add, $<exp>1, $<exp>3,tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: add, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     
@@ -623,8 +622,8 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr;
-
-                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    $<exp>$ = tmp;
+                                    emit(assign, $<exp>2, NULL, $<exp>$, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
@@ -670,7 +669,7 @@ lvalue: ID  {
         comparelibfunc(yylval.strVal);
         char *ptr= getEntryType(dummy);
                                 
-        if(ptr=="USERFUNC"){
+        if(strcmp(ptr,"USERFUNC")== 0){
             if(dummy->isActive==1){
                 yyerror("A function has taken already that name!");
             }else{
@@ -679,7 +678,6 @@ lvalue: ID  {
             }
         }else{
             comparelibfunc(yylval.strVal);     
-            insertEntry(newnode);
             $<exp>$ = lvalue_expr(newnode);
         }
     }else{
@@ -1268,7 +1266,7 @@ idlist: ID {
     ;
 
 ifstmt: IF LEFT_PARENTHESIS expr RIGHT_PARENTHESIS stmt   {printf("if(expr) -> ifstmt\n");
- Expr* ifexpr = newExpr(boolexpr_e);
+                                    Expr* ifexpr = newExpr(boolexpr_e);
                                     ifexpr -> boolConst = 1;
                                     emit(if_eq,ifexpr,NULL,$<exp>3,label+2, yylineno);
                                     printf("%d: if_eq %s [line: %d]\n",numquads, yylval.strVal ,yylineno);
