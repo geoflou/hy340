@@ -235,6 +235,7 @@ UNKNOWN_TOKEN       .
 {OPERATOR_MOD}        {return OPERATOR_MOD;}
 {OPERATOR_EQ}         {return OPERATOR_EQ;}
 {OPERATOR_NOT}        {return OPERATOR_NOT;}
+{OPERATOR_NEQ}        {return OPERATOR_NEQ;}
 {OPERATOR_PP}         {return OPERATOR_PP;}
 {OPERATOR_MM}         {return OPERATOR_MM;}
 {OPERATOR_GRT}        {return OPERATOR_GRT;}

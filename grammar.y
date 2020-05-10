@@ -70,8 +70,8 @@
 %left LEFT_PARENTHESIS RIGHT_PARENTHESIS
 
 %right OPERATOR_ASSIGN
-%left OPERATOR_OR
-%left OPERATOR_AND
+%left OR
+%left AND
 
 %nonassoc OPERATOR_EQ OPERATOR_NEQ
 %right OPERATOR_GRT OPERATOR_LES OPERATOR_GRE OPERATOR_LEE
@@ -182,10 +182,8 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     printf("%d: mul, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                 }
-    | expr OPERATOR_GRT expr    {printf("expr > expr -> expr\n");
-                                    //please ignore!!
-
-                                /*    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+    | expr OPERATOR_GRT expr    {   printf("expr > expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
                        
                                     SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
                                     symptr = &symbol; 
@@ -195,28 +193,213 @@ expr: assignexpr    {printf("assignexpr -> expr\n");
                                     tmp -> sym = symptr; 
 
                                     emit(if_greater, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
-                                    printf("%d: if greater\n", numquads);
+                                    printf("%d: if greater %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
                                     numquads++;
-                                    //sto false petaei error
-                                    emit(assign, tmp, NULL, false, NULL, yylineno);
-                                    printf("%d: assign\n", numquads);
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                     emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
-                                    printf("%d: jump\n", numquads);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
                                     numquads++;
-                                    //sto true petaei error
-                                    emit(assign, tmp, NULL, true, NULL, yylineno);
-                                    printf("tmp name: %s\nquadnum: %d\n",tmp->sym->varVal->name, numquads);
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
-*/
                                 }
-    | expr OPERATOR_GRE expr    {printf("expr >= expr -> expr\n");}
-    | expr OPERATOR_LES expr    {printf("expr < expr -> expr\n");}
-    | expr OPERATOR_LEE expr    {printf("expr <= expr -> expr\n");}
-    | expr OPERATOR_EQ expr {printf("expr == expr -> expr\n");}
-    | expr OPERATOR_NEQ expr    {printf("expr != expr -> expr\n");}
-    | expr OPERATOR_AND expr    {printf("expr && expr -> expr\n");}
-    | expr OPERATOR_OR expr {printf("expr || expr -> expr\n");}
+    | expr OPERATOR_GRE expr    {   printf("expr >= expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_greatereq, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
+                                    printf("%d: if greatereq %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
+    | expr OPERATOR_LES expr    {   printf("expr < expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_less, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
+                                    printf("%d: if less %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
+    | expr OPERATOR_LEE expr    {   printf("expr <= expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_lesseq, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
+                                    printf("%d: if lesseq %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
+    | expr OPERATOR_EQ expr     {   printf("expr == expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_eq, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
+                                    printf("%d: if eq %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
+    | expr OPERATOR_NEQ expr    {   printf("expr != expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_noteq, $<exp>1, $<exp>3, NULL, numquads+3, yylineno);
+                                    printf("%d: if noteq %s, %s, jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, (char*)$<exp>3, numquads+3, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
+    | expr AND expr    {   printf("expr && expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_eq, $<exp>1, newExpr_constbool(1), NULL, numquads+2, yylineno);
+                                    printf("%d: if eq %s, 'true', jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, numquads+2, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+5, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+5, yylineno);
+                                    numquads++;
+                                    emit(if_eq, $<exp>3, newExpr_constbool(1), NULL, numquads+2, yylineno);
+                                    printf("%d: if eq %s, 'true', jump to: %d [line: %d]\n", numquads, (char*)$<exp>3, numquads+2, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+3, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+3, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
+    | expr OR expr     {   printf("expr || expr -> expr\n");
+                                    SymbolTableEntry symbol = newTemp(scope,yylineno); 
+                       
+                                    SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
+                                    symptr = &symbol; 
+
+                                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                                    tmp = newExpr(boolexpr_e);
+                                    tmp -> sym = symptr; 
+
+                                    emit(if_eq, $<exp>1, newExpr_constbool(1), NULL, numquads+4, yylineno);
+                                    printf("%d: if eq %s, 'true', jump to: %d [line: %d]\n", numquads, (char*)$<exp>1, numquads+4, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+1, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+1, yylineno);
+                                    numquads++;
+                                    emit(if_eq, $<exp>3, newExpr_constbool(1), NULL, numquads+2, yylineno);
+                                    printf("%d: if eq %s, 'true', jump to: %d [line: %d]\n", numquads, (char*)$<exp>3, numquads+2, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+3, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+3, yylineno);
+                                    numquads++;
+                                    //to true
+                                    emit(assign, tmp, NULL, newExpr_constbool(1), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'true' [line: %d]\n",numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                    emit(jump, NULL, NULL, NULL, numquads+2, yylineno);
+                                    printf("%d: jump to %d [line: %d]\n", numquads, numquads+2, yylineno);
+                                    numquads++;
+                                    //to false
+                                    emit(assign, tmp, NULL, newExpr_constbool(0), (int)NULL, yylineno);
+                                    printf("%d: assign %s, 'false' [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
+                                    numquads++;
+                                }
     |term   {printf("term -> expr\n");}  
     ;
 
@@ -1054,7 +1237,7 @@ int main(int argc, char* argv[]){
     yyparse();
 
     printEntries();
-    printQuads();
+    //printQuads();
 
     return 0;
 }
