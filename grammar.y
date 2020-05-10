@@ -1054,6 +1054,7 @@ int main(int argc, char* argv[]){
     yyparse();
 
     printEntries();
-    
+    printQuads();
+
     return 0;
 }
