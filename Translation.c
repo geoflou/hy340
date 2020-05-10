@@ -48,7 +48,7 @@ void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
 
 char* newTempName(int counter){
     char* tempName = (char*) malloc(sizeof(char*)); 
-    sprintf(tempName, "_temp_%d", counter);
+    sprintf(tempName, "_t_%d", counter);
     return tempName;
 }
 
@@ -259,7 +259,7 @@ Expr* member_item(Expr* e, char* name, int scope, int line, int label){
     return tableitem;
 }
 
-Expr* make_call(Expr* lvalue, Expr* elist, int scope, int line,int label){
+Expr* make_call(Expr* lvalue, int scope, int line,int label){
      Expr* func = emit_iftableitem(lvalue, scope, line, label);
      /*edw prepei na mpei mia loop pou na kanei traverse ena array/list to opoio na kanei emit tis parametrous*/
      emit(call,func,NULL,NULL,label,line);
@@ -278,16 +278,16 @@ Expr* make_call(Expr* lvalue, Expr* elist, int scope, int line,int label){
 void printQuads(){
     int i;
     char* opcode, *result, *arg1, *arg2;
-    printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
-    printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("quad# \t \t opcode \t \t  result \t  \t arg1 \t \t  arg2 \t \t  label\n");
+    printf("------------------------------------------------------------------------------------------------------------------------\n");
     for(i = 0;i < currQuad; i++){
         opcode =  getQuadOpcode(quads[i]);
         result = getQuadResult(quads[i]);
         arg1 = getQuadArg1(quads[i]);
         arg2 = getQuadArg2(quads[i]);
-        printf("#%d \t \t %s \t \t \t %s \t \t \t %s \t \t \t %s \t \t \t %d\n", i, opcode, result, arg1, arg2, quads[i].label);
+        printf("#%d \t \t %s \t \t  %s \t \t \t  %s \t \t \t  %s \t   %d\n", i, opcode, result, arg1, arg2, quads[i].label);
     }
-    printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
+    printf("------------------------------------------------------------------------------------------------------------------------\n");
     return;
 }
 
@@ -323,13 +323,28 @@ char* getQuadOpcode(Quad q){
 }
 
 char* getQuadResult(Quad q){
-    return q.result->sym->varVal->name;
+    return getQuadName(q.result->sym);
 }
 
 char* getQuadArg1(Quad q){
-    return q.arg1->sym->varVal->name;
+    return getQuadName(q.arg1->sym);
 }  
 
 char* getQuadArg2(Quad q){
-    return q.arg2->sym->varVal->name;
+    if(q.arg2 == NULL)
+        return "";
+
+    return getQuadName(q.arg2 -> sym);
+}
+
+
+char* getQuadName(SymbolTableEntry* sym) {
+    if(sym == NULL)
+        return " ";
+
+    if(sym->funcVal == NULL){
+        return sym->varVal->name;
+    }
+
+    return sym->funcVal->name;
 }

@@ -412,7 +412,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     tmp = newExpr(arithexpr_e);
                                     tmp -> sym = symptr;
 
-                                     emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
+                                    emit(assign, $<exp>2, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                                     printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                                     numquads++;
                                      emit(sub, $<exp>2, newExpr_constnum(1), $<exp>2, (unsigned int)NULL, (unsigned int)yylineno);
@@ -463,11 +463,13 @@ lvalue: ID  {
                     yyerror("A function has taken already that name!");
                 }else{
                     insertEntry(newnode);
+                    $<exp>$ = lvalue_expr(newnode);                
                 }
             }
         }else{
             comparelibfunc(yylval.strVal);     
             insertEntry(newnode);
+            $<exp>$ = lvalue_expr(newnode);
         }
 }
 
@@ -500,11 +502,13 @@ lvalue: ID  {
                     yyerror("A function has taken already that name!");
                 }else{
                     insertEntry(newnode);
+                    $<exp>$ = lvalue_expr(newnode);
                 }
             }
         }else{
             comparelibfunc(yylval.strVal);    
             insertEntry(newnode);
+            $<exp>$ = lvalue_expr(newnode);
         }
                            
     }
@@ -527,6 +531,7 @@ lvalue: ID  {
                 newnode->isActive = 1;
                 
                 insertEntry(newnode);
+                $<exp>$ = lvalue_expr(newnode);
             }
 
         }else{
@@ -586,14 +591,14 @@ member: lvalue DOT ID   {printf("lvalue.ID -> mebmer\n");
     ;
 
 call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call\n");
-                                                        $<exp>$ = make_call($<exp>1,$<exp>3, scope, yylineno, (int)NULL);
+                                                        $<exp>$ = make_call($<exp>1, scope, yylineno, (int)NULL);
                                                         printf("%d: call [line: %d]\n", numquads, yylineno);
                                                         numquads++;
                                                         printf("%d: getretval [line: %d]\n",numquads, yylineno);
                                                         numquads++;
                                     }
     |lvalue callsuffix  {printf("lvalue() -> call\n");
-                            $<exp>$ = make_call($<exp>1,$<exp>2, scope, yylineno, (int)NULL);
+                            $<exp>$ = make_call($<exp>1, scope, yylineno, (int)NULL);
                             printf("%d: call [line: %d]\n", numquads, yylineno);
                             numquads++;
                             printf("%d: getretval [line: %d]\n",numquads, yylineno);
@@ -603,7 +608,7 @@ call: call LEFT_PARENTHESIS elist RIGHT_PARENTHESIS {printf("call(elist) -> call
         {printf("(funcdef)(elist) -> call\n");
             Expr* func = newExpr(programfunc_e);
             func->sym = $<exp>2;
-            $<exp>$ = make_call($<exp>2,$<exp>5, scope, yylineno, (int)NULL);
+            $<exp>$ = make_call($<exp>2, scope, yylineno, (int)NULL);
             printf("%d: call [line: %d]\n", numquads, yylineno);
             numquads++;
             printf("%d: getretval [line: %d]\n",numquads, yylineno);

@@ -79,6 +79,22 @@ typedef struct quad{
     unsigned line;
 } Quad;
 
+typedef struct e_list{
+    char* e_list_name;
+    struct e_list* next;
+} E_list;
+
+void expand(void);
+
+void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
+                                        unsigned label, int line);
+
+char* newTempName(int counter);
+
+char* newTempFuncName(int counter);
+
+SymbolTableEntry newTemp(int scope, int line);
+
 enum scopespace_t {
     programvar,
     functionlocal,
@@ -91,25 +107,12 @@ enum symbol_t {
     libraryfunc_s
 };
 
-typedef struct symbol{
-    enum symbol_t type;
-    char* name;
-    enum scopespace_t space;
-    unsigned offset;
-    unsigned scope;
-    unsigned line;
-} Symbol;
+    typedef struct call{
+        Expr* elist;
+        int boolmethod;
+        char* name;
+    }Call;
 
-void expand(void);
-
-void emit(enum iopcode op, Expr* arg1, Expr* arg2, Expr* result,
-                                        unsigned label, int line);
-
-char* newTempName(int counter);
-
-char* newTempFuncName(int counter);
-
-SymbolTableEntry newTemp(int scope, int line);
 
 enum scopespace_t currscopespace(void);
 
@@ -129,6 +132,8 @@ void resetfunclocalsoffset(void);
 
 void restorecurrscopespace(unsigned n);
 
+void restorecurrscopeoffset(unsigned n);
+
 unsigned nextquadlabel (void);
 
 void patchlabel(unsigned quadNo, unsigned label);
@@ -143,6 +148,8 @@ Expr* newExpr_constnum(double n);
 
 Expr* emit_iftableitem(Expr* e ,int scope, int line, int label);
 
+Expr* make_call(Expr* lvalue, int scope, int line,int label);
+
 void printQuads();
 
 char* getQuadOpcode(Quad q);
@@ -153,6 +160,6 @@ char* getQuadArg1(Quad q);
 
 char* getQuadArg2(Quad q);
 
-Expr* make_call(Expr* lvalue,Expr* elist, int scope, int line,int label);
-
 Expr* lvalue_expr(SymbolTableEntry* sym);
+
+char* getQuadName(SymbolTableEntry* sym);
