@@ -199,7 +199,7 @@ Expr* newExpr_conststring(char* s){
     return e;
 }
 
-Expr* newExpr_constbool(unsigned char b){
+Expr* newExpr_constbool(int b){
     Expr* e = newExpr(constbool_e);
     e->boolConst = b;
     return e;
@@ -253,14 +253,14 @@ Expr* make_call(Expr* lvalue, int scope, int line,int label){
 void printQuads(){
     int i;
     char* opcode, *result, *arg1, *arg2;
-    printf("quad# \t \t opcode \t \t \t result \t \t \t arg1 \t \t \t arg2 \t \t \t label\n");
+    printf("quad#  \t opcode  \t result  \t arg1  \t arg2  \t label\n");
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
     for(i = 0;i < currQuad; i++){
         opcode =  getQuadOpcode(quads[i]);
         result = getQuadResult(quads[i]);
         arg1 = getQuadArg1(quads[i]);
-        arg2 = getQuadArg2(quads[i]);
-        printf("#%d \t \t %s \t \t \t %s \t \t \t %s \t \t \t %s \t \t \t %d\n", i, opcode, result, arg1, arg2, quads[i].label);
+       // arg2 = getQuadArg2(quads[i]);
+        printf("#%d \t \t %s \t \t \t %s \t \t \t %s  \t \t \t %d\n", i, opcode, result, arg1, arg2, quads[i].label);
     }
     printf("-------------------------------------------------------------------------------------------------------------------------------------------\n");
     return;

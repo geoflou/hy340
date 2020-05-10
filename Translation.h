@@ -66,7 +66,7 @@ typedef struct expr{
     struct expr* index;
     double numConst;
     char* strConst;
-    unsigned char boolConst;
+    int boolConst;
     struct expr* next;
 } Expr;
 
@@ -142,7 +142,7 @@ Expr* newExpr(enum expr_t t);
 
 Expr* newExpr_conststring(char *s);
 
-Expr* newExpr_constbool(unsigned char b);
+Expr* newExpr_constbool(int b);
 
 Expr* newExpr_constnum(double n);
 
@@ -160,6 +160,6 @@ char* getQuadArg1(Quad q);
 
 char* getQuadArg2(Quad q);
 
-Expr* make_call(Expr* lvalue,Expr* elist, int scope, int line,int label);
+Expr* make_call(Expr* lvalue, int scope, int line,int label);
 
 Expr* lvalue_expr(SymbolTableEntry* sym);

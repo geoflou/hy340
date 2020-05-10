@@ -427,7 +427,7 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {printf("lvalue = expr -> assignexpr\n");
-                                            emit(assign, $<exp>3, NULL,$<exp>1 ,(unsigned int)NULL,(unsigned int)yylineno);
+                                            emit(assign, $<exp>1, NULL,$<exp>3 ,(unsigned int)NULL,(unsigned int)yylineno);
                                             printf("%d: assign [line: %d]\n", numquads, yylineno);
                                             numquads++;   
                                         }
@@ -466,11 +466,13 @@ lvalue: ID  {
                 yyerror("A function has taken already that name!");
             }else{
                 insertEntry(newnode);
+                $<exp>$=lvalue_expr(newnode);
             }
         }
     }else{
         comparelibfunc(yylval.strVal);     
         insertEntry(newnode);
+        $<exp>$=lvalue_expr(newnode);
     }
 }
 
@@ -503,11 +505,13 @@ lvalue: ID  {
                     yyerror("A function has taken already that name!");
                 }else{
                     insertEntry(newnode);
+                    $<exp>$=lvalue_expr(newnode);
                 }
             }
         }else{
             comparelibfunc(yylval.strVal);    
             insertEntry(newnode);
+            $<exp>$=lvalue_expr(newnode);
         }
                            
     }
@@ -530,6 +534,7 @@ lvalue: ID  {
                 newnode->isActive = 1;
                 
                 insertEntry(newnode);
+                $<exp>$=lvalue_expr(newnode);
             }
 
         }else{
@@ -900,12 +905,27 @@ funcdef: FUNCTION ID {
     }
     ;
 
-const: REAL
-    |INTEGER
-    |STRING 
+const: REAL{
+    $<exp>$ = newExpr(constnum_e);
+    $<exp>$ -> numConst = yylval.doubleVal;
+            }
+    |INTEGER{
+        $<exp>$ = newExpr(constnum_e);
+        $<exp>$ -> numConst = (double) yylval.intVal;
+    }
+    |STRING {
+        $<exp>$ = newExpr(constnum_e);
+        $<exp>$ -> strConst = yylval.strVal;
+    }
     |NIL
-    |TRUE
-    |FALSE
+    |TRUE{
+        $<exp>$ = newExpr(constbool_e);
+        $<exp>$ -> boolConst = 1;
+    }
+    |FALSE{
+         $<exp>$ = newExpr(constbool_e);
+        $<exp>$ -> boolConst = 0;
+    }
     ;
 
 idlist: ID {
