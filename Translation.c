@@ -253,14 +253,14 @@ Expr* make_call(Expr* lvalue, int scope, int line,int label){
 void printQuads(){
     int i;
     char* opcode, *result, *arg1, *arg2;
-    printf("quad# \t \t opcode \t \t  result \t  \t arg1 \t \t  arg2 \t \t  label\n");
+    printf("quad# \t  opcode \t  result \t  arg1 \t   arg2 \t   label\n");
     printf("------------------------------------------------------------------------------------------------------------------------\n");
     for(i = 0;i < currQuad; i++){
         opcode =  getQuadOpcode(quads[i]);
         result = getQuadResult(quads[i]);
         arg1 = getQuadArg1(quads[i]);
         arg2 = getQuadArg2(quads[i]);
-        printf("#%d \t \t %s \t \t  %s \t \t \t  %s \t \t \t  %s \t   %d\n", i, opcode, result, arg1, arg2, quads[i].label);
+        printf("#%d \t  %s  \t  %s   \t  %s  \t  %s \t   \n", i, opcode, result, arg1, arg2);
     }
     printf("------------------------------------------------------------------------------------------------------------------------\n");
     return;
@@ -302,7 +302,13 @@ char* getQuadOpcode(Quad q){
 char* getQuadResult(Quad q){
     if(q.result == NULL)
         return  " ";
-        
+    
+    if(q.result->type == boolexpr_e){
+        if(q.result->boolConst == 0)
+            return "false";
+        return "true";
+    }
+
     return getQuadName(q.result->sym);
 }
 
@@ -323,6 +329,12 @@ char* getQuadArg1(Quad q){
 char* getQuadArg2(Quad q){
     if(q.arg2 == NULL)
         return " ";
+
+    if(q.arg2->type == boolexpr_e){
+        if(q.arg2->boolConst == 0)
+            return "false";
+        return "true";
+    }
 
     return getQuadName(q.arg2 -> sym);
 }
