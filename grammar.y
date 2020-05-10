@@ -1227,7 +1227,7 @@ const: REAL     {
                 }
     |STRING     {
                     
-                    $<exp>$ = newExpr_conststring((char*)$<exp>1)
+                    $<exp>$ = newExpr_conststring((char*)$<exp>1);
                     printf("const str: %s\n",  (char*)$<exp>1);
                 }
     |NIL        {
