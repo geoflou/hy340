@@ -315,8 +315,14 @@ char* getQuadArg1(Quad q){
         if(q.arg1->boolConst == 0)
             return "false";
         return "true";
+    }else if(q.arg1->type == conststring_e){
+        return q.arg1->strConst;
+    }else if(q.arg1->type == constnum_e){
+        char* str;
+        sprintf(str, "%f", q.arg1->numConst);
+        return str;
     }
-    
+
 
     return getQuadName(q.arg1->sym);
 }  
@@ -329,6 +335,12 @@ char* getQuadArg2(Quad q){
         if(q.arg2->boolConst == 0)
             return "false";
         return "true";
+    }else if(q.arg2->type == conststring_e){
+        return q.arg2->strConst;
+    }else if(q.arg2->type == constnum_e){
+        char* str;
+        sprintf(str, "%f", q.arg2->numConst);
+        return str;
     }
 
     return getQuadName(q.arg2 -> sym);

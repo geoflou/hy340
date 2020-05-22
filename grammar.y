@@ -107,19 +107,17 @@ stmt: expr SEMICOLON    {printf("expr ; -> stmt\n");}
     |SEMICOLON  {printf("; -> stmt\n");}
     ;
 
-expr: assignexpr    {printf("assignexpr -> expr\n");
+expr: assignexpr    {   printf("assignexpr -> expr\n");
                         SymbolTableEntry symbol = newTemp(scope,yylineno); 
-                       
                         SymbolTableEntry* symptr = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry) );
                         symptr = &symbol; 
 
-                        Expr* tmp = (Expr*) malloc(sizeof(Expr) );
-                        tmp = newExpr(4);
+                        Expr* tmp = newExpr(assignexpr_e);
                         tmp -> sym = symptr; 
+                        //$<exp>$ = tmp;
                         emit(assign, $<exp>1, NULL, tmp, (unsigned int)NULL, (unsigned int)yylineno);
                         printf("%d: assign, tmp name: %s [line: %d]\n", numquads, tmp->sym->varVal->name, yylineno);
                         numquads++; //gia na me boi8aei sta jumps
-                        //hideEntries(scope);
                     }
     | expr OPERATOR_PLUS expr   {printf("expr + expr -> expr\n");
                                     SymbolTableEntry symbol = newTemp(scope,yylineno); 
@@ -673,7 +671,9 @@ term: LEFT_PARENTHESIS expr RIGHT_PARENTHESIS   {printf("(expr) -> term\n");}
                                     numquads++;
                                 }
                             }
-    |primary    {printf("primary -> term\n");}
+    |primary    {printf("primary -> term\n");
+                    $<exp>$ = $<exp>1;
+                }
     ;
 
 assignexpr: lvalue OPERATOR_ASSIGN expr {   printf("lvalue = expr -> assignexpr\n");
@@ -683,11 +683,21 @@ assignexpr: lvalue OPERATOR_ASSIGN expr {   printf("lvalue = expr -> assignexpr\
                                         }
     ;
 
-primary: lvalue {printf("lvalue -> primary\n");}
-    |call   {printf("call -> primary\n");}
-    |objectdef  {printf("objectdef -> primary\n");}
-    |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {printf("(funcdef) -> primary\n");}
-    |const  {printf("const -> primary\n");}
+primary: lvalue {   printf("lvalue -> primary\n");
+                    $<exp>$ = $<exp>1;
+                }
+    |call       {   printf("call -> primary\n");
+                    $<exp>$ = $<exp>1;
+                }
+    |objectdef  {   printf("objectdef -> primary\n");
+                    $<exp>$ = $<exp>1;
+                }
+    |LEFT_PARENTHESIS funcdef RIGHT_PARENTHESIS {   printf("(funcdef) -> primary\n");
+                                                    $<exp>$ = $<exp>2;
+                                                }
+    |const      {   printf("const -> primary\n");
+                    $<exp>$ = $<exp>1;
+                }
     ;
 
 lvalue: ID  {
@@ -1058,7 +1068,19 @@ funcdef: FUNCTION ID {
         temp_func -> scope = scope;
         temp_func -> line = yylineno;
 
-        emit(funcstart, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, numquads);
+        SymbolTableEntry *symbol = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
+        Function* func = (Function *) malloc(sizeof(Function));
+        func -> name = temp_func -> name;
+        func -> line = yylineno;
+        func -> scope = scope;
+
+        symbol -> isActive = 1;
+        symbol -> funcVal = func;
+        symbol -> varVal = NULL;
+
+        $<exp>2=lvalue_expr(symbol);
+
+        emit(funcstart, NULL, NULL, $<exp>2, (unsigned)NULL, numquads);
         printf("%d: funcstart, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
         numquads++;
         old_offset = currscopeoffset();
@@ -1131,7 +1153,20 @@ funcdef: FUNCTION ID {
         exitscopespace();//exiting function definition space
         
         //restorecurrscopeoffset(old_offset);
-        emit(funcend, NULL, NULL, (Expr*)temp_func -> name, (unsigned)NULL, yylineno);
+        
+        SymbolTableEntry *symbol = (SymbolTableEntry*) malloc(sizeof(SymbolTableEntry));
+        Function* func = (Function *) malloc(sizeof(Function));
+        func -> name = temp_func -> name;
+        func -> line = yylineno;
+        func -> scope = scope;
+
+        symbol -> isActive = 1;
+        symbol -> funcVal = func;
+        symbol -> varVal = NULL;
+
+        $<exp>2=lvalue_expr(symbol);
+
+        emit(funcstart, NULL, NULL, $<exp>2, (unsigned)NULL, numquads);
         printf("%d: funcend, function name: %s [line: %d]\n", numquads, temp_func -> name, yylineno);
         numquads++;
 
@@ -1258,47 +1293,46 @@ funcdef: FUNCTION ID {
     ;
 
 const: REAL     {
-                   
-
                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                     tmp = newExpr(constnum_e);
                     tmp -> numConst = yylval.doubleVal; 
                     printf("const real: %f\n", tmp->numConst);
-
+                    $<exp>$ = tmp;
                 }
     |INTEGER    {
-                   
-
                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                     tmp = newExpr(constnum_e);
                     tmp -> numConst =(int) yylval.intVal;
                     printf("const int: %f\n", tmp->numConst);
+                    $<exp>$ = tmp;
                 }
     |STRING     {
-                    
-
                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                     tmp = newExpr(conststring_e);
                     tmp -> strConst = (char*)$<exp>1; 
                     printf("const str: %s\n",  (char*)$<exp>1);
+                    $<exp>$ = tmp;
                 }
     |NIL        {
-                   
+                    Expr* tmp = (Expr*) malloc(sizeof(Expr) );
+                    tmp = newExpr(nil_e);
                     printf("nil\n");
+                    $<exp>$ = tmp;
                 }
     |TRUE       {
-                   
 
                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                     tmp = newExpr(boolexpr_e);
                     tmp -> boolConst = 1; 
                     printf("true\n");
+                    $<exp>$ = tmp;
                 }
     |FALSE      {
                     Expr* tmp = (Expr*) malloc(sizeof(Expr) );
                     tmp = newExpr(boolexpr_e);
                     tmp -> boolConst = 0; 
                     printf("false\n");
+                    $<exp>$ = tmp;
                 }
     ;
 
